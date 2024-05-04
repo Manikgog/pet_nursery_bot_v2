@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+
+    <changeSet id="create-nursery_table" author="M.Gogolin">
+        <preConditions>
+            <not>
+                <tableExists tableName="nursery_table"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="nursery_table">
+            <column name="id" type="INT" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="address" type="VARCHAR(255)"/>
+            <column name="phone_number" type="VARCHAR(255)"/>
+        </createTable>
+
+    </changeSet>
+
+    <changeSet id="fill-nursery_table" author="M.Gogolin">
+        <preConditions>
+            <tableIsEmpty tableName="nursery_table"/>
+        </preConditions>
+        <loadData tableName="nursery_table" file="liquibase/v_1/nursery_table-data.csv"/>
+    </changeSet>
+
+</databaseChangeLog>

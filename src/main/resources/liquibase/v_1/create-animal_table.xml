@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+
+    <changeSet id="create-animal_table" author="M.Gogolin">
+        <preConditions>
+            <and>
+                <not>
+                    <tableExists tableName="animal_table"/>
+                </not>
+                <tableExists tableName="nursery_table"/>
+                <tableExists tableName="users_table"/>
+            </and>
+        </preConditions>
+
+        <createTable tableName="animal_table">
+            <column name="id" type="INT" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="animal_name" type="VARCHAR(30)"/>
+            <column name="animal_type" type="VARCHAR(30)"/>
+            <column name="gender" type="VARCHAR(6)"/>
+            <column name="birth_date" type="DATE"/>
+            <column name="photo_path" type="VARCHAR(255)"/>
+            <column name="who_took_pet" type="BIGINT"/>
+            <column name="took_date" type="DATE"/>
+            <column name="nursery_id" type="INT"/>
+            <column name="description" type="TEXT"/>
+            <column name="pet_return_date" type="DATE"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="animal_table"
+                                 baseColumnNames="id"
+                                 constraintName="FK ANIMAL_TABLE ID -> NURSERY_TABLE ID"
+                                 referencedTableName="nursery_table"
+                                 referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint baseTableName="animal_table"
+                                 baseColumnNames="who_took_pet"
+                                 constraintName="FK ANIMAL_TABLE WHO_TOOK_PET -> USERS_TABLE TELEGRAM_USER_ID"
+                                 referencedTableName="users_table"
+                                 referencedColumnNames="telegram_user_id"/>
+
+    </changeSet>
+
+
+</databaseChangeLog>
