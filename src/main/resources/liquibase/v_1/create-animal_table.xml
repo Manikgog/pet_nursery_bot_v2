@@ -34,7 +34,7 @@
         </createTable>
 
         <addForeignKeyConstraint baseTableName="animal_table"
-                                 baseColumnNames="id"
+                                 baseColumnNames="nursery_id"
                                  constraintName="FK ANIMAL_TABLE ID -> NURSERY_TABLE ID"
                                  referencedTableName="nursery_table"
                                  referencedColumnNames="id"/>
