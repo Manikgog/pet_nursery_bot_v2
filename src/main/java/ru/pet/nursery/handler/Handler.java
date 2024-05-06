@@ -24,7 +24,7 @@ public class Handler {
         String key = update.message().text();
         String chatId = update.message().chat().id().toString();
         switch (key){
-            case "/start" -> new StartAction();
+            case "/start" -> new StartAction().accept(update,bot);
             case "/info" -> new InfoAction();
             case "/contacts" -> new ContactsAction();
             case "/volunteer" -> new VolunteersAction(volunteerRepo).accept(update, bot);
