@@ -33,4 +33,11 @@
         <loadData tableName="users_table" file="liquibase/v_1/users_table-data.csv"/>
     </changeSet>
 
+    <changeSet id="change-type-of-phone_number-users_table" author="M.Gogolin">
+        <preConditions>
+            <tableExists tableName="users_table"/>
+        </preConditions>
+        <modifyDataType tableName="users_table" columnName="phone_number" newDataType="VARCHAR(50)"/>
+    </changeSet>
+
 </databaseChangeLog>
