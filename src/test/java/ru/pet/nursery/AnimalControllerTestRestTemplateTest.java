@@ -6,11 +6,14 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.*;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import ru.pet.nursery.configuration.TelegramBotConfiguration;
 import ru.pet.nursery.entity.Animal;
 import ru.pet.nursery.entity.Nursery;
@@ -21,13 +24,19 @@ import ru.pet.nursery.repository.UserRepo;
 import ru.pet.nursery.web.dto.AnimalDTO;
 import ru.pet.nursery.web.service.AnimalService;
 
+import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class AnimalControllerTestRestTemplateTest {
+    @Value("${path.to.animals.folder}")
+    private String animalImagesDir;
+
     @LocalServerPort
     private int port;
     @Autowired
@@ -137,4 +146,177 @@ public class AnimalControllerTestRestTemplateTest {
                     .isEqualTo(responseEntity.getBody());
         }
     }
+
+    @Test
+    public void uploadPhotoAnimal_positiveTest(){
+        String strPath = System.getProperty("user.dir");
+        strPath += animalImagesDir + "/1.jpg";
+        Path filePath = Path.of(strPath);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        FileSystemResource fileSystemResource = new FileSystemResource(filePath);
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("file", fileSystemResource);
+        HttpEntity<MultiValueMap<String, Object>> requestEntity
+                = new HttpEntity<>(body, headers);
+        /*RestTemplate testRestTemplate = new RestTemplate();*/
+        ResponseEntity<String> responseEntity = testRestTemplate.postForEntity("http://localhost:" + port + "/animal/1/photo",
+                new HttpEntity<>(fileSystemResource.getFile(), headers), String.class);
+
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        responseEntity.getBody();
+    }
+
+    @Test
+    public void insertHumanWhoTookAnimal_positiveTest(){
+        List<Animal> animalsFromDB = animalRepo.findAll();
+        Animal animal = animalsFromDB.get(new Random().nextInt(animalsFromDB.size()));
+
+        List<User> usersFromDB = userRepo.findAll();
+        User user = usersFromDB.get(new Random().nextInt(usersFromDB.size()));
+
+        ResponseEntity<HttpStatus> responseEntity = testRestTemplate.postForEntity(
+                "http://localhost:" + port + "/animal/" + animal.getId() + "/" + user.getTelegramUserId(),
+                null,
+                HttpStatus.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo(HttpStatus.OK);
+
+        Animal animalAfterAdoption = animalRepo.findById(animal.getId()).get();
+        Assertions.assertThat(animalAfterAdoption.getWhoTookPet()).isEqualTo(user.getTelegramUserId());
+        Assertions.assertThat(animalAfterAdoption.getTookDate()).isEqualTo(LocalDate.now());
+    }
+
+    @Test
+    public void uploadPhotoAnimal_negativeTest(){
+        List<Animal> animalsFromDB = animalRepo.findAll();
+        Random rnd = new Random();
+        List<Integer> animalsIds = animalsFromDB.stream().map(Animal::getId).toList();
+        int wrongAnimalId;
+        while (true) {
+            wrongAnimalId = rnd.nextInt(animalsIds.size() + 10);
+            if (!animalsIds.contains(wrongAnimalId))
+                break;
+        }
+
+        String strPath = System.getProperty("user.dir");
+        strPath += animalImagesDir + "/1.jpg";
+        Path filePath = Path.of(strPath);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        FileSystemResource fileSystemResource = new FileSystemResource(filePath);
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("1.jpg", fileSystemResource);
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+        ResponseEntity<String> responseEntity = testRestTemplate.postForEntity(
+                "http://localhost:" + port + "/animal/" + wrongAnimalId + "/photo",
+                requestEntity,
+                String.class
+        );
+        //Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo("Ресурс с id = " + wrongAnimalId + " не найден");
+    }
+
+    /**
+     * Метод для тестирования метода insertHumanWhoTookAnimal при вводе
+     * невалидных идентификаторов животного или человека. Оба случая проверяются
+     * по 5 раз
+     */
+    @Test
+    public void insertHumanWhoTookAnimal_negativeTest(){
+        List<Animal> animalsFromDB = animalRepo.findAll();
+        Random rnd = new Random();
+        int size = animalsFromDB.size();
+        List<Integer> animalsIds = animalsFromDB.stream().map(a -> a.getId()).toList();
+        int wrongAnimalId;
+        for (int i = 0; i < 5; i++) {
+            while (true) {
+                wrongAnimalId = rnd.nextInt(animalsIds.size() + 10);
+                if (!animalsIds.contains(wrongAnimalId))
+                    break;
+            }
+
+            List<User> usersFromDB = userRepo.findAll();
+            User user = usersFromDB.get(new Random().nextInt(usersFromDB.size()));
+
+            ResponseEntity<String> responseEntity = testRestTemplate.postForEntity(
+                    "http://localhost:" + port + "/animal/" + wrongAnimalId + "/" + user.getTelegramUserId(),
+                    null,
+                    String.class
+            );
+
+            Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+            Assertions.assertThat(responseEntity.getBody()).isEqualTo("Ресурс с id = " + wrongAnimalId + " не найден");
+        }
+
+        Animal animal = animalsFromDB.get(new Random().nextInt(animalsFromDB.size()));
+        List<User> usersFromDB = userRepo.findAll();
+        List<Long> usersIds = usersFromDB.stream().map(User::getTelegramUserId).toList();
+        long wrongUserId = 0;
+        for (int i = 0; i < 5; i++) {
+            while (true) {
+                wrongAnimalId = (int) rnd.nextLong(usersIds.get(0));
+                if (!usersIds.contains(wrongUserId))
+                    break;
+            }
+            ResponseEntity<String> responseEntity = testRestTemplate.postForEntity(
+                    "http://localhost:" + port + "/animal/" + animal.getId() + "/" + wrongUserId,
+                    null,
+                    String.class
+            );
+
+            Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+            Assertions.assertThat(responseEntity.getBody()).isEqualTo("Ресурс с id = " + wrongUserId + " не найден");
+        }
+    }
+
+    /**
+     * Метод для тестирования метода insertDateOfReturningAnimal для внесения
+     * изменений в базу данных при возвращении животного в питомник
+     */
+    @Test
+    public void insertDateOfReturningAnimal_positiveTest(){
+        // сначала производится усыновление с внесением изменений в базу данных
+        List<Animal> animalsFromDB = animalRepo.findAll();
+        Animal animal = animalsFromDB.get(new Random().nextInt(animalsFromDB.size()));
+
+        List<User> usersFromDB = userRepo.findAll();
+        User user = usersFromDB.get(new Random().nextInt(usersFromDB.size()));
+
+        ResponseEntity<HttpStatus> prepareResponseEntity = testRestTemplate.postForEntity(
+                "http://localhost:" + port + "/animal/" + animal.getId() + "/" + user.getTelegramUserId(),
+                null,
+                HttpStatus.class
+        );
+        Assertions.assertThat(prepareResponseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(prepareResponseEntity.getBody()).isEqualTo(HttpStatus.OK);
+
+        // затем вносятся изменения о возвращении животного через тестируемый метод
+        ResponseEntity<HttpStatus> responseEntity = testRestTemplate.postForEntity(
+                "http://localhost:" + port + "/animal/" + animal.getId() + "/return",
+                null,
+                HttpStatus.class
+        );
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo(HttpStatus.OK);
+        // проверяется содержание ячеек с информацией о возвращении животного
+        Animal animalAfterReturn = animalRepo.findById(animal.getId()).get();
+        // проверяется ячейка с датой возвращения.
+        Assertions.assertThat(animalAfterReturn.getPetReturnDate()).isEqualTo(LocalDate.now());
+        // проверяется ячейка с идентификатором человека, который забрал животное
+        // если животное возвращено, то в этой ячейке ставиться единица (1)
+        Assertions.assertThat(animalAfterReturn.getWhoTookPet()).isEqualTo(1);
+        // проверяется ячейка с датой когда животное усыновили
+        // если животное возвращено, то в этой ячейке проставляется null
+        Assertions.assertThat(animalAfterReturn.getTookDate()).isNull();
+    }
+
+
+
 }

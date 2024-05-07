@@ -14,8 +14,8 @@ import ru.pet.nursery.repository.NurseryRepo;
 import ru.pet.nursery.repository.UserRepo;
 import ru.pet.nursery.web.dto.AnimalDTO;
 import ru.pet.nursery.web.dto.AnimalDTOForUser;
+import ru.pet.nursery.web.exception.EntityNotFoundException;
 import ru.pet.nursery.web.exception.ImageNotFoundException;
-import ru.pet.nursery.web.exception.NotFoundException;
 import java.io.*;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
@@ -76,7 +76,7 @@ public class AnimalService {
     public ResponseEntity<HttpStatus> uploadPhoto(Integer animalId, MultipartFile animalPhoto) throws IOException, InterruptedException {
         Optional<Animal> animalFromDB = animalRepo.findById(animalId);
         if(animalFromDB.isEmpty()){
-            throw new NotFoundException((long)animalId);
+            throw new EntityNotFoundException((long)animalId);
         }
         String strPath = System.getProperty("user.dir");
         strPath += animals_images;
@@ -114,7 +114,7 @@ public class AnimalService {
      * @throws IOException - исключение ввода-вывода при работе с файлами
      */
     public void getAnimalPhoto(int id, HttpServletResponse response) throws IOException {
-        Animal animal = animalRepo.findById(id).orElseThrow(() -> new NotFoundException((long)id));
+        Animal animal = animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException((long)id));
         if(animal.getPhotoPath() == null){
             throw new ImageNotFoundException("Путь к файлу с изображением отсутствует!");
         }
@@ -154,12 +154,12 @@ public class AnimalService {
                     animalRepo.delete(animalToDel);
                     return animalToDel;
                 })
-                .orElseThrow(() -> new NotFoundException(Long.valueOf(id)))));
+                .orElseThrow(() -> new EntityNotFoundException(Long.valueOf(id)))));
     }
 
     public ResponseEntity<HttpStatus> insertDataOfHuman(Integer animalId, Long adoptedId) {
-        Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new NotFoundException(Long.valueOf(animalId)));
-        User userAdopted = userRepo.findById(adoptedId).orElseThrow(() -> new NotFoundException(adoptedId));
+        Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(Long.valueOf(animalId)));
+        User userAdopted = userRepo.findById(adoptedId).orElseThrow(() -> new EntityNotFoundException(adoptedId));
         animalRepo.updateWhoTookPetAndTookDate(userAdopted.getTelegramUserId(), LocalDate.now(), animalFromDB.getId());
 
         return ResponseEntity.of(Optional.of(HttpStatus.OK));
@@ -213,7 +213,7 @@ public class AnimalService {
      * @return HttpStatus
      */
     public ResponseEntity<HttpStatus> insertDateOfReturn(Integer animalId) {
-        Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new NotFoundException(Long.valueOf(animalId)));
+        Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(Long.valueOf(animalId)));
         animalRepo.updateReturnDateAnimal(LocalDate.now(), animalFromDB.getId());
 
         return ResponseEntity.of(Optional.of(HttpStatus.OK));
@@ -226,7 +226,7 @@ public class AnimalService {
      * @return HttpStatus
      */
     public ResponseEntity<AnimalDTOForUser> getById(Integer animalId) {
-        Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new NotFoundException(Long.valueOf(animalId)));
+        Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(Long.valueOf(animalId)));
         return ResponseEntity.of(Optional.of(convertAnimalToAnimalDTO(animalFromDB)));
     }
 }

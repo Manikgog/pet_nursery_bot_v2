@@ -30,9 +30,9 @@ public class AnimalController {
     }
 
     @PostMapping(value = "/{id}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "добавление фотографии животного по его идентификатору")
-    public ResponseEntity<HttpStatus> uploadPhotoAnimal(@PathVariable Integer id, @RequestParam MultipartFile animal) throws IOException, InterruptedException {
-        return animalService.uploadPhoto(id, animal);
+    @Operation(summary = "Добавление фотографии животного по его идентификатору")
+    public ResponseEntity<HttpStatus> uploadPhotoAnimal(@PathVariable Integer id, @RequestParam MultipartFile animalPhoto) throws IOException, InterruptedException {
+        return animalService.uploadPhoto(id, animalPhoto);
     }
 
     @PostMapping("/{animalId}/{adoptedId}")
