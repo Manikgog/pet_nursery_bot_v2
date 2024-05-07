@@ -24,7 +24,7 @@ public class AnimalController {
         this.animalService = animalService;
     }
     @PostMapping
-    @Operation(summary = "загрузка в базу данных сведений о животном")
+    @Operation(summary = "Загрузка в базу данных сведений о животном")
     public ResponseEntity<Animal> putAnimal(@RequestBody AnimalDTO animalDTO){
         return animalService.uploadAnimal(animalDTO);
     }
