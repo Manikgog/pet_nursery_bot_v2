@@ -229,4 +229,8 @@ public class AnimalService {
         Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(Long.valueOf(animalId)));
         return ResponseEntity.of(Optional.of(convertAnimalToAnimalDTO(animalFromDB)));
     }
+
+    public ResponseEntity<List<Animal>> getAll() {
+        return ResponseEntity.of(Optional.of(animalRepo.findAll()));
+    }
 }
