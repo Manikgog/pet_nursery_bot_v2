@@ -1,6 +1,56 @@
 package ru.pet.nursery;
 
+import ru.pet.nursery.entity.Animal;
+import ru.pet.nursery.web.dto.AnimalDTO;
+
+import java.time.LocalDate;
+
 public class Constants {
+    public final static AnimalDTO VASKA_DTO;
+    public final static AnimalDTO PALKAN_DTO;
+
+    public final static Animal VASKA;
+    public final static Animal PALKAN;
+    static {
+        VASKA_DTO = new AnimalDTO();
+        VASKA_DTO.setAnimalName("Васька");
+        VASKA_DTO.setAnimalType("кот");
+        VASKA_DTO.setGender("male");
+        VASKA_DTO.setDescription("Рыжий кот. Левое ухо ободрано.");
+        VASKA_DTO.setBirthDate(LocalDate.of(2023,1,1));
+        VASKA_DTO.setNurseryId(1);
+
+        PALKAN_DTO = new AnimalDTO();
+        PALKAN_DTO.setAnimalName("Палкан");
+        PALKAN_DTO.setAnimalType("пёс");
+        PALKAN_DTO.setGender("male");
+        PALKAN_DTO.setDescription("Немецкая овчарка.");
+        PALKAN_DTO.setBirthDate(LocalDate.of(2020,1,1));
+        PALKAN_DTO.setNurseryId(2);
+
+        VASKA = new Animal();
+        VASKA.setId(1);
+        VASKA.setAnimalName("Васька");
+        VASKA.setAnimalType("кот");
+        VASKA.setGender("male");
+        VASKA.setBirthDate(LocalDate.of(2023,1,1));
+        VASKA.setWhoTookPet(1);
+        VASKA.setNurseryId(1);
+        VASKA.setDescription("Рыжий кот. Левое ухо ободрано.");
+
+        PALKAN = new Animal();
+        PALKAN.setId(2);
+        PALKAN.setAnimalName("Палкан");
+        PALKAN.setAnimalType("пёс");
+        PALKAN.setGender("male");
+        PALKAN.setBirthDate(LocalDate.of(2023,1,1));
+        PALKAN.setWhoTookPet(1);
+        PALKAN.setNurseryId(2);
+        PALKAN.setDescription("Немецкая овчарка.");
+
+    }
+
+
     public static String volunteerCommand = "{\n" +
             "  \"update_id\":436028079,\n" +
             "  \"message\": \n" +
