@@ -1,6 +1,9 @@
 package ru.pet.nursery.web.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
@@ -12,6 +15,7 @@ import ru.pet.nursery.entity.Animal;
 import ru.pet.nursery.web.dto.AnimalDTO;
 import ru.pet.nursery.web.dto.AnimalDTOForUser;
 import ru.pet.nursery.web.service.AnimalService;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -23,14 +27,37 @@ public class AnimalController {
     public AnimalController(AnimalService animalService) {
         this.animalService = animalService;
     }
+
+    @Operation(summary = "Загрузка в базу данных сведений о животном",
+    responses = {
+        @ApiResponse(
+                responseCode = "200",
+                description = "Загрузка сведений о животном прошла успешно",
+                content = @Content(
+                        mediaType = MediaType.APPLICATION_JSON_VALUE,
+                        schema = @Schema(implementation = Animal.class)
+                )
+
+        )
+    })
     @PostMapping
-    @Operation(summary = "Загрузка в базу данных сведений о животном")
     public ResponseEntity<Animal> putAnimal(@RequestBody AnimalDTO animalDTO){
         return animalService.uploadAnimal(animalDTO);
     }
 
+    @Operation(summary = "Добавление фотографии животного по его идентификатору",
+            responses = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Загрузка фотографии животного прошла успешно",
+                        content = @Content(
+                                mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                schema = @Schema(implementation = HttpStatus.class)
+                        )
+                )
+            }
+    )
     @PostMapping(value = "/{id}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "Добавление фотографии животного по его идентификатору")
     public ResponseEntity<HttpStatus> uploadPhotoAnimal(@PathVariable("id") Integer id, @RequestParam MultipartFile animalPhoto) throws IOException, InterruptedException {
         return animalService.uploadPhoto(id, animalPhoto);
     }

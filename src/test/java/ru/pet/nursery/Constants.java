@@ -1,11 +1,71 @@
 package ru.pet.nursery;
 
 import ru.pet.nursery.entity.Animal;
+import ru.pet.nursery.entity.Nursery;
+import ru.pet.nursery.entity.User;
+import ru.pet.nursery.enumerations.AnimalType;
+import ru.pet.nursery.enumerations.Gender;
 import ru.pet.nursery.web.dto.AnimalDTO;
 
 import java.time.LocalDate;
 
 public class Constants {
+
+    public static User USER;
+    public static User GARRY_POTTER;
+    public static User GERMIONA_GREINDGER;
+    public static User RON_WISLY;
+    public static User POLUMNA_LAVGOOD;
+    static {
+        USER.setTelegramUserId(1);
+        USER.setFirstName("нет");
+        USER.setLastName("нет");
+        USER.setUserName("нет");
+        USER.setAddress("нет");
+        USER.setPhoneNumber("нет");
+
+        GARRY_POTTER.setTelegramUserId(2);
+        GARRY_POTTER.setFirstName("Гарри");
+        GARRY_POTTER.setLastName("Поттер");
+        GARRY_POTTER.setUserName("G.Potter");
+        GARRY_POTTER.setAddress("Астана ул. Малышева д.123 кв.321");
+        GARRY_POTTER.setPhoneNumber("8-987-654-321-98");
+
+        GERMIONA_GREINDGER.setTelegramUserId(3);
+        GERMIONA_GREINDGER.setFirstName("Гермиона");
+        GERMIONA_GREINDGER.setLastName("Грейнджер");
+        GERMIONA_GREINDGER.setUserName("G.Greyndger");
+        GERMIONA_GREINDGER.setAddress("Астана ул. 8 Марта д.12 кв.21");
+        GERMIONA_GREINDGER.setPhoneNumber("8-123-654-987-12");
+
+        RON_WISLY.setTelegramUserId(4);
+        RON_WISLY.setFirstName("Рон");
+        RON_WISLY.setLastName("Уизли");
+        RON_WISLY.setUserName("R.Wisly");
+        RON_WISLY.setAddress("Астана ул. Куйбышева д.54 кв.87");
+        RON_WISLY.setPhoneNumber("8-987-896-547-32");
+
+        POLUMNA_LAVGOOD.setTelegramUserId(5);
+        POLUMNA_LAVGOOD.setFirstName("Полумна");
+        POLUMNA_LAVGOOD.setLastName("Лавгуд");
+        POLUMNA_LAVGOOD.setUserName("P.Lavgood");
+        POLUMNA_LAVGOOD.setAddress("Астана ул. Космонавтов д.65 кв.25");
+        POLUMNA_LAVGOOD.setPhoneNumber("8-987-325-798-62");
+    }
+
+
+    public static Nursery NURSERY_1;
+    public static Nursery NURSERY_2;
+    static{
+        NURSERY_1.setId(1);
+        NURSERY_1.setAddress("Астана Калинина д.24");
+        NURSERY_1.setPhoneNumber("8-965-569-326-54");
+
+        NURSERY_2.setId(2);
+        NURSERY_2.setAddress("Астана ул. Кировградская д.32");
+        NURSERY_2.setPhoneNumber("8-954-568-98-97");
+    }
+
     public final static AnimalDTO VASKA_DTO;
     public final static AnimalDTO PALKAN_DTO;
 
@@ -14,16 +74,16 @@ public class Constants {
     static {
         VASKA_DTO = new AnimalDTO();
         VASKA_DTO.setAnimalName("Васька");
-        VASKA_DTO.setAnimalType("кот");
-        VASKA_DTO.setGender("male");
+        VASKA_DTO.setAnimalType(AnimalType.CAT);
+        VASKA_DTO.setGender(Gender.MALE);
         VASKA_DTO.setDescription("Рыжий кот. Левое ухо ободрано.");
         VASKA_DTO.setBirthDate(LocalDate.of(2023,1,1));
         VASKA_DTO.setNurseryId(1);
 
         PALKAN_DTO = new AnimalDTO();
         PALKAN_DTO.setAnimalName("Палкан");
-        PALKAN_DTO.setAnimalType("пёс");
-        PALKAN_DTO.setGender("male");
+        PALKAN_DTO.setAnimalType(AnimalType.DOG);
+        PALKAN_DTO.setGender(Gender.MALE);
         PALKAN_DTO.setDescription("Немецкая овчарка.");
         PALKAN_DTO.setBirthDate(LocalDate.of(2020,1,1));
         PALKAN_DTO.setNurseryId(2);
@@ -31,21 +91,21 @@ public class Constants {
         VASKA = new Animal();
         VASKA.setId(1);
         VASKA.setAnimalName("Васька");
-        VASKA.setAnimalType("кот");
-        VASKA.setGender("male");
+        VASKA.setAnimalType(AnimalType.CAT);
+        VASKA.setGender(Gender.MALE);
         VASKA.setBirthDate(LocalDate.of(2023,1,1));
-        VASKA.setWhoTookPet(1);
-        VASKA.setNurseryId(1);
+        VASKA.setUser(USER);
+        VASKA.setNursery(NURSERY_1);
         VASKA.setDescription("Рыжий кот. Левое ухо ободрано.");
 
         PALKAN = new Animal();
         PALKAN.setId(2);
         PALKAN.setAnimalName("Палкан");
-        PALKAN.setAnimalType("пёс");
-        PALKAN.setGender("male");
-        PALKAN.setBirthDate(LocalDate.of(2023,1,1));
-        PALKAN.setWhoTookPet(1);
-        PALKAN.setNurseryId(2);
+        PALKAN.setAnimalType(AnimalType.DOG);
+        PALKAN.setGender(Gender.MALE);
+        PALKAN.setBirthDate(LocalDate.of(2020,1,1));
+        PALKAN.setUser(USER);
+        PALKAN.setNursery(NURSERY_2);
         PALKAN.setDescription("Немецкая овчарка.");
 
     }

@@ -19,6 +19,8 @@ import ru.pet.nursery.configuration.TelegramBotConfiguration;
 import ru.pet.nursery.entity.Animal;
 import ru.pet.nursery.entity.Nursery;
 import ru.pet.nursery.entity.User;
+import ru.pet.nursery.enumerations.AnimalType;
+import ru.pet.nursery.enumerations.Gender;
 import ru.pet.nursery.repository.AnimalRepo;
 import ru.pet.nursery.repository.NurseryRepo;
 import ru.pet.nursery.repository.UserRepo;
@@ -30,6 +32,8 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+import static ru.pet.nursery.Constants.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class AnimalControllerTestRestTemplateTest {
@@ -52,11 +56,11 @@ public class AnimalControllerTestRestTemplateTest {
     private AnimalService animalService;
 
     private final Faker faker = new Faker();
-    private static int NUMBER_OF_USERS = 5;
-    private static int NUMBER_OF_NURSERIES = 2;
-    private static int NUMBER_OF_ANIMALS = 10;
-    private static int MIN_AGE = 1;
-    private static int MAX_AGE = 10;
+    private final static int NUMBER_OF_USERS = 5;
+    private final static int NUMBER_OF_NURSERIES = 2;
+    private final static int NUMBER_OF_ANIMALS = 10;
+    private final static int MIN_AGE = 1;
+    private final static int MAX_AGE = 10;
     @BeforeEach
     public void beforeEach(){
         List<User> userList = new ArrayList<>();
@@ -90,12 +94,15 @@ public class AnimalControllerTestRestTemplateTest {
     private Animal createAnimal(int nurseryId){
         Animal animal = new Animal();
         animal.setAnimalName(faker.name().name());
-        animal.setAnimalType(faker.animal().name());
-        animal.setGender(faker.gender().binaryTypes());
-        animal.setNurseryId(nurseryId);
+        Random rnd = new Random();
+        boolean isCat = rnd.nextBoolean();
+        animal.setAnimalType(isCat ? AnimalType.CAT : AnimalType.DOG);
+        boolean isMale = rnd.nextBoolean();
+        animal.setGender(isMale ? Gender.MALE : Gender.FEMALE);
+        animal.setNursery(isCat ? NURSERY_1 : NURSERY_2);
         animal.setBirthDate(faker.date().birthdayLocalDate(MIN_AGE, MAX_AGE));
         animal.setPhotoPath(null);
-        animal.setWhoTookPet(faker.random().nextInt(1,NUMBER_OF_USERS + 1));
+        animal.setUser(USER);
         animal.setTookDate(faker.date().past(faker.random().nextInt(5, 15), TimeUnit.DAYS).toLocalDateTime().toLocalDate());
         animal.setDescription(faker.examplify(animal.getAnimalName()));
         return animal;

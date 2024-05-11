@@ -11,14 +11,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class Handler {
-
-    private VolunteerRepo volunteerRepo;
-    private final Map<String, Action> actions = Map.of();
+    private final VolunteerRepo volunteerRepo;
+    private final Map<String, Action> actions;
     // карта пар идентификатор чата -> команда, которую отправил пользователь в прошлом запросе
     private final Map<String, String> bindingBy = new ConcurrentHashMap<>();
 
-    public Handler(VolunteerRepo volunteerRepo){
+    public Handler(VolunteerRepo volunteerRepo, Map<String, Action> actions){
         this.volunteerRepo = volunteerRepo;
+        this.actions = actions;
     }
     public void answer(Update update, TelegramBot bot) {
         String key = update.message().text();

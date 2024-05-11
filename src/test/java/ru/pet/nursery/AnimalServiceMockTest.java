@@ -6,8 +6,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import org.springframework.http.ResponseEntity;
 import ru.pet.nursery.entity.Animal;
 import ru.pet.nursery.repository.AnimalRepo;
@@ -16,12 +14,11 @@ import ru.pet.nursery.repository.UserRepo;
 import ru.pet.nursery.web.service.AnimalService;
 
 import static org.mockito.Mockito.when;
-import static ru.pet.nursery.Constants.VASKA;
-import static ru.pet.nursery.Constants.VASKA_DTO;
+import static ru.pet.nursery.Constants.*;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 public class AnimalServiceMockTest {
+
     @Mock
     AnimalRepo animalRepo;
     @Mock
@@ -36,5 +33,14 @@ public class AnimalServiceMockTest {
         when(animalRepo.save(VASKA)).thenReturn(VASKA);
         ResponseEntity<Animal> actualResult = animalService.uploadAnimal(VASKA_DTO);
         Assertions.assertEquals(VASKA, actualResult.getBody());
+
+        when(animalRepo.save(PALKAN)).thenReturn(PALKAN);
+        actualResult = animalService.uploadAnimal(PALKAN_DTO);
+        Assertions.assertEquals(PALKAN, actualResult.getBody());
+    }
+
+    @Test
+    public void uploadAnima_negativeTest(){
+
     }
 }

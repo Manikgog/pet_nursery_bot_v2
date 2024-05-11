@@ -2,11 +2,22 @@ package ru.pet.nursery.action;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
-import java.util.function.BiConsumer;
+import org.springframework.stereotype.Component;
 
-public class StartAction implements BiConsumer<Update, TelegramBot> {
-    @Override
+@Component("/start")
+public class StartAction implements Action {
+    /*@Override
     public void accept(Update update, TelegramBot telegramBot) {
+
+    }*/
+
+    @Override
+    public void handle(Update update, TelegramBot bot) {
+
+    }
+
+    @Override
+    public void callback(Update update, TelegramBot bot) {
 
     }
 }

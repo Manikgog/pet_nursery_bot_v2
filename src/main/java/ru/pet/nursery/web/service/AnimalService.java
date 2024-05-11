@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.pet.nursery.entity.Animal;
+import ru.pet.nursery.entity.Nursery;
 import ru.pet.nursery.entity.User;
 import ru.pet.nursery.repository.AnimalRepo;
 import ru.pet.nursery.repository.NurseryRepo;
@@ -16,6 +17,8 @@ import ru.pet.nursery.web.dto.AnimalDTO;
 import ru.pet.nursery.web.dto.AnimalDTOForUser;
 import ru.pet.nursery.web.exception.EntityNotFoundException;
 import ru.pet.nursery.web.exception.ImageNotFoundException;
+import ru.pet.nursery.web.validator.Validator;
+
 import java.io.*;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
@@ -37,12 +40,14 @@ public class AnimalService {
     private final AnimalRepo animalRepo;
     private final UserRepo userRepo;
     private final NurseryRepo nurseryRepo;
+    private final Validator validator;
     public AnimalService(AnimalRepo animalRepo,
                          UserRepo userRepo,
                          NurseryRepo nurseryRepo){
         this.animalRepo = animalRepo;
         this.userRepo = userRepo;
         this.nurseryRepo = nurseryRepo;
+        this.validator = new Validator(nurseryRepo);
     }
 
     /**
@@ -52,14 +57,18 @@ public class AnimalService {
      *         после загрузки
      */
     public ResponseEntity<Animal> uploadAnimal(AnimalDTO animalDTO) {
+        validator.validateAnimalDTO(animalDTO);
+        Nursery nursery = nurseryRepo.findById(animalDTO.getNurseryId())
+                .orElseThrow(() -> new EntityNotFoundException((long) animalDTO.getNurseryId()));
+        User user = userRepo.findById(1L).orElseThrow(() -> new EntityNotFoundException(1L));
         Animal newAnimal = new Animal();
         newAnimal.setAnimalName(animalDTO.getAnimalName());
         newAnimal.setAnimalType(animalDTO.getAnimalType());
         newAnimal.setDescription(animalDTO.getDescription());
         newAnimal.setGender(animalDTO.getGender());
         newAnimal.setBirthDate(animalDTO.getBirthDate());
-        newAnimal.setNurseryId(animalDTO.getNurseryId());
-        newAnimal.setWhoTookPet(1L);                            // если стоит цифра 1 значит животное никто не взял
+        newAnimal.setNursery(nursery);
+        newAnimal.setUser(user);                            // если стоит цифра 1 значит животное никто не взял
         Animal animalFromDB = animalRepo.save(newAnimal);
         return ResponseEntity.of(Optional.of(animalFromDB));
     }
@@ -185,7 +194,7 @@ public class AnimalService {
      */
     private List<AnimalDTOForUser> convertListAnimalToListAnimalDTO(List<Animal> animals){
         return animals.stream()
-                .filter(animal -> animal.getWhoTookPet() == 1)
+                .filter(animal -> animal.getUser().getTelegramUserId() == 1)
                 .map(this::convertAnimalToAnimalDTO)
                 .toList();
     }
@@ -199,9 +208,9 @@ public class AnimalService {
         AnimalDTOForUser animalDTOForUser = new AnimalDTOForUser();
         animalDTOForUser.setId(animal.getId());
         animalDTOForUser.setAnimalName(animal.getAnimalName());
-        animalDTOForUser.setAnimalType(animal.getAnimalType());
-        animalDTOForUser.setNursery(nurseryRepo.findById(animal.getNurseryId()).get());
-        animalDTOForUser.setGender(animal.getGender());
+        animalDTOForUser.setAnimalType(animal.getAnimalType().toString());
+        animalDTOForUser.setNursery(nurseryRepo.findById(animal.getNursery().getId()).get());
+        animalDTOForUser.setGender(animal.getGender().toString());
         animalDTOForUser.setBirthDate(animal.getBirthDate());
         animalDTOForUser.setDescription(animal.getDescription());
         return animalDTOForUser;
