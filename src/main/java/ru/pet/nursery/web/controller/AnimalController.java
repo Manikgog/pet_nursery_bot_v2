@@ -1,7 +1,9 @@
 package ru.pet.nursery.web.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,7 +37,11 @@ public class AnimalController {
                 description = "Загрузка сведений о животном прошла успешно",
                 content = @Content(
                         mediaType = MediaType.APPLICATION_JSON_VALUE,
-                        schema = @Schema(implementation = Animal.class)
+                        schema = @Schema(implementation = Animal.class),
+                        examples = @ExampleObject(
+                                name = "Питомец",
+                                description = "Объект питомца загруженный в базу данных"
+                        )
                 )
 
         )
@@ -44,6 +50,8 @@ public class AnimalController {
     public ResponseEntity<Animal> putAnimal(@RequestBody AnimalDTO animalDTO){
         return animalService.uploadAnimal(animalDTO);
     }
+
+
 
     @Operation(summary = "Добавление фотографии животного по его идентификатору",
             responses = {
@@ -62,44 +70,145 @@ public class AnimalController {
         return animalService.uploadPhoto(id, animalPhoto);
     }
 
+
+
+    @Operation(summary = "Вставка данных о человеке, который забрал животное из приюта",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Вставка данных о человеке, который забрал животное из приюта прошла успешно",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = HttpStatus.class)
+                            )
+                    )
+            }
+    )
     @PostMapping("/{animalId}/{adoptedId}")
-    @Operation(summary = "Вставка данных о человеке, который забрал животное из приюта")
     public ResponseEntity<HttpStatus> insertHumanWhoTookAnimal(@PathVariable Integer animalId, @PathVariable Long adoptedId){
         return animalService.insertDataOfHuman(animalId, adoptedId);
     }
 
+
+
+    @Operation(summary = "Вставка данных о возвращении животного в приют",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Вставка данных о возвращении животного в приют прошла успешно",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = HttpStatus.class)
+                            )
+                    )
+            }
+    )
     @PostMapping("/{animalId}/return")
-    @Operation(summary = "Вставка данных о возвращении животного в приют")
     public ResponseEntity<HttpStatus> insertDateOfReturningAnimal(@PathVariable Integer animalId){
         return animalService.insertDateOfReturn(animalId);
     }
 
+
+
+    @Operation(summary = "Получение фотографии животного по его id",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Получение изображения животного по его id прошло успешно",
+                            content = @Content(
+                                    mediaType = MediaType.MULTIPART_FORM_DATA_VALUE
+                            )
+                    )
+            }
+    )
     @GetMapping("/{id}/photo")
-    @Operation(summary = "Получение фотографии животного по его id")
     public void getAnimalPhoto(@PathVariable("id") int id, HttpServletResponse response) throws IOException {
         animalService.getAnimalPhoto(id, response);
     }
 
+
+
+    @Operation(summary = "Удаление животного из таблицы animal_table по id",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Удаление животного из таблицы animal_table по id прошло успешно",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = Animal.class),
+                                    examples = @ExampleObject(
+                                            name = "Питомец",
+                                            description = "Объект питомца удаленный из базы данных"
+                                    )
+                            )
+
+                    )
+            })
     @DeleteMapping("/{id}/delete")
-    @Operation(summary = "Удаление животного из таблицы animal_table по id")
     public ResponseEntity<Animal> deleteAnimal(@PathVariable Integer id){
         return animalService.delete(id);
     }
 
+
+
+    @Operation(summary = "Получение списка животных, которые находятся в питомниках постранично",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Получение списка животных постранично прошло успешно",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    array = @ArraySchema(schema = @Schema(implementation = Animal.class)),
+                                    examples = @ExampleObject(
+                                            name = "Список животных"
+                                    )
+                            )
+                    )
+            })
     @GetMapping
-    @Operation(summary = "Получение списка животных постранично")
     public ResponseEntity<List<AnimalDTOForUser>> getListByPage(@RequestParam("page") Integer pageNumber, @RequestParam("size") Integer pageSize){
         return animalService.getPageList(pageNumber, pageSize);
     }
 
+
+
+    @Operation(summary = "Получение питомца по id",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Получение питомца по его id прошло успешно",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = Animal.class),
+                                    examples = @ExampleObject(
+                                            name = "Питомец",
+                                            description = "Объект питомца удаленный из базы данных"
+                                    )
+                            )
+                    )
+            })
     @GetMapping("/{id}")
-    @Operation(summary = "Получение питомца по id")
     public ResponseEntity<AnimalDTOForUser> getById(@PathVariable Integer id){
         return animalService.getById(id);
     }
 
+
+    @Operation(summary = "Получение списка всех питомцев",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Получение списка всех питомцев прошло успешно",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    array = @ArraySchema(schema = @Schema(implementation = Animal.class)),
+                                    examples = @ExampleObject(
+                                            name = "Список всех животных"
+                                    )
+                            )
+
+                    )
+            })
     @GetMapping("/all")
-    @Operation(summary = "Получение списка всех питомцев")
     public ResponseEntity<List<Animal>> getAnimals(){
         return animalService.getAll();
     }

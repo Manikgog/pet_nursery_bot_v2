@@ -17,6 +17,7 @@ public class Constants {
     public static User RON_WISLY;
     public static User POLUMNA_LAVGOOD;
     static {
+        USER = new User();
         USER.setTelegramUserId(1);
         USER.setFirstName("нет");
         USER.setLastName("нет");
@@ -24,6 +25,7 @@ public class Constants {
         USER.setAddress("нет");
         USER.setPhoneNumber("нет");
 
+        GARRY_POTTER = new User();
         GARRY_POTTER.setTelegramUserId(2);
         GARRY_POTTER.setFirstName("Гарри");
         GARRY_POTTER.setLastName("Поттер");
@@ -31,6 +33,7 @@ public class Constants {
         GARRY_POTTER.setAddress("Астана ул. Малышева д.123 кв.321");
         GARRY_POTTER.setPhoneNumber("8-987-654-321-98");
 
+        GERMIONA_GREINDGER = new User();
         GERMIONA_GREINDGER.setTelegramUserId(3);
         GERMIONA_GREINDGER.setFirstName("Гермиона");
         GERMIONA_GREINDGER.setLastName("Грейнджер");
@@ -38,6 +41,7 @@ public class Constants {
         GERMIONA_GREINDGER.setAddress("Астана ул. 8 Марта д.12 кв.21");
         GERMIONA_GREINDGER.setPhoneNumber("8-123-654-987-12");
 
+        RON_WISLY = new User();
         RON_WISLY.setTelegramUserId(4);
         RON_WISLY.setFirstName("Рон");
         RON_WISLY.setLastName("Уизли");
@@ -45,6 +49,7 @@ public class Constants {
         RON_WISLY.setAddress("Астана ул. Куйбышева д.54 кв.87");
         RON_WISLY.setPhoneNumber("8-987-896-547-32");
 
+        POLUMNA_LAVGOOD = new User();
         POLUMNA_LAVGOOD.setTelegramUserId(5);
         POLUMNA_LAVGOOD.setFirstName("Полумна");
         POLUMNA_LAVGOOD.setLastName("Лавгуд");
@@ -57,10 +62,12 @@ public class Constants {
     public static Nursery NURSERY_1;
     public static Nursery NURSERY_2;
     static{
+        NURSERY_1 = new Nursery();
         NURSERY_1.setId(1);
         NURSERY_1.setAddress("Астана Калинина д.24");
         NURSERY_1.setPhoneNumber("8-965-569-326-54");
 
+        NURSERY_2 = new Nursery();
         NURSERY_2.setId(2);
         NURSERY_2.setAddress("Астана ул. Кировградская д.32");
         NURSERY_2.setPhoneNumber("8-954-568-98-97");
@@ -70,8 +77,11 @@ public class Constants {
     public final static AnimalDTO PALKAN_DTO;
 
     public final static Animal VASKA;
+    public final static Animal VASKA_FROM_DB;
     public final static Animal PALKAN;
+    public final static Animal PALKAN_FROM_DB;
     static {
+
         VASKA_DTO = new AnimalDTO();
         VASKA_DTO.setAnimalName("Васька");
         VASKA_DTO.setAnimalType(AnimalType.CAT);
@@ -89,7 +99,7 @@ public class Constants {
         PALKAN_DTO.setNurseryId(2);
 
         VASKA = new Animal();
-        VASKA.setId(1);
+        VASKA.setId(0);
         VASKA.setAnimalName("Васька");
         VASKA.setAnimalType(AnimalType.CAT);
         VASKA.setGender(Gender.MALE);
@@ -98,8 +108,18 @@ public class Constants {
         VASKA.setNursery(NURSERY_1);
         VASKA.setDescription("Рыжий кот. Левое ухо ободрано.");
 
+        VASKA_FROM_DB = new Animal();
+        VASKA_FROM_DB.setId(1);
+        VASKA_FROM_DB.setAnimalName("Васька");
+        VASKA_FROM_DB.setAnimalType(AnimalType.CAT);
+        VASKA_FROM_DB.setGender(Gender.MALE);
+        VASKA_FROM_DB.setBirthDate(LocalDate.of(2023,1,1));
+        VASKA_FROM_DB.setUser(USER);
+        VASKA_FROM_DB.setNursery(NURSERY_1);
+        VASKA_FROM_DB.setDescription("Рыжий кот. Левое ухо ободрано.");
+
         PALKAN = new Animal();
-        PALKAN.setId(2);
+        PALKAN.setId(0);
         PALKAN.setAnimalName("Палкан");
         PALKAN.setAnimalType(AnimalType.DOG);
         PALKAN.setGender(Gender.MALE);
@@ -107,6 +127,16 @@ public class Constants {
         PALKAN.setUser(USER);
         PALKAN.setNursery(NURSERY_2);
         PALKAN.setDescription("Немецкая овчарка.");
+
+        PALKAN_FROM_DB = new Animal();
+        PALKAN_FROM_DB.setId(2);
+        PALKAN_FROM_DB.setAnimalName("Палкан");
+        PALKAN_FROM_DB.setAnimalType(AnimalType.DOG);
+        PALKAN_FROM_DB.setGender(Gender.MALE);
+        PALKAN_FROM_DB.setBirthDate(LocalDate.of(2020,1,1));
+        PALKAN_FROM_DB.setUser(USER);
+        PALKAN_FROM_DB.setNursery(NURSERY_2);
+        PALKAN_FROM_DB.setDescription("Немецкая овчарка.");
 
     }
 

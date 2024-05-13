@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.pet.nursery.entity.Animal;
 import ru.pet.nursery.entity.Nursery;
 import ru.pet.nursery.entity.User;
+import ru.pet.nursery.mapper.AnimalDTOForUserMapper;
 import ru.pet.nursery.repository.AnimalRepo;
 import ru.pet.nursery.repository.NurseryRepo;
 import ru.pet.nursery.repository.UserRepo;
@@ -166,6 +167,12 @@ public class AnimalService {
                 .orElseThrow(() -> new EntityNotFoundException(Long.valueOf(id)))));
     }
 
+    /**
+     * Метод для изменения столбца с датой усыновления и столбца об том кто усыновил в таблице питомца
+     * @param animalId - идентификатор питомца в таблице
+     * @param adoptedId - идентификатор усыновителя в таблице
+     * @return статус HTTP
+     */
     public ResponseEntity<HttpStatus> insertDataOfHuman(Integer animalId, Long adoptedId) {
         Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(Long.valueOf(animalId)));
         User userAdopted = userRepo.findById(adoptedId).orElseThrow(() -> new EntityNotFoundException(adoptedId));
@@ -175,14 +182,20 @@ public class AnimalService {
     }
 
     /**
-     * Метод для получения списка животных постранично
+     * Метод для получения списка животных, которые
+     * находятся в питомниках постранично
      * @param pageNumber - номер страницы получается
      * @param pageSize - количество объектов в листе
      * @return ResponseEntity листа объектов AnimalDTOForUser c нужной для пользователя информацией
      */
     public ResponseEntity<List<AnimalDTOForUser>> getPageList(Integer pageNumber, Integer pageSize) {
+        validator.validatePageNumber(pageNumber);
+        validator.validatePageSize(pageSize);
         PageRequest pageRequest = PageRequest.of(pageNumber - 1, pageSize);
-        List<Animal> animals = animalRepo.findAll(pageRequest).getContent();
+        List<Animal> animals = animalRepo.findAll(pageRequest).getContent()
+                .stream()
+                .filter(a -> a.getUser().getTelegramUserId() == 1L)
+                .toList();
         List<AnimalDTOForUser> resultAnimals = convertListAnimalToListAnimalDTO(animals);
         return ResponseEntity.of(Optional.of(resultAnimals));
     }
@@ -193,27 +206,11 @@ public class AnimalService {
      * @return список объектов AnimalDTOForUser
      */
     private List<AnimalDTOForUser> convertListAnimalToListAnimalDTO(List<Animal> animals){
+        AnimalDTOForUserMapper animalDTOForUserMapper = new AnimalDTOForUserMapper();
         return animals.stream()
                 .filter(animal -> animal.getUser().getTelegramUserId() == 1)
-                .map(this::convertAnimalToAnimalDTO)
+                .map(animalDTOForUserMapper::perform)
                 .toList();
-    }
-
-    /**
-     * Метод для преобразования объекта Animal в объект AnimalDTOForUser
-     * @param animal - объект Animal
-     * @return animalDTOForUser
-     */
-    private AnimalDTOForUser convertAnimalToAnimalDTO(Animal animal){
-        AnimalDTOForUser animalDTOForUser = new AnimalDTOForUser();
-        animalDTOForUser.setId(animal.getId());
-        animalDTOForUser.setAnimalName(animal.getAnimalName());
-        animalDTOForUser.setAnimalType(animal.getAnimalType().toString());
-        animalDTOForUser.setNursery(nurseryRepo.findById(animal.getNursery().getId()).get());
-        animalDTOForUser.setGender(animal.getGender().toString());
-        animalDTOForUser.setBirthDate(animal.getBirthDate());
-        animalDTOForUser.setDescription(animal.getDescription());
-        return animalDTOForUser;
     }
 
     /**
@@ -235,10 +232,15 @@ public class AnimalService {
      * @return HttpStatus
      */
     public ResponseEntity<AnimalDTOForUser> getById(Integer animalId) {
+        AnimalDTOForUserMapper animalDTOForUserMapper = new AnimalDTOForUserMapper();
         Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(Long.valueOf(animalId)));
-        return ResponseEntity.of(Optional.of(convertAnimalToAnimalDTO(animalFromDB)));
+        return ResponseEntity.of(Optional.of(animalDTOForUserMapper.perform(animalFromDB)));
     }
 
+    /**
+     * Метод для получения всего списка животных
+     * @return
+     */
     public ResponseEntity<List<Animal>> getAll() {
         return ResponseEntity.of(Optional.of(animalRepo.findAll()));
     }

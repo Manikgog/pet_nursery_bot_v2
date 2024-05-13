@@ -3,6 +3,8 @@ package ru.pet.nursery.web.validator;
 import ru.pet.nursery.repository.NurseryRepo;
 import ru.pet.nursery.web.dto.AnimalDTO;
 import ru.pet.nursery.web.exception.IllegalFieldException;
+import ru.pet.nursery.web.exception.PageNumberException;
+import ru.pet.nursery.web.exception.PageSizeException;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -25,7 +27,7 @@ public class Validator {
         messageList.stream()
                 .filter(message -> !message.isEmpty())
                 .forEach(message -> resultMessage.append(message).append("\n"));
-        if(resultMessage.isEmpty()){
+        if(!resultMessage.isEmpty()){
             throw new IllegalFieldException(resultMessage.toString());
         }
     }
@@ -48,8 +50,8 @@ public class Validator {
         if(gender == null || gender.isEmpty()){
             return "Поле gender класса AnimalDTO не должно быть пустым";
         }else{
-            if(!gender.equals("male") && !gender.equals("female")){
-                return "Поле gender класса AnimalDTO должно быть равно male или female";
+            if(!gender.equals("MALE") && !gender.equals("FEMALE")){
+                return "Поле gender класса AnimalDTO должно быть равно MALE или FEMALE";
             }
         }
         return "";
@@ -78,5 +80,15 @@ public class Validator {
             return "Питомника с id = " + id + " нет в нашей базе данных";
         }
         return "";
+    }
+
+    public void validatePageNumber(Integer pageNumber) {
+        if(pageNumber <= 0)
+            throw new PageNumberException("Номер страницы должен быть больше нуля");
+    }
+
+    public void validatePageSize(Integer pageSize) {
+        if(pageSize <= 0)
+            throw new PageSizeException("Количество страниц должно быть больше нуля");
     }
 }

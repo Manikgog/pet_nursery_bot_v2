@@ -1,7 +1,7 @@
 package ru.pet.nursery.enumerations;
 
 public enum AnimalType {
-    CAT("cat"),DOG("dog");
+    CAT("cat"), DOG("dog");
 
     private final String type;
 
