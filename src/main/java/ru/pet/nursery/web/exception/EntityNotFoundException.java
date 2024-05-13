@@ -4,10 +4,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
-public class NotFoundException extends RuntimeException {
+public class EntityNotFoundException extends RuntimeException {
     private final Long id;
 
-    public NotFoundException(Long id) {
+    public EntityNotFoundException(Long id) {
         this.id = id;
     }
     @Override

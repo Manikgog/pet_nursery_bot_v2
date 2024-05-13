@@ -2,22 +2,35 @@ package ru.pet.nursery.web.service;
 
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.pet.nursery.entity.Animal;
+import ru.pet.nursery.entity.Nursery;
+import ru.pet.nursery.entity.User;
+import ru.pet.nursery.mapper.AnimalDTOForUserMapper;
 import ru.pet.nursery.repository.AnimalRepo;
+import ru.pet.nursery.repository.NurseryRepo;
+import ru.pet.nursery.repository.UserRepo;
 import ru.pet.nursery.web.dto.AnimalDTO;
+import ru.pet.nursery.web.dto.AnimalDTOForUser;
+import ru.pet.nursery.web.exception.EntityNotFoundException;
 import ru.pet.nursery.web.exception.ImageNotFoundException;
-import ru.pet.nursery.web.exception.NotFoundException;
+import ru.pet.nursery.web.validator.Validator;
+
 import java.io.*;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 import static java.nio.file.StandardOpenOption.READ;
 
@@ -26,8 +39,16 @@ public class AnimalService {
     @Value("${path.to.animals.folder}")
     private String animals_images;
     private final AnimalRepo animalRepo;
-    public AnimalService(AnimalRepo animalRepo){
+    private final UserRepo userRepo;
+    private final NurseryRepo nurseryRepo;
+    private final Validator validator;
+    public AnimalService(AnimalRepo animalRepo,
+                         UserRepo userRepo,
+                         NurseryRepo nurseryRepo){
         this.animalRepo = animalRepo;
+        this.userRepo = userRepo;
+        this.nurseryRepo = nurseryRepo;
+        this.validator = new Validator(nurseryRepo);
     }
 
     /**
@@ -37,14 +58,18 @@ public class AnimalService {
      *         после загрузки
      */
     public ResponseEntity<Animal> uploadAnimal(AnimalDTO animalDTO) {
+        validator.validateAnimalDTO(animalDTO);
+        Nursery nursery = nurseryRepo.findById(animalDTO.getNurseryId())
+                .orElseThrow(() -> new EntityNotFoundException((long) animalDTO.getNurseryId()));
+        User user = userRepo.findById(1L).orElseThrow(() -> new EntityNotFoundException(1L));
         Animal newAnimal = new Animal();
         newAnimal.setAnimalName(animalDTO.getAnimalName());
         newAnimal.setAnimalType(animalDTO.getAnimalType());
         newAnimal.setDescription(animalDTO.getDescription());
         newAnimal.setGender(animalDTO.getGender());
         newAnimal.setBirthDate(animalDTO.getBirthDate());
-        newAnimal.setNurseryId(animalDTO.getNurseryId());
-        newAnimal.setWhoTookPet(1L);                            // если стоит цифра 1 значит животное никто не взял
+        newAnimal.setNursery(nursery);
+        newAnimal.setUser(user);                            // если стоит цифра 1 значит животное никто не взял
         Animal animalFromDB = animalRepo.save(newAnimal);
         return ResponseEntity.of(Optional.of(animalFromDB));
     }
@@ -58,10 +83,10 @@ public class AnimalService {
      * @throws IOException - исключение ввода-вывода при работе с файлами
      * @throws InterruptedException - исключение добавлено из-за наличия метода sleep
      */
-    public ResponseEntity<Animal> uploadPhoto(Integer animalId, MultipartFile animalPhoto) throws IOException, InterruptedException {
+    public ResponseEntity<HttpStatus> uploadPhoto(Integer animalId, MultipartFile animalPhoto) throws IOException, InterruptedException {
         Optional<Animal> animalFromDB = animalRepo.findById(animalId);
         if(animalFromDB.isEmpty()){
-            throw new NotFoundException((long)animalId);
+            throw new EntityNotFoundException((long)animalId);
         }
         String strPath = System.getProperty("user.dir");
         strPath += animals_images;
@@ -79,9 +104,8 @@ public class AnimalService {
         }
 
         animalRepo.updatePhotoPathColumn(filePath.toString(), animalId);
-        Thread.sleep(50);                                           // Задержка добавлена для достоверной записи изменений в таблицу базы данных.
-                                                                          //  Без использования исключения возвращается не измененная строка таблицы
-        return ResponseEntity.of(animalRepo.findById(animalId));
+
+        return ResponseEntity.of(Optional.of(HttpStatus.OK));
     }
 
     /**
@@ -100,7 +124,10 @@ public class AnimalService {
      * @throws IOException - исключение ввода-вывода при работе с файлами
      */
     public void getAnimalPhoto(int id, HttpServletResponse response) throws IOException {
-        Animal animal = animalRepo.findById(id).orElseThrow(() -> new NotFoundException((long)id));
+        Animal animal = animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException((long)id));
+        if(animal.getPhotoPath() == null){
+            throw new ImageNotFoundException("Путь к файлу с изображением отсутствует!");
+        }
         Path path = Paths.get(animal.getPhotoPath());
         if(!Files.exists(path)){
             throw new ImageNotFoundException("Файл с изображением не найден!");
@@ -123,5 +150,98 @@ public class AnimalService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Метод для удаления записи из таблицы animal_table по id
+     * @param id - primary key животного в таблице animal_table
+     * @return удаленная запись животного
+     */
+    public ResponseEntity<Animal> delete(Integer id) {
+        return ResponseEntity.of(Optional.of(
+                animalRepo.findById(id)
+                .map(animalToDel -> {
+                    animalRepo.delete(animalToDel);
+                    return animalToDel;
+                })
+                .orElseThrow(() -> new EntityNotFoundException(Long.valueOf(id)))));
+    }
+
+    /**
+     * Метод для изменения столбца с датой усыновления и столбца об том кто усыновил в таблице питомца
+     * @param animalId - идентификатор питомца в таблице
+     * @param adoptedId - идентификатор усыновителя в таблице
+     * @return статус HTTP
+     */
+    public ResponseEntity<HttpStatus> insertDataOfHuman(Integer animalId, Long adoptedId) {
+        Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(Long.valueOf(animalId)));
+        User userAdopted = userRepo.findById(adoptedId).orElseThrow(() -> new EntityNotFoundException(adoptedId));
+        animalRepo.updateWhoTookPetAndTookDate(userAdopted.getTelegramUserId(), LocalDate.now(), animalFromDB.getId());
+
+        return ResponseEntity.of(Optional.of(HttpStatus.OK));
+    }
+
+    /**
+     * Метод для получения списка животных, которые
+     * находятся в питомниках постранично
+     * @param pageNumber - номер страницы получается
+     * @param pageSize - количество объектов в листе
+     * @return ResponseEntity листа объектов AnimalDTOForUser c нужной для пользователя информацией
+     */
+    public ResponseEntity<List<AnimalDTOForUser>> getPageList(Integer pageNumber, Integer pageSize) {
+        validator.validatePageNumber(pageNumber);
+        validator.validatePageSize(pageSize);
+        PageRequest pageRequest = PageRequest.of(pageNumber - 1, pageSize);
+        List<Animal> animals = animalRepo.findAll(pageRequest).getContent()
+                .stream()
+                .filter(a -> a.getUser().getTelegramUserId() == 1L)
+                .toList();
+        List<AnimalDTOForUser> resultAnimals = convertListAnimalToListAnimalDTO(animals);
+        return ResponseEntity.of(Optional.of(resultAnimals));
+    }
+
+    /**
+     * Метод для преобразования списка объектов Animal в список объектов AnimalDTOForUser
+     * @param animals - список объектов Animal
+     * @return список объектов AnimalDTOForUser
+     */
+    private List<AnimalDTOForUser> convertListAnimalToListAnimalDTO(List<Animal> animals){
+        AnimalDTOForUserMapper animalDTOForUserMapper = new AnimalDTOForUserMapper();
+        return animals.stream()
+                .filter(animal -> animal.getUser().getTelegramUserId() == 1)
+                .map(animalDTOForUserMapper::perform)
+                .toList();
+    }
+
+    /**
+     * Метод для изменения строки возвращенного животного
+     * @param animalId - идентификатор животного в таблице animal_table
+     * @return HttpStatus
+     */
+    public ResponseEntity<HttpStatus> insertDateOfReturn(Integer animalId) {
+        Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(Long.valueOf(animalId)));
+        animalRepo.updateReturnDateAnimal(LocalDate.now(), animalFromDB.getId());
+
+        return ResponseEntity.of(Optional.of(HttpStatus.OK));
+
+    }
+
+    /**
+     * Метод для возвращения объекта AnimalDTOForUser оп идентификатору животного
+     * @param animalId - идентификатор животного в таблице animal_table
+     * @return HttpStatus
+     */
+    public ResponseEntity<AnimalDTOForUser> getById(Integer animalId) {
+        AnimalDTOForUserMapper animalDTOForUserMapper = new AnimalDTOForUserMapper();
+        Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(Long.valueOf(animalId)));
+        return ResponseEntity.of(Optional.of(animalDTOForUserMapper.perform(animalFromDB)));
+    }
+
+    /**
+     * Метод для получения всего списка животных
+     * @return
+     */
+    public ResponseEntity<List<Animal>> getAll() {
+        return ResponseEntity.of(Optional.of(animalRepo.findAll()));
     }
 }
