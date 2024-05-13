@@ -18,7 +18,7 @@ public class Animal {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
+    @Column(length = 50)
     private String animalName;
 
     @Enumerated(EnumType.STRING)
@@ -28,6 +28,8 @@ public class Animal {
     private Gender gender;
 
     private LocalDate birthDate;
+
+    @Column(columnDefinition="TEXT")
     private String photoPath;
 
     @ManyToOne
@@ -40,6 +42,7 @@ public class Animal {
     @JoinColumn(name = "nursery_id")
     private Nursery nursery;
 
+    @Column(columnDefinition="TEXT")
     private String description;
     private LocalDate petReturnDate;
 

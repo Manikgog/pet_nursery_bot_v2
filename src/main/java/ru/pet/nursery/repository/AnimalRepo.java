@@ -18,11 +18,11 @@ public interface AnimalRepo extends JpaRepository<Animal, Integer> {
 
     @Modifying
     @Transactional
-    @Query(value = "UPDATE animal_table SET who_took_pet = :adoptedId, took_date = :date WHERE id = :id", nativeQuery = true)
+    @Query(value = "UPDATE animal_table SET telegram_user_id = :adoptedId, took_date = :date WHERE id = :id", nativeQuery = true)
     void updateWhoTookPetAndTookDate(Long adoptedId, LocalDate date, int id);
 
     @Modifying
     @Transactional
-    @Query(value = "UPDATE animal_table SET who_took_pet = 1, took_date = null, pet_return_date = :date WHERE id = :id", nativeQuery = true)
+    @Query(value = "UPDATE animal_table SET telegram_user_id = 1, took_date = null, pet_return_date = :date WHERE id = :id", nativeQuery = true)
     void updateReturnDateAnimal(LocalDate date, int id);
 }

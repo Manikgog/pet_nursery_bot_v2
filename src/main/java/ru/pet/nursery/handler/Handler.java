@@ -27,7 +27,7 @@ public class Handler {
             case "/start" -> new StartAction();
             case "/info" -> new InfoAction();
             case "/contacts" -> new ContactsAction();
-            case "/volunteer" -> new VolunteersAction(volunteerRepo).accept(update, bot);
+            //case "/volunteer" -> new VolunteersAction(volunteerRepo).accept(update, bot);
         }
         /*if (actions.containsKey(key)) {
             actions.get(key).handle(update, bot);   // выполняется ответ пользователю в котором указывается, что надо ввести
