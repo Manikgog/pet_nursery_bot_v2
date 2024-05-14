@@ -20,6 +20,12 @@ public class Handler {
         this.volunteerRepo = volunteerRepo;
         this.actions = actions;
     }
+
+    /**
+     * Метод для сортировки запросов
+     * @param update - объект класса Update
+     * @param bot - объект класса TelegramBot
+     */
     public void answer(Update update, TelegramBot bot) {
         String key = update.message().text();
         String chatId = update.message().chat().id().toString();

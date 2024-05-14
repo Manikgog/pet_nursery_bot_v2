@@ -4,9 +4,15 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
 import java.util.function.BiConsumer;
 
-public class ContactsAction implements BiConsumer<Update, TelegramBot> {
+public class ContactsAction implements Action {
+
     @Override
-    public void accept(Update update, TelegramBot telegramBot) {
+    public void handle(Update update, TelegramBot bot) {
+
+    }
+
+    @Override
+    public void callback(Update update, TelegramBot bot) {
 
     }
 }

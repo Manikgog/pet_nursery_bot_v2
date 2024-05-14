@@ -6,15 +6,26 @@ import com.pengrad.telegrambot.request.SendMessage;
 
 import java.util.function.BiConsumer;
 
-public class VolunteerMenuAction implements BiConsumer<Update, TelegramBot> {
+public class VolunteerMenuAction implements Action {
+
+    /**
+     * Метод для отправки меню команд
+     * @param update - объект класса обновления
+     * @param bot - объект класса TelegramBot
+     */
     @Override
-    public void accept(Update update, TelegramBot telegramBot) {
+    public void handle(Update update, TelegramBot bot) {
         String menu = """
                 Введите:
                 /phone - для получения телефонов волонтеров
                 /list - для получения списка животных
                 """;
         SendMessage sendMessage = new SendMessage(update.message().chat().id(), menu);
-        telegramBot.execute(sendMessage);
+        bot.execute(sendMessage);
+    }
+
+    @Override
+    public void callback(Update update, TelegramBot bot) {
+
     }
 }

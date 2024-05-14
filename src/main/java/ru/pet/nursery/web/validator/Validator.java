@@ -15,6 +15,17 @@ public class Validator {
     public Validator(NurseryRepo nurseryRepo){
         this.nurseryRepo = nurseryRepo;
     }
+
+    /**
+     * Метод для проверки валидности полей объекта animalDTO.
+     * На валидность проверяются все поля.
+     * Текстовые поля проверяются на пустоту.
+     * Поле с датой рождения на пустоту и на то чтобы оно не было
+     * в будущем.
+     * Поле с идентификатором приюта проверяется на наличие такого
+     * в базе данных.
+     * @param animalDTO - объект класса AnimalDTO
+     */
     public void validateAnimalDTO(AnimalDTO animalDTO){
         List<String> messageList = new ArrayList<>();
         messageList.add(validateAnimalName(animalDTO.getAnimalName()));
@@ -32,6 +43,11 @@ public class Validator {
         }
     }
 
+    /**
+     * Метод для проверки строки на пустоту
+     * @param animalName - строка с именем животного
+     * @return строка для добавления в итоговое сообщение об ошибке.
+     */
     private String validateAnimalName(String animalName){
         if(animalName == null || animalName.isEmpty()){
             return "Поле animalName класса AnimalDTO не должно быть пустым";
@@ -39,6 +55,11 @@ public class Validator {
         return "";
     }
 
+    /**
+     * Метод для проверки строки на пустоту
+     * @param animalType - строка с типом животного
+     * @return строка для добавления в итоговое сообщение об ошибке.
+     */
     private String validateAnimalType(String animalType){
         if(animalType == null || animalType.isEmpty()){
             return "Поле animalType класса AnimalDTO не должно быть пустым";
@@ -46,6 +67,11 @@ public class Validator {
         return "";
     }
 
+    /**
+     * Метод для проверки строки на пустоту
+     * @param gender - строка с полом животного
+     * @return строка для добавления в итоговое сообщение об ошибке.
+     */
     private String validateGender(String gender){
         if(gender == null || gender.isEmpty()){
             return "Поле gender класса AnimalDTO не должно быть пустым";
@@ -57,6 +83,11 @@ public class Validator {
         return "";
     }
 
+    /**
+     * Метод для проверки строки на пустоту
+     * @param description - строка с описанием животного
+     * @return строка для добавления в итоговое сообщение об ошибке.
+     */
     private String validateDescription(String description){
         if(description == null || description.isEmpty()){
             return "Поле description класса AnimalDTO не должно быть пустым";
@@ -64,6 +95,11 @@ public class Validator {
         return "";
     }
 
+    /**
+     * Метод для проверки LocalDate на null и на будущее время
+     * @param animalBirthDate - дата рождения животного
+     * @return строка для добавления в итоговое сообщение об ошибке.
+     */
     private String validateAnimalBirthDate(LocalDate animalBirthDate) {
         if (animalBirthDate == null) {
             return "Поле birthDate класса AnimalDTO не должно быть пустым";
@@ -75,6 +111,11 @@ public class Validator {
         return "";
     }
 
+    /**
+     * Метод для проверки наличия приюта в базе данных
+     * @param id - идентификатор приюта
+     * @return строка для добавления в итоговое сообщение об ошибке.
+     */
     private String validateNurseryId(int id){
         if(nurseryRepo.findById(id).isEmpty()){
             return "Питомника с id = " + id + " нет в нашей базе данных";
@@ -82,11 +123,19 @@ public class Validator {
         return "";
     }
 
+    /**
+     * Метод для проверки pageNumber на, то что pageNumber больше нуля
+     * @param pageNumber - целое число
+     */
     public void validatePageNumber(Integer pageNumber) {
         if(pageNumber <= 0)
             throw new PageNumberException("Номер страницы должен быть больше нуля");
     }
 
+    /**
+     * Метод для проверки pageSize на, то что pageSize больше нуля
+     * @param pageSize - целое число
+     */
     public void validatePageSize(Integer pageSize) {
         if(pageSize <= 0)
             throw new PageSizeException("Количество страниц должно быть больше нуля");

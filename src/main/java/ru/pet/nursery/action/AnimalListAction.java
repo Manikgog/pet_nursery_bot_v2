@@ -23,6 +23,11 @@ public class AnimalListAction implements Action{
 
     }
 
+    /**
+     * Метод для отправки списка животных
+     * @param update - обновление
+     * @param bot - объект класса TelegramBot
+     */
     @Override
     public void callback(Update update, TelegramBot bot) {
         List<Animal> animalList = animalRepo.findAll();

@@ -9,6 +9,21 @@ import ru.pet.nursery.enumerations.Gender;
 import java.time.LocalDate;
 import java.util.Objects;
 
+/**
+ * Класс Animal для создания сущности животного из приюта
+ * имеет поля:
+ * id - идентификатор, первичный ключ
+ * animalName - имя животного длина до 50 символов
+ * animalType - тип животного, принимает два значения CAT или DOG
+ * gender - пол животного, принимает два значения MALE или FEMALE
+ * birthDate - дата рождения животного
+ * photoPath - путь к файлу с изображением животного
+ * user - связанная сущность человека, который усыновил животное. Если животное не усыновлено, то user.telegramUserId = 1
+ * tookDate - дата, когда животное забрали из приюта
+ * nursery - связанная сущность питомника, где содержится животное
+ * description - описание животного
+ * petReturnDate - дата возвращения животного в приют
+ */
 @Entity
 @Getter
 @Setter
@@ -44,6 +59,7 @@ public class Animal {
 
     @Column(columnDefinition="TEXT")
     private String description;
+
     private LocalDate petReturnDate;
 
     @Override

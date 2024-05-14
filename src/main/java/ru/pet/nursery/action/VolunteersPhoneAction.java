@@ -29,6 +29,12 @@ public class VolunteersPhoneAction implements Action {
 
     }
 
+    /**
+     * Метод для отправки сообщения с контактами активного волонтера,
+     * которые достаются из базы данных
+     * @param update - объект класса Update
+     * @param bot - объект класса TelegramBot
+     */
     @Override
     public void callback(Update update, TelegramBot bot) {
         List<Volunteer> list = volunteerRepo.findAll();
