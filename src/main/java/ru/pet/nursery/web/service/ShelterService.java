@@ -86,7 +86,7 @@ public class ShelterService {
      *
      * @param pageNo   номер страницы
      * @param pageSize количество объектов в листе
-     * @return ResponseEntity лист объектов с информацией для пользователя.
+     * @return лист объектов с информацией для пользователя.
      */
     public List<Nursery> getAllShelter(Integer pageNo, Integer pageSize) {
         PageRequest pageable = PageRequest.of(pageNo - 1, pageSize);
@@ -99,7 +99,7 @@ public class ShelterService {
      * @param kindOfAnimal вид животного из таблицы nursery_table, где true - собака, false - кошка
      * @param pageNo       номер страницы
      * @param pageSize     количество объектов в листе
-     * @return ResponseEntity лист объектов с информацией для пользователя.
+     * @return лист объектов с информацией для пользователя.
      */
     public List<Nursery> getShelterForDog(Boolean kindOfAnimal, Integer pageNo, Integer pageSize) {
         PageRequest pageable = PageRequest.of(pageNo - 1, pageSize);
