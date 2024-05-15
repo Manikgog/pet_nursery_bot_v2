@@ -4,6 +4,7 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
 import org.springframework.stereotype.Service;
 import ru.pet.nursery.action.*;
+import ru.pet.nursery.repository.ShelterRepo;
 import ru.pet.nursery.repository.VolunteerRepo;
 
 import java.util.Map;
@@ -13,12 +14,16 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Handler {
     private final VolunteerRepo volunteerRepo;
     private final Map<String, Action> actions;
+    private final ShelterRepo shelterRepo;
     // карта пар идентификатор чата -> команда, которую отправил пользователь в прошлом запросе
     private final Map<String, String> bindingBy = new ConcurrentHashMap<>();
 
-    public Handler(VolunteerRepo volunteerRepo, Map<String, Action> actions){
+    public Handler(VolunteerRepo volunteerRepo,
+                   Map<String, Action> actions,
+                   ShelterRepo shelterRepo){
         this.volunteerRepo = volunteerRepo;
         this.actions = actions;
+        this.shelterRepo = shelterRepo;
     }
 
     /**
@@ -34,6 +39,7 @@ public class Handler {
             case "/info" -> new InfoAction();
             case "/contacts" -> new ContactsAction();
             //case "/volunteer" -> new VolunteersAction(volunteerRepo).accept(update, bot);
+            //case "/shelter" -> new ShelterAction(shelterRepo).accept(update,bot);
         }
         /*if (actions.containsKey(key)) {
             actions.get(key).handle(update, bot);   // выполняется ответ пользователю в котором указывается, что надо ввести
