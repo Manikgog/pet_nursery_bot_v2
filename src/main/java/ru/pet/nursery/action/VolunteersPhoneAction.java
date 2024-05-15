@@ -3,15 +3,15 @@ package ru.pet.nursery.action;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.pet.nursery.entity.Volunteer;
 import ru.pet.nursery.repository.VolunteerRepo;
+
 import java.util.List;
 
 @Service
 public class VolunteersPhoneAction implements Action {
-   @Autowired
+
    private final VolunteerRepo volunteerRepo;
    public VolunteersPhoneAction(VolunteerRepo volunteerRepo){
        this.volunteerRepo = volunteerRepo;

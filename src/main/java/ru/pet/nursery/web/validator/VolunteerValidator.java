@@ -1,16 +1,23 @@
 package ru.pet.nursery.web.validator;
 
+import org.springframework.stereotype.Component;
 import ru.pet.nursery.entity.Volunteer;
 import ru.pet.nursery.repository.UserRepo;
+import ru.pet.nursery.repository.VolunteerRepo;
+import ru.pet.nursery.web.exception.EntityNotFoundException;
 import ru.pet.nursery.web.exception.IllegalFieldException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class VolunteerValidator {
     private final UserRepo userRepo;
+    private final VolunteerRepo volunteerRepo;
 
-    public VolunteerValidator(UserRepo userRepo) {
+    public VolunteerValidator(UserRepo userRepo,
+                              VolunteerRepo volunteerRepo) {
         this.userRepo = userRepo;
+        this.volunteerRepo = volunteerRepo;
     }
 
     private final static String regexPhone = "(\\+\\d(?:\\-|\\ |/)\\d\\d\\d(?:\\-|\\ |/)\\d\\d\\d(?:\\-|\\ |/)\\d\\d\\d\\d)";
@@ -35,7 +42,7 @@ public class VolunteerValidator {
      * Метод для проверки строки на пустоту или пробелы
      * @param str - входная строка
      */
-    private String validateName(String str){
+    public String validateName(String str){
         if(str == null || str.isEmpty() || str.isBlank()){
              return "Поле name не должно быть пустым или состоять из одних пробелов";
         }
@@ -92,5 +99,11 @@ public class VolunteerValidator {
                     "Необходимо зайти в наш бот тогда ваш идентификатор добавиться в базу данных.";
         }
         return "";
+    }
+
+    public void validateId(int id){
+        if(volunteerRepo.findById(id).isEmpty()){
+            throw new EntityNotFoundException((long)id);
+        }
     }
 }
