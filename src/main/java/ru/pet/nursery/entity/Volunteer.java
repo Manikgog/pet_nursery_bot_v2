@@ -14,6 +14,7 @@ public class Volunteer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    private long telegramUserId;
     private String name;
     private String phoneNumber;
     private boolean isActive;
