@@ -6,10 +6,6 @@ import org.springframework.stereotype.Component;
 
 @Component("/start")
 public class StartAction implements Action {
-    /*@Override
-    public void accept(Update update, TelegramBot telegramBot) {
-
-    }*/
 
     @Override
     public void handle(Update update, TelegramBot bot) {
