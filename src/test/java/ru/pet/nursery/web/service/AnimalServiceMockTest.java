@@ -1,4 +1,4 @@
-package ru.pet.nursery;
+package ru.pet.nursery.web.service;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -11,12 +11,11 @@ import ru.pet.nursery.entity.Animal;
 import ru.pet.nursery.repository.AnimalRepo;
 import ru.pet.nursery.repository.NurseryRepo;
 import ru.pet.nursery.repository.UserRepo;
-import ru.pet.nursery.web.service.AnimalService;
 
 import java.util.Optional;
 
 import static org.mockito.Mockito.when;
-import static ru.pet.nursery.Constants.*;
+import static ru.pet.nursery.web.Constants.*;
 
 @ExtendWith(MockitoExtension.class)
 public class AnimalServiceMockTest {

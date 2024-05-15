@@ -49,7 +49,7 @@ public class Validator {
      * @return строка для добавления в итоговое сообщение об ошибке.
      */
     private String validateAnimalName(String animalName){
-        if(animalName == null || animalName.isEmpty()){
+        if(animalName == null || animalName.isEmpty() || animalName.isBlank()){
             return "Поле animalName класса AnimalDTO не должно быть пустым";
         }
         return "";
@@ -61,7 +61,7 @@ public class Validator {
      * @return строка для добавления в итоговое сообщение об ошибке.
      */
     private String validateAnimalType(String animalType){
-        if(animalType == null || animalType.isEmpty()){
+        if(animalType == null || animalType.isEmpty() || animalType.isBlank()){
             return "Поле animalType класса AnimalDTO не должно быть пустым";
         }
         return "";
