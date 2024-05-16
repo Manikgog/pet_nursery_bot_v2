@@ -54,4 +54,5 @@ public class ValidatorUnitTest {
         VASKA_DTO.setBirthDate(LocalDate.now().plusDays(1));
         Assertions.assertThrows(IllegalFieldException.class, () -> validator.validateAnimalDTO(VASKA_DTO));
     }
+
 }

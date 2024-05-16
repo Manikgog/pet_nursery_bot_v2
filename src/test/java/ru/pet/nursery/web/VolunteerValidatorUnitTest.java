@@ -10,7 +10,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ru.pet.nursery.entity.User;
 import ru.pet.nursery.entity.Volunteer;
 import ru.pet.nursery.repository.UserRepo;
+import ru.pet.nursery.repository.VolunteerRepo;
+import ru.pet.nursery.web.exception.EntityNotFoundException;
 import ru.pet.nursery.web.exception.IllegalFieldException;
+import ru.pet.nursery.web.exception.IllegalParameterException;
 import ru.pet.nursery.web.validator.VolunteerValidator;
 import java.util.Optional;
 import java.util.Random;
@@ -21,6 +24,8 @@ import static org.mockito.Mockito.when;
 public class VolunteerValidatorUnitTest {
     @Mock
     UserRepo userRepo;
+    @Mock
+    VolunteerRepo volunteerRepo;
     @InjectMocks
     VolunteerValidator validator;
     private final Faker faker = new Faker();
@@ -172,5 +177,119 @@ public class VolunteerValidatorUnitTest {
 
         Assertions.assertThrows(IllegalFieldException.class, () -> validator.validate(volunteer));
 
+    }
+
+
+    /**
+     * Метод для проверки правильности работы
+     * метода для проверки наличия идентификатора
+     * в базе данных в таблице волонтеров
+     * при передаче валидного идентификатора
+     */
+    @Test
+    public void validateId_positiveTest(){
+        for (int i = 0; i < 5; i++) {
+            Volunteer volunteer = new Volunteer();
+            volunteer.setId(faker.random().nextInt());
+            String first_name = faker.name().firstName();
+            String last_name = faker.name().lastName();
+            volunteer.setName(first_name + " " + last_name);
+            String phone = faker.phoneNumber().phoneNumberInternational().substring(0, 15);
+            volunteer.setPhoneNumber(phone);
+            long telegramUserId = new Random().nextInt(1, 1000000000);
+            volunteer.setTelegramUserId(telegramUserId);
+            volunteer.setActive(false);
+
+            when(volunteerRepo.findById(volunteer.getId())).thenReturn(Optional.of(volunteer));
+            validator.validateId(volunteer.getId());
+        }
+    }
+
+    /**
+     * Метод для проверки правильности работы
+     * метода для проверки наличия идентификатора
+     * в базе данных в таблице волонтеров
+     * при передаче невалидного идентификатора
+     */
+    @Test
+    public void validateId_negativeTest(){
+        for (int i = 0; i < 5; i++) {
+            Volunteer volunteer = new Volunteer();
+            volunteer.setId(faker.random().nextInt());
+            String first_name = faker.name().firstName();
+            String last_name = faker.name().lastName();
+            volunteer.setName(first_name + " " + last_name);
+            String phone = faker.phoneNumber().phoneNumberInternational().substring(0, 15);
+            volunteer.setPhoneNumber(phone);
+            long telegramUserId = new Random().nextInt(1, 1000000000);
+            volunteer.setTelegramUserId(telegramUserId);
+            volunteer.setActive(false);
+
+            when(volunteerRepo.findById(volunteer.getId())).thenReturn(Optional.empty());
+
+            Assertions.assertThrows(EntityNotFoundException.class, () -> validator.validateId(volunteer.getId()));
+        }
+    }
+
+
+    /**
+     * Метод для проверки правильности работы
+     * метода проверки переданной строки на null,
+     * пустоту или пробелы при передаче валидной
+     * строки
+     */
+    @Test
+    public void stringValidate_positiveTest(){
+        for (int i = 0; i < 5; i++) {
+            String string = faker.name().toString();
+            validator.stringValidate(string);
+        }
+    }
+
+    /**
+     * Метод для проверки правильности работы
+     * метода проверки переданной строки на null,
+     * пустоту или пробелы при передаче невалидной
+     * строки
+     */
+    @Test
+    public void stringValidate_negativeTest(){
+
+        Assertions.assertThrows(IllegalParameterException.class, () -> validator.stringValidate(null));
+
+        String emptyString = "";
+        Assertions.assertThrows(IllegalParameterException.class, () -> validator.stringValidate(emptyString));
+
+        String spaceString = "        ";
+        Assertions.assertThrows(IllegalParameterException.class, () -> validator.stringValidate(spaceString));
+
+    }
+
+
+    /**
+     * Метод для проверки метода для проверки
+     * телефонного номера на соответствие формату
+     * при валидном входном параметре
+     */
+    @Test
+    public void phoneValidate_positiveTest(){
+        for (int i = 0; i < 5; i++) {
+            String phone = faker.phoneNumber().phoneNumberInternational().substring(0, 15);
+            validator.phoneValidate(phone);
+        }
+    }
+
+
+    /**
+     * Метод для тестирования метода для проверки
+     * телефонного номера на соответствие формату
+     * при невалидном входном параметре
+     */
+    @Test
+    public void phoneValidate_negativeTest(){
+        for (int i = 0; i < 5; i++) {
+            String phone = faker.phoneNumber().cellPhone();
+            Assertions.assertThrows(IllegalParameterException.class, () -> validator.phoneValidate(phone));
+        }
     }
 }

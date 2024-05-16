@@ -6,6 +6,8 @@ import ru.pet.nursery.repository.UserRepo;
 import ru.pet.nursery.repository.VolunteerRepo;
 import ru.pet.nursery.web.exception.EntityNotFoundException;
 import ru.pet.nursery.web.exception.IllegalFieldException;
+import ru.pet.nursery.web.exception.IllegalParameterException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +44,7 @@ public class VolunteerValidator {
      * Метод для проверки строки на пустоту или пробелы
      * @param str - входная строка
      */
-    public String validateName(String str){
+    private String validateName(String str){
         if(str == null || str.isEmpty() || str.isBlank()){
              return "Поле name не должно быть пустым или состоять из одних пробелов";
         }
@@ -80,7 +82,7 @@ public class VolunteerValidator {
      * @param phone - строка с номером телефона
      * @return строка
      */
-    public String validatePhoneNumber(String phone){
+    private String validatePhoneNumber(String phone){
         if(phone == null) return "";
         if(!phone.matches(regexPhone)){
             return "Телефон " + phone + " не соответствует формату: +7-654-654-6565 или +1 546 879 2121 или +8/214/541/5475";
@@ -93,7 +95,7 @@ public class VolunteerValidator {
      * @param telegramUserId - идентификатор переданных в поле объекта Volunteer
      * @return строка
      */
-    public String validateTelegamUserIdInDataBase(Long telegramUserId){
+    private String validateTelegamUserIdInDataBase(Long telegramUserId){
         if(userRepo.findById(telegramUserId).isEmpty()){
             return "Идентификатор пользователя " + telegramUserId + " отсутствует в базе данных. " +
                     "Необходимо зайти в наш бот тогда ваш идентификатор добавиться в базу данных.";
@@ -101,9 +103,40 @@ public class VolunteerValidator {
         return "";
     }
 
+    /**
+     * Метод для проверки наличия в базе данных
+     * записи с переданным id
+     * @param id - идентификатор (первичный ключ) таблицы волонтеров
+     */
     public void validateId(int id){
         if(volunteerRepo.findById(id).isEmpty()){
             throw new EntityNotFoundException((long)id);
         }
+    }
+
+
+    /**
+     * Проверка строки на null, пустоту и пробелы
+     * @param string
+     */
+    public void stringValidate(String string){
+        String answer = validateName(string);
+        if(answer.isEmpty()){
+            return;
+        }
+        throw new IllegalParameterException("Параметр не должен быть пустой");
+    }
+
+
+    /**
+     * Метод для проверки соответствия телефонного номера формату
+     * @param phone
+     */
+    public void phoneValidate(String phone){
+        String answer = validatePhoneNumber(phone);
+        if(answer.isEmpty()){
+            return;
+        }
+        throw new IllegalParameterException(answer);
     }
 }
