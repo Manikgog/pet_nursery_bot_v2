@@ -1,5 +1,7 @@
 package ru.pet.nursery.web.validator;
 
+import ru.pet.nursery.entity.Nursery;
+import ru.pet.nursery.enumerations.AnimalType;
 import ru.pet.nursery.repository.NurseryRepo;
 import ru.pet.nursery.web.dto.AnimalDTO;
 import ru.pet.nursery.web.exception.IllegalFieldException;
@@ -9,6 +11,7 @@ import ru.pet.nursery.web.exception.PageSizeException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class Validator {
     private final NurseryRepo nurseryRepo;
@@ -33,7 +36,7 @@ public class Validator {
         messageList.add(validateGender(animalDTO.getGender().toString()));
         messageList.add(validateDescription(animalDTO.getDescription()));
         messageList.add(validateAnimalBirthDate(animalDTO.getBirthDate()));
-        messageList.add(validateNurseryId(animalDTO.getNurseryId()));
+        messageList.add(validateNurseryId(animalDTO));
         StringBuilder resultMessage = new StringBuilder();
         messageList.stream()
                 .filter(message -> !message.isEmpty())
@@ -113,12 +116,19 @@ public class Validator {
 
     /**
      * Метод для проверки наличия приюта в базе данных
-     * @param id - идентификатор приюта
+     * @param animalDTO - объект класса AnimalDTO
      * @return строка для добавления в итоговое сообщение об ошибке.
      */
-    private String validateNurseryId(int id){
-        if(nurseryRepo.findById(id).isEmpty()){
+    private String validateNurseryId(AnimalDTO animalDTO){
+        int id = animalDTO.getNurseryId();
+        Optional<Nursery> nursery = nurseryRepo.findById(id);
+        if(nursery.isEmpty()){
             return "Питомника с id = " + id + " нет в нашей базе данных";
+        }
+        if(!nursery.get().isForDog() && animalDTO.getAnimalType() == AnimalType.DOG){
+            return "Питомник в id = " + id + " предназначен для кошек";
+        }else if(nursery.get().isForDog() && animalDTO.getAnimalType() == AnimalType.CAT){
+            return "Питомник в id = " + id + " предназначен для собак";
         }
         return "";
     }
