@@ -3,7 +3,6 @@ package ru.pet.nursery.web.service;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -81,9 +80,8 @@ public class AnimalService {
      * @return ResponseEntity<Animal> - объект ResponseEntity содержащий объект Animal взятый из базы данных с
      *                                  измененным полем photo_path
      * @throws IOException - исключение ввода-вывода при работе с файлами
-     * @throws InterruptedException - исключение добавлено из-за наличия метода sleep
      */
-    public ResponseEntity<HttpStatus> uploadPhoto(Integer animalId, MultipartFile animalPhoto) throws IOException, InterruptedException {
+    public ResponseEntity uploadPhoto(Integer animalId, MultipartFile animalPhoto) throws IOException {
         Optional<Animal> animalFromDB = animalRepo.findById(animalId);
         if(animalFromDB.isEmpty()){
             throw new EntityNotFoundException((long)animalId);
@@ -103,9 +101,10 @@ public class AnimalService {
             bis.transferTo(bos);
         }
 
-        animalRepo.updatePhotoPathColumn(filePath.toString(), animalId);
+        animalFromDB.get().setPhotoPath(filePath.toString());
+        animalRepo.save(animalFromDB.get());
 
-        return ResponseEntity.of(Optional.of(HttpStatus.OK));
+        return ResponseEntity.ok().build();
     }
 
     /**
@@ -173,12 +172,13 @@ public class AnimalService {
      * @param adoptedId - идентификатор усыновителя в таблице
      * @return статус HTTP
      */
-    public ResponseEntity<HttpStatus> insertDataOfHuman(Integer animalId, Long adoptedId) {
+    public ResponseEntity insertDataOfHuman(Integer animalId, Long adoptedId) {
         Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(Long.valueOf(animalId)));
         User userAdopted = userRepo.findById(adoptedId).orElseThrow(() -> new EntityNotFoundException(adoptedId));
-        animalRepo.updateWhoTookPetAndTookDate(userAdopted.getTelegramUserId(), LocalDate.now(), animalFromDB.getId());
-
-        return ResponseEntity.of(Optional.of(HttpStatus.OK));
+        animalFromDB.setUser(userAdopted);
+        animalFromDB.setTookDate(LocalDate.now());
+        animalRepo.save(animalFromDB);
+        return ResponseEntity.ok().build();
     }
 
     /**
@@ -218,12 +218,11 @@ public class AnimalService {
      * @param animalId - идентификатор животного в таблице animal_table
      * @return HttpStatus
      */
-    public ResponseEntity<HttpStatus> insertDateOfReturn(Integer animalId) {
-        Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(Long.valueOf(animalId)));
-        animalRepo.updateReturnDateAnimal(LocalDate.now(), animalFromDB.getId());
-
-        return ResponseEntity.of(Optional.of(HttpStatus.OK));
-
+    public ResponseEntity insertDateOfReturn(Integer animalId) {
+        Animal animalOld = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(Long.valueOf(animalId)));
+        animalOld.setPetReturnDate(LocalDate.now());
+        animalRepo.save(animalOld);
+        return ResponseEntity.ok().build();
     }
 
     /**
@@ -239,7 +238,7 @@ public class AnimalService {
 
     /**
      * Метод для получения всего списка животных
-     * @return
+     * @return - ResponseEntity<List<Animal>>
      */
     public ResponseEntity<List<Animal>> getAll() {
         return ResponseEntity.of(Optional.of(animalRepo.findAll()));

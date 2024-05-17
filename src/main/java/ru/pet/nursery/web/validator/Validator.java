@@ -1,5 +1,6 @@
 package ru.pet.nursery.web.validator;
 
+import org.springframework.stereotype.Component;
 import ru.pet.nursery.repository.NurseryRepo;
 import ru.pet.nursery.web.dto.AnimalDTO;
 import ru.pet.nursery.web.exception.IllegalFieldException;
@@ -10,6 +11,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class Validator {
     private final NurseryRepo nurseryRepo;
     public Validator(NurseryRepo nurseryRepo){

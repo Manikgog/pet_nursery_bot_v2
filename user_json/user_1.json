@@ -1,0 +1,21 @@
+{
+  "id": 0,
+  "reportDate": "2024-05-17",
+  "telegram_user_id": {
+    "telegramUserId": 10,
+    "firstName": "Елена",
+    "lastName": "Петрова",
+    "userName": "Елена Петрова",
+    "phoneNumber": "+8 123-456-9874",
+    "address": "Астана ул.Куйбышева д.23 кв.34"
+  },
+  "path_to_foto": null,
+  "diet": null,
+  "health": null,
+  "behaviour": null,
+  "foto_is_accepted": false,
+  "diet_is_accepted": false,
+  "health_is_accepted": false,
+  "behaviour_is_accepted": false,
+  "all_items_is_accepted": false
+}
