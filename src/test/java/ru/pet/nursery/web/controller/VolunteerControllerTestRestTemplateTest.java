@@ -1,5 +1,6 @@
 package ru.pet.nursery.web.controller;
 
+import com.pengrad.telegrambot.TelegramBot;
 import net.datafaker.Faker;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
@@ -7,8 +8,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import ru.pet.nursery.entity.User;
@@ -18,12 +22,15 @@ import ru.pet.nursery.repository.VolunteerRepo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class VolunteerControllerTestRestTemplateTest {
     @LocalServerPort
     private int port;
+    @MockBean
+    private TelegramBot telegramBot;
     @Autowired
     private TestRestTemplate testRestTemplate;
     @Autowired
@@ -32,18 +39,18 @@ public class VolunteerControllerTestRestTemplateTest {
     private VolunteerRepo volunteerRepo;
     private final Faker faker = new Faker();
 
-    private final int NUMBER_OF_USER = 10;
-    private final int NUMBER_OF_VOLUNTEER = NUMBER_OF_USER/3;
+    private final int NUMBER_OF_USERS = 10;
+    private final int NUMBER_OF_VOLUNTEERS = NUMBER_OF_USERS /3;
     private List<User> users = new ArrayList<>();
     private List<Volunteer> volunteers = new ArrayList<>();
     @BeforeEach
     public void beforeEach(){
-        for (int i = 0; i < NUMBER_OF_USER; i++) {
+        for (int i = 0; i < NUMBER_OF_USERS; i++) {
             users.add(createUser());
         }
         userRepo.saveAll(users);
 
-        for (int i = 0; i < NUMBER_OF_VOLUNTEER; i++) {
+        for (int i = 0; i < NUMBER_OF_VOLUNTEERS; i++) {
             volunteers.add(createVolunteer(i));
         }
         volunteerRepo.saveAll(volunteers);
@@ -121,5 +128,305 @@ public class VolunteerControllerTestRestTemplateTest {
                 .usingRecursiveComparison()
                 .isEqualTo(responseEntity.getBody());
     }
+
+    /**
+     * Проверка работы метода при получении
+     * невалидного объекта Volunteer c полем равным null
+     */
+    @Test
+    public void upload_negativeTestByNameNull() {
+        // Получение объекта класса Volunteer с полем имени равным null
+        User user = users.get(faker.random().nextInt(0, NUMBER_OF_USERS));
+
+        Volunteer volunteer = new Volunteer();
+        volunteer.setId(0);
+        volunteer.setPhoneNumber(user.getPhoneNumber());
+        volunteer.setTelegramUserId(user.getTelegramUserId());
+        volunteer.setActive(false);
+
+        ResponseEntity<String> responseEntity = testRestTemplate.postForEntity(
+                "http://localhost:" + port + "/volunteer",
+                volunteer,
+                String.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo("Поле name не должно быть пустым или состоять из одних пробелов\n");
+    }
+
+
+    /**
+     * Проверка работы метода при передаче невалидного
+     * имени, состоящего из пустой строки
+     */
+    @Test
+    public void upload_negativeTestByNameEmpty() {
+        // Получение объекта класса Volunteer с полем имени равным пустой строке
+        User user = users.get(faker.random().nextInt(0, NUMBER_OF_USERS - 1));
+
+        Volunteer volunteer = new Volunteer();
+        volunteer.setId(0);
+        volunteer.setName("");
+        volunteer.setPhoneNumber(user.getPhoneNumber());
+        volunteer.setTelegramUserId(user.getTelegramUserId());
+        volunteer.setActive(false);
+
+        ResponseEntity<String> responseEntity = testRestTemplate.postForEntity(
+                "http://localhost:" + port + "/volunteer",
+                volunteer,
+                String.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo("Поле name не должно быть пустым или состоять из одних пробелов\n");
+    }
+
+
+    /**
+     * Проверка работы метода при передаче невалидного
+     * имени, состоящего из строки из одних пробелов
+     */
+    @Test
+    public void upload_negativeTestByNameSpaces() {
+        // Получение объекта класса Volunteer с полем имени из одних пробелов
+        User user = users.get(faker.random().nextInt(0, NUMBER_OF_USERS - 1));
+
+        Volunteer volunteer = new Volunteer();
+        volunteer.setId(0);
+        volunteer.setName("    ");
+        volunteer.setPhoneNumber(user.getPhoneNumber());
+        volunteer.setTelegramUserId(user.getTelegramUserId());
+        volunteer.setActive(false);
+
+        ResponseEntity<String> responseEntity = testRestTemplate.postForEntity(
+                "http://localhost:" + port + "/volunteer",
+                volunteer,
+                String.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo("Поле name не должно быть пустым или состоять из одних пробелов\n");
+    }
+
+    /**
+     * Проверка работы метода при передаче невалидного
+     * номера телефона равного null
+     */
+    @Test
+    public void upload_negativeTestByPhoneNull() {
+        // Получение объекта класса Volunteer с полем phoneNumber равным null
+        User user = users.get(faker.random().nextInt(0, NUMBER_OF_USERS - 1));
+
+        Volunteer volunteer = new Volunteer();
+        volunteer.setId(0);
+        volunteer.setName(user.getUserName());
+
+        volunteer.setTelegramUserId(user.getTelegramUserId());
+        volunteer.setActive(false);
+
+        ResponseEntity<String> responseEntity = testRestTemplate.postForEntity(
+                "http://localhost:" + port + "/volunteer",
+                volunteer,
+                String.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo("Поле phoneNumber не должно быть равен null, быть пустым или состоять из одних пробелов\n");
+    }
+
+
+    /**
+     * Проверка работы метода при передаче невалидного
+     * номера телефона, состоящего из пустой строки
+     */
+    @Test
+    public void upload_negativeTestByPhoneEmpty() {
+        // Получение объекта класса Volunteer с полем phoneNumber из одних пробелов
+        User user = users.get(faker.random().nextInt(0, NUMBER_OF_USERS - 1));
+
+        Volunteer volunteer = new Volunteer();
+        volunteer.setId(0);
+        volunteer.setName(user.getUserName());
+        String phone = "";
+        volunteer.setPhoneNumber(phone);
+        volunteer.setTelegramUserId(user.getTelegramUserId());
+        volunteer.setActive(false);
+
+        ResponseEntity<String> responseEntity = testRestTemplate.postForEntity(
+                "http://localhost:" + port + "/volunteer",
+                volunteer,
+                String.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo(
+                "Поле phoneNumber не должно быть равен null, быть пустым или состоять из одних пробелов\n" +
+                        "Телефон " + phone + " не соответствует формату: +7-654-654-6565 или +1 546 879 2121 или +8/214/541/5475\n");
+    }
+
+
+    /**
+     * Проверка работы метода при передаче невалидного
+     * номера телефона, состоящего из одних пробелов
+     */
+    @Test
+    public void upload_negativeTestByPhoneSpaces() {
+        // Получение объекта класса Volunteer с полем phoneNumber из одних пробелов
+        User user = users.get(faker.random().nextInt(0, NUMBER_OF_USERS - 1));
+
+        Volunteer volunteer = new Volunteer();
+        volunteer.setId(0);
+        volunteer.setName(user.getUserName());
+        String phone = "     ";
+        volunteer.setPhoneNumber(phone);
+        volunteer.setTelegramUserId(user.getTelegramUserId());
+        volunteer.setActive(false);
+
+        ResponseEntity<String> responseEntity = testRestTemplate.postForEntity(
+                "http://localhost:" + port + "/volunteer",
+                volunteer,
+                String.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo(
+                "Поле phoneNumber не должно быть равен null, быть пустым или состоять из одних пробелов\n" +
+                        "Телефон " + phone + " не соответствует формату: +7-654-654-6565 или +1 546 879 2121 или +8/214/541/5475\n");
+    }
+
+
+
+
+    /**
+     * Проверка работы метода при передаче невалидного
+     * telegramUserId равного null
+     */
+    @Test
+    public void upload_negativeTestByTelegramUserIdNull() {
+        // Получение объекта класса Volunteer с полем telegramUserId равным null
+        User user = users.get(faker.random().nextInt(0, NUMBER_OF_USERS - 1));
+
+        Volunteer volunteer = new Volunteer();
+        volunteer.setId(0);
+        volunteer.setName(user.getUserName());
+        volunteer.setPhoneNumber(user.getPhoneNumber());
+        volunteer.setActive(false);
+
+        ResponseEntity<String> responseEntity = testRestTemplate.postForEntity(
+                "http://localhost:" + port + "/volunteer",
+                volunteer,
+                String.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo(
+                "Поле telegramUserId должно быть больше 0\n");
+    }
+
+
+    /**
+     * Проверка работы метода при передаче невалидного
+     * telegramUserId меньшего нуля
+     */
+    @Test
+    public void upload_negativeTestByTelegramUserIdLessThenNull() {
+        // Получение объекта класса Volunteer с полем telegramUserId равным null
+        User user = users.get(faker.random().nextInt(0, NUMBER_OF_USERS - 1));
+
+        Volunteer volunteer = new Volunteer();
+        volunteer.setId(0);
+        volunteer.setName(user.getUserName());
+        volunteer.setTelegramUserId(-1);
+        volunteer.setPhoneNumber(user.getPhoneNumber());
+        volunteer.setActive(false);
+
+        ResponseEntity<String> responseEntity = testRestTemplate.postForEntity(
+                "http://localhost:" + port + "/volunteer",
+                volunteer,
+                String.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo(
+                "Поле telegramUserId должно быть больше 0\n");
+    }
+
+
+
+    /**
+     * Проверка работы метода при передаче невалидного
+     * telegramUserId, который отсутствует в базе данных
+     */
+    @Test
+    public void upload_negativeTestByTelegramUserIdIsNotInDB() {
+        // Получение объекта класса Volunteer с полем telegramUserId равным null
+        User user = users.get(faker.random().nextInt(0, NUMBER_OF_USERS - 1));
+        // нахождение telegramUserId, который отсутствует в базе данных
+        int telegramUserId = 1;
+        while(true){
+            int finalTelegramUserId = telegramUserId;
+            if(users.stream()
+                    .map(User::getTelegramUserId)
+                    .filter(t -> t == finalTelegramUserId)
+                    .findFirst()
+                    .isEmpty()){
+                break;
+            }
+            telegramUserId = faker.random().nextInt(0, 100);
+        }
+
+        Volunteer volunteer = new Volunteer();
+        volunteer.setId(0);
+        volunteer.setName(user.getUserName());
+        volunteer.setTelegramUserId(telegramUserId);
+        volunteer.setPhoneNumber(user.getPhoneNumber());
+        volunteer.setActive(false);
+
+        ResponseEntity<String> responseEntity = testRestTemplate.postForEntity(
+                "http://localhost:" + port + "/volunteer",
+                volunteer,
+                String.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo(
+                "Идентификатор пользователя " + telegramUserId + " отсутствует в базе данных. " +
+                        "Необходимо зайти в наш бот тогда ваш идентификатор добавиться в базу данных.\n");
+    }
+
+    /**
+     * Проверка правильности работы метода updateName
+     * при валидных входных параметрах
+     */
+    @Test
+    public void updateName_positiveTest(){
+        List<Volunteer> volunteersFromDB = volunteerRepo.findAll();
+        for (int i = 0; i < NUMBER_OF_VOLUNTEERS; i++) {
+            Volunteer volunteer = volunteersFromDB.get(faker.random().nextInt(1, volunteersFromDB.size() - 1));
+            int id = volunteer.getId();
+            String name = faker.name().firstName();
+            ResponseEntity<Volunteer> responseEntity = testRestTemplate.exchange(
+                    "http://localhost:" + port + "/volunteer/{id}/name?name={newName}",
+                    HttpMethod.PUT,
+                    HttpEntity.EMPTY,
+                    Volunteer.class,
+                    Map.of("id", id, "newName", name));
+
+            Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            Assertions.assertThat(responseEntity.getBody()).isNotNull();
+            Assertions.assertThat(responseEntity.getBody().getName()).isEqualTo(name);
+            Assertions.assertThat(volunteerRepo.findById(id).get().getName()).isEqualTo(name);
+        }
+    }
+
 
 }

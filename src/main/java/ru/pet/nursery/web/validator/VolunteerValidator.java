@@ -29,8 +29,7 @@ public class VolunteerValidator {
         messageList.add(validateName(volunteer.getName()));
         messageList.add(validatePhone(volunteer.getPhoneNumber()));
         messageList.add(validatePhoneNumber(volunteer.getPhoneNumber()));
-        messageList.add(validateTelegramUserId(volunteer.getTelegramUserId()));
-        messageList.add(validateTelegamUserIdInDataBase(volunteer.getTelegramUserId()));
+        messageList.add(validateTelegamUserId(volunteer.getTelegramUserId()));
         StringBuilder resultMessage = new StringBuilder();
         messageList.stream()
                 .filter(message -> !message.isEmpty())
@@ -47,21 +46,6 @@ public class VolunteerValidator {
     private String validateName(String str){
         if(str == null || str.isEmpty() || str.isBlank()){
              return "Поле name не должно быть пустым или состоять из одних пробелов";
-        }
-        return "";
-    }
-
-    /**
-     * Метод для проверки поля telegramUserId на null и положительность
-     * @param telegramUserId - идентификатор пользователя Telegram
-     * @return строка
-     */
-    private String validateTelegramUserId(Long telegramUserId){
-        if(telegramUserId == null){
-            return "Поле telegramUserId должно быть не null";
-        }
-        if(telegramUserId <= 0){
-            return "Поле telegramUserId должно быть больше 0";
         }
         return "";
     }
@@ -95,7 +79,10 @@ public class VolunteerValidator {
      * @param telegramUserId - идентификатор переданных в поле объекта Volunteer
      * @return строка
      */
-    private String validateTelegamUserIdInDataBase(Long telegramUserId){
+    private String validateTelegamUserId(Long telegramUserId){
+        if(telegramUserId <= 0){
+            return "Поле telegramUserId должно быть больше 0";
+        }
         if(userRepo.findById(telegramUserId).isEmpty()){
             return "Идентификатор пользователя " + telegramUserId + " отсутствует в базе данных. " +
                     "Необходимо зайти в наш бот тогда ваш идентификатор добавиться в базу данных.";
