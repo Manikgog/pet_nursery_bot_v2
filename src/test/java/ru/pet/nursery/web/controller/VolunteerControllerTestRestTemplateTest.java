@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -19,7 +20,6 @@ import ru.pet.nursery.entity.User;
 import ru.pet.nursery.entity.Volunteer;
 import ru.pet.nursery.repository.UserRepo;
 import ru.pet.nursery.repository.VolunteerRepo;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -41,8 +41,8 @@ public class VolunteerControllerTestRestTemplateTest {
 
     private final int NUMBER_OF_USERS = 10;
     private final int NUMBER_OF_VOLUNTEERS = NUMBER_OF_USERS /3;
-    private List<User> users = new ArrayList<>();
-    private List<Volunteer> volunteers = new ArrayList<>();
+    private final List<User> users = new ArrayList<>();
+    private final List<Volunteer> volunteers = new ArrayList<>();
     @BeforeEach
     public void beforeEach(){
         for (int i = 0; i < NUMBER_OF_USERS; i++) {
@@ -428,5 +428,417 @@ public class VolunteerControllerTestRestTemplateTest {
         }
     }
 
+
+    /**
+     * Проверка правильности работы метода при
+     * невалидном id
+     */
+    @Test
+    public void updateName_negativeTestByNotValidId(){
+        List<Volunteer> volunteersFromDB = volunteerRepo.findAll();
+        for (int i = 0; i < NUMBER_OF_VOLUNTEERS; i++) {
+            int id = getNotValidId(volunteersFromDB);
+            String name = faker.name().firstName();
+            ResponseEntity<String> responseEntity = testRestTemplate.exchange(
+                    "http://localhost:" + port + "/volunteer/{id}/name?name={newName}",
+                    HttpMethod.PUT,
+                    HttpEntity.EMPTY,
+                    String.class,
+                    Map.of("id", id, "newName", name));
+
+            Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+            Assertions.assertThat(responseEntity.getBody()).isNotNull();
+            Assertions.assertThat(responseEntity.getBody()).isEqualTo("Ресурс с id = " + id + " не найден");
+        }
+    }
+
+
+
+    /**
+     * Проверка правильности работы метода при
+     * невалидном name
+     */
+    @Test
+    public void updateName_negativeTestByNotValidName(){
+        List<Volunteer> volunteersFromDB = volunteerRepo.findAll();
+
+        Volunteer volunteer = volunteersFromDB.get(faker.random().nextInt(1, volunteersFromDB.size() - 1));
+        int id = volunteer.getId();
+        String name = "";
+        ResponseEntity<String> responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/volunteer/{id}/name?name={newName}",
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                String.class,
+                Map.of("id", id, "newName", name));
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo("Строка не должна быть пустой");
+
+        name = "   ";
+        responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/volunteer/{id}/name?name={newName}",
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                String.class,
+                Map.of("id", id, "newName", name));
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo("Строка не должна быть пустой");
+    }
+
+    /**
+     * Проверка работы метода при получении
+     * валидного значения статуса
+     */
+    @Test
+    public void putStatus_positiveTest(){
+        List<Volunteer> volunteersFromDB = volunteerRepo.findAll();
+        for (int i = 0; i < NUMBER_OF_VOLUNTEERS; i++) {
+            Volunteer volunteer = volunteersFromDB.get(faker.random().nextInt(1, volunteersFromDB.size() - 1));
+            int id = volunteer.getId();
+            Boolean status = true;
+            ResponseEntity<Volunteer> responseEntity = testRestTemplate.exchange(
+                    "http://localhost:" + port + "/volunteer/{id}/{status}",
+                    HttpMethod.PUT,
+                    HttpEntity.EMPTY,
+                    Volunteer.class,
+                    Map.of("id", id, "status", status));
+
+            Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            Assertions.assertThat(responseEntity.getBody()).isNotNull();
+            Assertions.assertThat(responseEntity.getBody().isActive()).isEqualTo(status);
+            Assertions.assertThat(volunteerRepo.findById(id).get().isActive()).isEqualTo(status);
+        }
+    }
+
+
+    /**
+     * Проверка правильности работы метода при
+     * невалидном id
+     */
+    @Test
+    public void putStatus_negativeTestByNotValidId() {
+        List<Volunteer> volunteersFromDB = volunteerRepo.findAll();
+        for (int i = 0; i < NUMBER_OF_VOLUNTEERS; i++) {
+            int id = getNotValidId(volunteersFromDB);
+            Boolean status = false;
+            ResponseEntity<String> responseEntity = testRestTemplate.exchange(
+                    "http://localhost:" + port + "/volunteer/{id}/{status}",
+                    HttpMethod.PUT,
+                    HttpEntity.EMPTY,
+                    String.class,
+                    Map.of("id", id, "status", status));
+
+            Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+            Assertions.assertThat(responseEntity.getBody()).isNotNull();
+            Assertions.assertThat(responseEntity.getBody()).isEqualTo("Ресурс с id = " + id + " не найден");
+
+        }
+    }
+
+
+    /**
+     * Проверка метода при получении валидных параметров
+     * идентификатора и телефонного номера
+     */
+    @Test
+    public void putPhone_positiveTest(){
+        List<Volunteer> volunteersFromDB = volunteerRepo.findAll();
+        for (int i = 0; i < NUMBER_OF_VOLUNTEERS; i++) {
+            Volunteer volunteer = volunteersFromDB.get(faker.random().nextInt(1, volunteersFromDB.size() - 1));
+            int id = volunteer.getId();
+            String newPhone = faker.phoneNumber().phoneNumberInternational().substring(0, 15);
+            ResponseEntity<Volunteer> responseEntity = testRestTemplate.exchange(
+                    "http://localhost:" + port + "/volunteer/{id}/phone?phone={phone}",
+                    HttpMethod.PUT,
+                    HttpEntity.EMPTY,
+                    Volunteer.class,
+                    Map.of("id", id, "phone", newPhone));
+
+            Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            Assertions.assertThat(responseEntity.getBody()).isNotNull();
+            Assertions.assertThat(responseEntity.getBody().getPhoneNumber()).isEqualTo(newPhone);
+            Assertions.assertThat(volunteerRepo.findById(id).get().getPhoneNumber()).isEqualTo(newPhone);
+        }
+    }
+
+
+    /**
+     * Проверка правильности работы метода при
+     * невалидном id
+     */
+    @Test
+    public void putPhone_negativeTestByNotValidId(){
+        List<Volunteer> volunteersFromDB = volunteerRepo.findAll();
+        for (int i = 0; i < NUMBER_OF_VOLUNTEERS; i++) {
+            int id = getNotValidId(volunteersFromDB);
+            String newPhone = faker.phoneNumber().phoneNumberInternational().substring(0, 15);
+            ResponseEntity<String> responseEntity = testRestTemplate.exchange(
+                    "http://localhost:" + port + "/volunteer/{id}/phone?phone={phone}",
+                    HttpMethod.PUT,
+                    HttpEntity.EMPTY,
+                    String.class,
+                    Map.of("id", id, "phone", newPhone));
+
+            Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+            Assertions.assertThat(responseEntity.getBody()).isNotNull();
+            Assertions.assertThat(responseEntity.getBody()).isEqualTo("Ресурс с id = " + id + " не найден");
+        }
+    }
+
+    /**
+     * Проверка работы метода при получении
+     * невалидного значения phoneNumber
+     */
+    @Test
+    public void putPhone_negativeTestByNotValidPhone(){
+        List<Volunteer> volunteersFromDB = volunteerRepo.findAll();
+
+        Volunteer volunteer = volunteersFromDB.get(faker.random().nextInt(1, volunteersFromDB.size() - 1));
+        int id = volunteer.getId();
+        String newPhone = faker.phoneNumber().cellPhone();
+        ResponseEntity<String> responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/volunteer/{id}/phone?phone={newPhone}",
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                String.class,
+                Map.of("id", id, "newPhone", newPhone));
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo(
+                "Телефон " + newPhone + " не соответствует формату: +7-654-654-6565 или +1 546 879 2121 или +8/214/541/5475");
+
+        newPhone = "   ";
+        responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/volunteer/{id}/phone?phone={newPhone}",
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                String.class,
+                Map.of("id", id, "newPhone", newPhone));
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo("Строка не должна быть пустой");
+
+
+
+        newPhone = "";
+        responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/volunteer/{id}/phone?phone={newPhone}",
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                String.class,
+                Map.of("id", id, "newPhone", newPhone));
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo("Строка не должна быть пустой");
+    }
+
+    /**
+     * Проверка работы метода при валидных полях
+     * передаваемого в метод объекта
+     */
+    @Test
+    public void put_positiveTest(){
+        List<Volunteer> volunteersFromDB = volunteerRepo.findAll();
+        for (int i = 0; i < NUMBER_OF_VOLUNTEERS; i++) {
+            Volunteer volunteer = volunteersFromDB.get(faker.random().nextInt(1, volunteersFromDB.size() - 1));
+            int id = volunteer.getId();
+            String newPhone = faker.phoneNumber().phoneNumberInternational().substring(0, 15);
+            String newName = faker.name().name();
+            volunteer.setPhoneNumber(newPhone);
+            volunteer.setName(newName);
+            ResponseEntity<Volunteer> responseEntity = testRestTemplate.exchange(
+                    "http://localhost:" + port + "/volunteer/{id}",
+                    HttpMethod.PUT,
+                    new HttpEntity<>(volunteer),
+                    Volunteer.class,
+                    Map.of("id", id));
+
+            Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            Assertions.assertThat(responseEntity.getBody()).isNotNull();
+
+            Assertions.assertThat(volunteerRepo.findById(id).get())
+                    .usingRecursiveComparison()
+                    .isEqualTo(responseEntity.getBody());
+        }
+    }
+
+
+    /**
+     * Проверка работы метода при невалидном id
+     */
+    @Test
+    public void put_negativeTestByNotValidId() {
+        List<Volunteer> volunteersFromDB = volunteerRepo.findAll();
+        for (int i = 0; i < NUMBER_OF_VOLUNTEERS; i++) {
+            Volunteer volunteer = volunteersFromDB.get(faker.random().nextInt(1, volunteersFromDB.size() - 1));
+            int id = getNotValidId(volunteersFromDB);
+            ResponseEntity<String> responseEntity = testRestTemplate.exchange(
+                    "http://localhost:" + port + "/volunteer/{id}",
+                    HttpMethod.PUT,
+                    new HttpEntity<>(volunteer),
+                    String.class,
+                    Map.of("id", id));
+
+            Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+            Assertions.assertThat(responseEntity.getBody()).isNotNull();
+            Assertions.assertThat(responseEntity.getBody()).isEqualTo("Ресурс с id = " + id + " не найден");
+        }
+    }
+
+
+    /**
+     * Проверка метода при получении валидного id
+     */
+    @Test
+    public void get_positiveTest(){
+        List<Volunteer> volunteersFromDB = volunteerRepo.findAll();
+        for (int i = 0; i < NUMBER_OF_VOLUNTEERS; i++) {
+            Volunteer volunteer = volunteersFromDB.get(faker.random().nextInt(1, volunteersFromDB.size() - 1));
+            int id = volunteer.getId();
+
+            ResponseEntity<Volunteer> responseEntity = testRestTemplate.exchange(
+                    "http://localhost:" + port + "/volunteer/{id}",
+                    HttpMethod.GET,
+                    HttpEntity.EMPTY,
+                    Volunteer.class,
+                    Map.of("id", id));
+
+            Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            Assertions.assertThat(responseEntity.getBody()).isNotNull();
+            Assertions.assertThat(responseEntity.getBody())
+                    .usingRecursiveComparison()
+                    .isEqualTo(volunteer);
+            Assertions.assertThat(volunteerRepo.findById(id).get())
+                    .usingRecursiveComparison()
+                    .isEqualTo(responseEntity.getBody());
+        }
+    }
+
+
+    /**
+     * Проверка метода при получении невалидного
+     * идентификатора волонтёра
+     */
+    @Test
+    public void get_negativeTestByNotValidId(){
+        List<Volunteer> volunteersFromDB = volunteerRepo.findAll();
+        for (int i = 0; i < NUMBER_OF_VOLUNTEERS; i++) {
+           int id = getNotValidId(volunteersFromDB);
+            ResponseEntity<String> responseEntity = testRestTemplate.exchange(
+                    "http://localhost:" + port + "/volunteer/{id}",
+                    HttpMethod.GET,
+                    HttpEntity.EMPTY,
+                    String.class,
+                    Map.of("id", id));
+
+            Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+            Assertions.assertThat(responseEntity.getBody()).isNotNull();
+            Assertions.assertThat(responseEntity.getBody()).isEqualTo("Ресурс с id = " + id + " не найден");
+        }
+    }
+
+
+    /**
+     * Метод для получения невалидного идентификатора волонтёра
+     * @param volunteers - список волонтёров
+     * @return невалидный id волонтера
+     */
+    private int getNotValidId(List<Volunteer> volunteers){
+        int id = faker.random().nextInt(1, 1000000000);
+        while (true) {
+            int finalId = id;
+            if (volunteers.stream()
+                    .map(Volunteer::getId)
+                    .filter(t -> t == finalId)
+                    .findFirst()
+                    .isEmpty()) {
+                break;
+            }
+            id = faker.random().nextInt(1, 1000000000);
+        }
+        return id;
+    }
+
+
+    /**
+     * Проверка метода при получении валидного
+     * идентификатора волонтёра
+     */
+    @Test
+    public void delete_positiveTest(){
+        List<Volunteer> volunteersFromDB = volunteerRepo.findAll();
+        for (int i = 0; i < NUMBER_OF_VOLUNTEERS - 1; i++) {
+            Volunteer volunteer = volunteersFromDB.get(faker.random().nextInt(1, volunteersFromDB.size() - 1));
+            int id = volunteer.getId();
+
+            ResponseEntity<Volunteer> responseEntity = testRestTemplate.exchange(
+                    "http://localhost:" + port + "/volunteer/{id}",
+                    HttpMethod.DELETE,
+                    HttpEntity.EMPTY,
+                    Volunteer.class,
+                    Map.of("id", id));
+
+            Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            Assertions.assertThat(responseEntity.getBody()).isNotNull();
+            Assertions.assertThat(responseEntity.getBody())
+                    .usingRecursiveComparison()
+                    .isEqualTo(volunteer);
+            Assertions.assertThat(volunteerRepo.findById(id).isEmpty()).isEqualTo(true);
+        }
+    }
+
+    /**
+     * Проверка метода при получении невалидного
+     * идентификатора волонтёра
+     */
+    @Test
+    public void delete_negativeTestByNotValidId(){
+        List<Volunteer> volunteersFromDB = volunteerRepo.findAll();
+        for (int i = 0; i < NUMBER_OF_VOLUNTEERS; i++) {
+            int id = getNotValidId(volunteersFromDB);
+            ResponseEntity<String> responseEntity = testRestTemplate.exchange(
+                    "http://localhost:" + port + "/volunteer/{id}",
+                    HttpMethod.DELETE,
+                    HttpEntity.EMPTY,
+                    String.class,
+                    Map.of("id", id));
+
+            Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+            Assertions.assertThat(responseEntity.getBody()).isNotNull();
+            Assertions.assertThat(responseEntity.getBody()).isEqualTo("Ресурс с id = " + id + " не найден");
+        }
+    }
+
+
+    /**
+     * Проверка метода получения всего списка
+     * волонтёров
+     */
+    @Test
+    public void getAll_Test(){
+
+        ResponseEntity<List<Volunteer>> responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/volunteer",
+                HttpMethod.GET,
+                HttpEntity.EMPTY,
+                new ParameterizedTypeReference<>() {
+                }
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody())
+                .usingRecursiveComparison()
+                .ignoringCollectionOrder()
+                .isEqualTo(volunteerRepo.findAll());
+
+    }
 
 }

@@ -111,7 +111,7 @@ public class VolunteerValidator {
         if(answer.isEmpty()){
             return;
         }
-        throw new IllegalParameterException("Параметр не должен быть пустой");
+        throw new IllegalParameterException("Строка не должна быть пустой");
     }
 
 
