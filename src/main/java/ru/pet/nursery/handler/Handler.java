@@ -1,52 +1,40 @@
 package ru.pet.nursery.handler;
 
-import com.pengrad.telegrambot.TelegramBot;
+import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.pet.nursery.action.*;
-import ru.pet.nursery.repository.ShelterRepo;
-import ru.pet.nursery.repository.VolunteerRepo;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
+@Slf4j
 public class Handler {
-    private final VolunteerRepo volunteerRepo;
-    private final Map<String, Action> actions;
-    private final ShelterRepo shelterRepo;
-    // карта пар идентификатор чата -> команда, которую отправил пользователь в прошлом запросе
-    private final Map<String, String> bindingBy = new ConcurrentHashMap<>();
-
-    public Handler(VolunteerRepo volunteerRepo,
-                   Map<String, Action> actions,
-                   ShelterRepo shelterRepo){
-        this.volunteerRepo = volunteerRepo;
-        this.actions = actions;
-        this.shelterRepo = shelterRepo;
+    private final CallbackQueryHandler callbackQueryHandler;
+    private final CommandHandler commandHandler;
+    private final MessageHandler messageHandler;
+    public Handler(CallbackQueryHandler callbackQueryHandler,
+                   CommandHandler commandHandler,
+                   MessageHandler messageHandler){
+        this.callbackQueryHandler = callbackQueryHandler;
+        this.commandHandler = commandHandler;
+        this.messageHandler = messageHandler;
     }
-
-    /**
-     * Метод для сортировки запросов
-     * @param update - объект класса Update
-     * @param bot - объект класса TelegramBot
-     */
-    public void answer(Update update, TelegramBot bot) {
-        String key = update.message().text();
-        String chatId = update.message().chat().id().toString();
-        switch (key){
-            case "/start" -> new StartAction();
-            case "/info" -> new InfoAction();
-            case "/contacts" -> new ContactsAction();
-            //case "/volunteer" -> new VolunteersAction(volunteerRepo).accept(update, bot);
-            //case "/shelter" -> new ShelterAction(shelterRepo).accept(update,bot);
-        }
-        /*if (actions.containsKey(key)) {
-            actions.get(key).handle(update, bot);   // выполняется ответ пользователю в котором указывается, что надо ввести
-            bindingBy.put(chatId, key);             // запись пары chatId - команда (/start, /new, /info ...)
-        } else if (bindingBy.containsKey(chatId)) {
-            actions.get(bindingBy.get(chatId)).callback(update, bot);   // проверяется ответ пользователя
-            bindingBy.remove(chatId);                                   // удаляется идентификатор т.к. команда обработана
-        }*/
+    public void answer(Update update) {
+        // проверяем есть ли пользователь, отправивший update в базе данных
+        // если нет, то добавляем его данные в базу
+       if(update.callbackQuery() != null){
+            callbackQueryHandler.answer(update);
+            return;
+       }
+       if(update.message() != null){
+           Message message = update.message();
+           if(message.text() != null){
+               if(message.text().startsWith("/")){
+                   commandHandler.answer(update);
+                   return;
+               }
+           }
+           messageHandler.answer(update);
+       }
+       log.info("Неподдерживаемый update: " + update);
     }
 }

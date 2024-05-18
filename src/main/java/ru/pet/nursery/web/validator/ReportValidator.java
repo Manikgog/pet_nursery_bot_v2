@@ -31,12 +31,22 @@ public class ReportValidator {
      * @param adopterId - идентификатор усыновителя из таблицы user_table
      */
     public void validate(long adopterId){
+        // проверяется есть ли данный пользователь в базе данных
         User user = userRepo.findById(adopterId)
                 .orElseThrow(() -> new IllegalFieldException("Идентификатор пользователя " + adopterId + " отсутствует в базе данных"));
         validateIsAdopter(adopterId);
-        if(reportRepo.findByUserAndReportDate(user, LocalDate.now()) != null){
+        // проверяется составлялся ли отчёт для этого пользователя сегодня
+        if(isReportInDataBase(adopterId, user)){
             throw new ReportIsExistException("Отчет за сегодняшний день уже есть в базе данных");
         }
+    }
+
+    /**
+     * Проверяется наличие отчёта для этого пользователя на сегодня
+     * @return true - отчёт на сегодня уже составлен, false - отчёта на сегодня ещё нет
+     */
+    public boolean isReportInDataBase(long adopteId, User user){
+        return reportRepo.findByUserAndReportDate(user, LocalDate.now()) != null;
     }
 
     /**
@@ -82,4 +92,5 @@ public class ReportValidator {
             throw new IllegalParameterException("Пользователь с id = " + telegramUserId + " не усыновлял питомца");
         }
     }
+
 }

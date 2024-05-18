@@ -36,17 +36,17 @@ public class Report {
     private String behaviour;
 
     @Column(name = "foto_is_accepted", nullable = false)
-    private boolean foto_is_accepted;
+    private boolean fotoIsAaccepted;
 
     @Column(name = "diet_is_accepted", nullable = false)
-    private boolean diet_is_accepted;
+    private boolean dietIsAccepted;
 
     @Column(name = "health_is_accepted", nullable = false)
-    private boolean health_is_accepted;
+    private boolean healthIsAccepted;
 
     @Column(name = "behaviour_is_accepted", nullable = false)
-    private boolean behaviour_is_accepted;
+    private boolean behaviourIsAccepted;
 
     @Column(name = "all_items_is_accepted", nullable = false)
-    private boolean all_items_is_accepted;
+    private boolean allItemsIsAccepted;
 }

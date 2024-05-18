@@ -1,5 +1,6 @@
 package ru.pet.nursery.listener;
 
+
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
@@ -30,8 +31,8 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     public int process(List<Update> updates) {
         updates.forEach(update -> {
             logger.info("Processing update: {}", update);
-            if(update.message() != null && update.message().text() != null) {
-                handler.answer(update, telegramBot);
+            if(update != null) {
+                handler.answer(update);
             }
         });
         return UpdatesListener.CONFIRMED_UPDATES_ALL;

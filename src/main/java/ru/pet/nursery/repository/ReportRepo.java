@@ -9,6 +9,6 @@ import java.util.List;
 
 public interface ReportRepo extends JpaRepository<Report, Long> {
     List<Report> findByUser(User user);
-
     Report findByUserAndReportDate(User user, LocalDate reportDate);
+    List<Report> findByReportDate(LocalDate reportDate);
 }
