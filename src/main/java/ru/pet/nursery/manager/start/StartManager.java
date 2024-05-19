@@ -40,9 +40,9 @@ public class StartManager extends AbstractManager {
                 *********************************************
                 """;
         InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory.getInlineKeyboard(
-                List.of("информация", "как усыновить", "отчёт", "связь с волонтером"),
-                List.of(2, 2),
-                List.of(INFO, GET, REPORT, VOLUNTEER)
+                List.of("информация", "отчёт", "связь с волонтером"),
+                List.of(1, 2),
+                List.of(INFO, REPORT, VOLUNTEER)
         );
         var chatId = update.message().chat().id();
         SendMessage sendMessage = answerMethodFactory.getSendMessage(chatId, answerMessage, inlineKeyboardMarkup);
@@ -68,9 +68,9 @@ public class StartManager extends AbstractManager {
                 *********************************************
                 """;
         InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory.getInlineKeyboard(
-                List.of("информация", "как усыновить", "отчёт", "связь с волонтером"),
-                List.of(2, 2),
-                List.of(INFO, GET, REPORT, VOLUNTEER)
+                List.of("информация", "отчёт", "связь с волонтером"),
+                List.of(1, 2),
+                List.of(INFO, REPORT, VOLUNTEER)
         );
         var chatId = callbackQuery.message().chat().id();
         SendMessage sendMessage = answerMethodFactory.getSendMessage(chatId, answerMessage, inlineKeyboardMarkup);

@@ -5,13 +5,10 @@ import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import org.springframework.stereotype.Component;
-import ru.pet.nursery.entity.User;
 import ru.pet.nursery.factory.AnswerMethodFactory;
 import ru.pet.nursery.factory.KeyboardFactory;
 import ru.pet.nursery.manager.AbstractManager;
 import ru.pet.nursery.repository.UserRepo;
-import ru.pet.nursery.web.exception.IllegalFieldException;
-import ru.pet.nursery.web.exception.IllegalParameterException;
 import ru.pet.nursery.web.service.ReportService;
 import ru.pet.nursery.web.validator.ReportValidator;
 
@@ -73,9 +70,10 @@ public class ReportManager extends AbstractManager {
                                 "фото питомца",
                                 "поведение питомца",
                                 "диета питомца",
-                                "здоровье питомца"),
-                        List.of(1, 1, 1, 1, 1),
-                        List.of(INSTRUCTION, FOTO, BEHAVIOUR, DIET, HEALTH)
+                                "здоровье питомца",
+                                "назад"),
+                        List.of(1, 1, 1, 1, 1, 1),
+                        List.of(INSTRUCTION, FOTO, BEHAVIOUR, DIET, HEALTH, START)
                 ));
         telegramBot.execute(sendMessage);
     }
@@ -106,6 +104,7 @@ public class ReportManager extends AbstractManager {
      * @param callbackQuery - запрос обратного вызова пользователю
      */
     public void answerFoto(CallbackQuery callbackQuery){
+        /*
         // проверить есть ли в базе данных пользователь с таким chatId, который усыновил животное
         long adopterId = callbackQuery.message().chat().id();
         try {
@@ -130,6 +129,19 @@ public class ReportManager extends AbstractManager {
                         List.of("фото питомца", "назад"),
                         List.of(1, 1),
                         List.of(FOTO, BACK_TO_REPORT_MENU)
+                )
+        );
+
+         */
+
+        SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
+                """
+                        Заглушка. Не реализовано.
+                        """,
+                keyboardFactory.getInlineKeyboard(
+                        List.of("назад"),
+                        List.of(1),
+                        List.of(BACK_TO_REPORT_MENU)
                 )
         );
         telegramBot.execute(sendMessage);

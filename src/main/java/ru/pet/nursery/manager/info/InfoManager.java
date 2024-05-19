@@ -140,7 +140,19 @@ public class InfoManager extends AbstractManager {
     }
 
     public void whatNeedForAdoption(CallbackQuery callbackQuery) {
-
+        SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
+                """
+                        Приюты хотят быть уверены, что они усыновляют своих животных в семью, которая обеспечит им хороший дом.
+                        Возьмите с собой паспорт и документы по прописке.
+                        Если вы живете в съемной квартире или доме, предоставьте доказательства того, что у вас есть разрешение арендодателя на владение домашним животным, например, договор аренды или письмо.
+                        Также могут возникнуть вопросы о ваших рабочих привычках, графике, философии ухода за домашними животными и финансовых возможностях по уходу за домашним животным.
+                        """,
+                keyboardFactory.getInlineKeyboard(
+                        List.of("Назад"),
+                        List.of(1),
+                        List.of(INFO)
+                ));
+        telegramBot.execute(sendMessage);
     }
 
 
