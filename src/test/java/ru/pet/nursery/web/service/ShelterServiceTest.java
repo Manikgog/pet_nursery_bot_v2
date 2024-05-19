@@ -1,5 +1,6 @@
 package ru.pet.nursery.web.service;
 
+import net.datafaker.Faker;
 import org.checkerframework.checker.units.qual.N;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,7 +28,9 @@ class ShelterServiceTest {
     @Mock
     private ShelterRepo shelterRepo;
     @InjectMocks
-    ShelterService shelterService;
+    private ShelterService shelterService;
+
+    private final Faker faker = new Faker();
 
     private final List<Nursery> nurseryList = new ArrayList<>(List.of(
             new Nursery(1L, "Верный друг", "г. Томск ул. 79-гв. девизии 21/1", "8-987-765-43-21", true),
@@ -88,8 +91,21 @@ class ShelterServiceTest {
         assertThatThrownBy(() -> shelterService.updateShelter(6L, expected)).isInstanceOf(ShelterNotFoundException.class);
     }
     @Test
-    void removeShelter() {
+    void removeShelterPositiveTest() {
+        Nursery expected = new Nursery(6L, "Какой то приют", "г. Н...", "Номер телефона прежний", true);
+        nurseryList.add(expected);
+        when(shelterRepo.save(expected)).thenReturn(expected);
+        shelterService.addShelter(expected);
+        when(shelterRepo.findById(expected.getId())).thenReturn(Optional.of(expected));
+        assertThat(shelterService.removeShelter(expected.getId())).isEqualTo(expected);
+        nurseryList.remove(expected);
+        assertThat(shelterService.getAll()).doesNotContain(expected);
+    }
 
+    @Test
+    void removeShelterNegativeTest() {
+        when(shelterRepo.findById(7L)).thenThrow(ShelterNotFoundException.class);
+        assertThatThrownBy(() -> shelterService.removeShelter(7L)).isInstanceOf(ShelterNotFoundException.class);
     }
 
     @Test
