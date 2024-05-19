@@ -4,10 +4,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.BAD_REQUEST)
-public class PageSizeException extends RuntimeException {
+public class ReportIsExistException extends RuntimeException {
     private final String message;
 
-    public PageSizeException(String message){
+    public ReportIsExistException(String message){
         this.message = message;
     }
 

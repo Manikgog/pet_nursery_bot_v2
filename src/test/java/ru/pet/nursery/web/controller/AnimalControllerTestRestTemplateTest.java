@@ -1,4 +1,4 @@
-package ru.pet.nursery;
+package ru.pet.nursery.web.controller;
 
 import net.datafaker.Faker;
 import org.assertj.core.api.Assertions;
@@ -84,7 +84,7 @@ public class AnimalControllerTestRestTemplateTest {
         List<Nursery> nurseriesFromDB = nurseryRepo.findAll();
         for(Nursery n : nurseriesFromDB){
             for(int j = 0; j < NUMBER_OF_ANIMALS; j++){
-                animalRepo.save(createAnimal(n.getId()));
+                animalRepo.save(createAnimal(Math.toIntExact(n.getId())));
             }
         }
     }
@@ -174,7 +174,7 @@ public class AnimalControllerTestRestTemplateTest {
             animalDTO.setAnimalType(isCat ? AnimalType.CAT : AnimalType.DOG);
             boolean isMale = rnd.nextBoolean();
             animalDTO.setGender(isMale ? Gender.MALE : Gender.FEMALE);
-            animalDTO.setNurseryId(nurseryRepo.findById(1).get().getId());
+            animalDTO.setNurseryId(Math.toIntExact(nurseryRepo.findById(1).get().getId()));
             animalDTO.setBirthDate(faker.date().birthdayLocalDate(MIN_AGE, MAX_AGE));
             animalDTO.setDescription(faker.examplify(animalDTO.getAnimalName()));
 
@@ -551,7 +551,7 @@ public class AnimalControllerTestRestTemplateTest {
             animalDTOForUser.setAnimalName(animal.getAnimalName());
             animalDTOForUser.setAnimalType(animal.getAnimalType());
             animalDTOForUser.setGender(animal.getGender());
-            animalDTOForUser.setNursery(nurseryRepo.findById(animal.getNursery().getId()).get());
+            animalDTOForUser.setNursery(nurseryRepo.findById(Math.toIntExact(animal.getNursery().getId())).get());
             animalDTOForUser.setBirthDate(animal.getBirthDate());
             animalDTOForUser.setDescription(animal.getDescription());
             ResponseEntity<AnimalDTOForUser> responseEntity =

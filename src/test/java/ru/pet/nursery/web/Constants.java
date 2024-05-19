@@ -1,4 +1,4 @@
-package ru.pet.nursery;
+package ru.pet.nursery.web;
 
 import ru.pet.nursery.entity.Animal;
 import ru.pet.nursery.entity.Nursery;
@@ -16,6 +16,7 @@ public class Constants {
     public static User GERMIONA_GREINDGER;
     public static User RON_WISLY;
     public static User POLUMNA_LAVGOOD;
+
     static {
         USER = new User();
         USER.setTelegramUserId(1);
@@ -31,7 +32,7 @@ public class Constants {
         GARRY_POTTER.setLastName("Поттер");
         GARRY_POTTER.setUserName("G.Potter");
         GARRY_POTTER.setAddress("Астана ул. Малышева д.123 кв.321");
-        GARRY_POTTER.setPhoneNumber("8-987-654-321-98");
+        GARRY_POTTER.setPhoneNumber("+8-987-654-3298");
 
         GERMIONA_GREINDGER = new User();
         GERMIONA_GREINDGER.setTelegramUserId(3);
@@ -39,7 +40,7 @@ public class Constants {
         GERMIONA_GREINDGER.setLastName("Грейнджер");
         GERMIONA_GREINDGER.setUserName("G.Greyndger");
         GERMIONA_GREINDGER.setAddress("Астана ул. 8 Марта д.12 кв.21");
-        GERMIONA_GREINDGER.setPhoneNumber("8-123-654-987-12");
+        GERMIONA_GREINDGER.setPhoneNumber("+8-123-651-9812");
 
         RON_WISLY = new User();
         RON_WISLY.setTelegramUserId(4);
@@ -47,7 +48,7 @@ public class Constants {
         RON_WISLY.setLastName("Уизли");
         RON_WISLY.setUserName("R.Wisly");
         RON_WISLY.setAddress("Астана ул. Куйбышева д.54 кв.87");
-        RON_WISLY.setPhoneNumber("8-987-896-547-32");
+        RON_WISLY.setPhoneNumber("+8-987-896-4732");
 
         POLUMNA_LAVGOOD = new User();
         POLUMNA_LAVGOOD.setTelegramUserId(5);
@@ -55,7 +56,7 @@ public class Constants {
         POLUMNA_LAVGOOD.setLastName("Лавгуд");
         POLUMNA_LAVGOOD.setUserName("P.Lavgood");
         POLUMNA_LAVGOOD.setAddress("Астана ул. Космонавтов д.65 кв.25");
-        POLUMNA_LAVGOOD.setPhoneNumber("8-987-325-798-62");
+        POLUMNA_LAVGOOD.setPhoneNumber("+8-987-325-7972");
     }
 
 
@@ -63,12 +64,12 @@ public class Constants {
     public static Nursery NURSERY_2;
     static{
         NURSERY_1 = new Nursery();
-        NURSERY_1.setId(1);
+        NURSERY_1.setId(1L);
         NURSERY_1.setAddress("Астана Калинина д.24");
         NURSERY_1.setPhoneNumber("8-965-569-326-54");
 
         NURSERY_2 = new Nursery();
-        NURSERY_2.setId(2);
+        NURSERY_2.setId(2L);
         NURSERY_2.setAddress("Астана ул. Кировградская д.32");
         NURSERY_2.setPhoneNumber("8-954-568-98-97");
     }
