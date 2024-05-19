@@ -5,7 +5,10 @@ import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.DeleteMessage;
 import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.request.SendMessage;
+import com.pengrad.telegrambot.request.SendPhoto;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
 
 @Component
 public class AnswerMethodFactory {
@@ -16,6 +19,14 @@ public class AnswerMethodFactory {
             return new SendMessage(chatId, text);
         }
         return new SendMessage(chatId, text).replyMarkup(keyboard);
+    }
+
+    public SendPhoto getSendFoto(Long chatId,
+                                   byte[] photoArray,
+                                      InlineKeyboardMarkup keyboard) throws IOException {
+
+        SendPhoto sendPhoto = new SendPhoto(chatId, photoArray);
+        return sendPhoto.replyMarkup(keyboard);
     }
 
     public EditMessageText getEditMessageText(CallbackQuery callbackQuery,

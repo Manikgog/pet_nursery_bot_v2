@@ -27,6 +27,11 @@ public class StartManager extends AbstractManager {
         this.keyboardFactory = keyboardFactory;
     }
 
+
+    /**
+     * Метод для отправки пользователю основного меню бота
+     * @param update - объект класса Update
+     */
     public void answerCommand(Update update){
         String answerMessage = """
                 Приветствую, Дорогой друг! Добро пожаловать!)
@@ -49,8 +54,26 @@ public class StartManager extends AbstractManager {
 
     }
 
+
+    /**
+     * Метод для отправки пользователю основного меню бота
+     * @param callbackQuery - объект класса CallbackQuery
+     */
     @Override
     public void answerCallbackQuery(CallbackQuery callbackQuery) {
-
+        String answerMessage = """
+                Приветствую, Дорогой друг! Добро пожаловать!)
+                Я - твой помощник по взаимодействию
+                с приютами для животных города Астана.
+                *********************************************
+                """;
+        InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory.getInlineKeyboard(
+                List.of("информация", "как усыновить", "отчёт", "связь с волонтером"),
+                List.of(2, 2),
+                List.of(INFO, GET, REPORT, VOLUNTEER)
+        );
+        var chatId = callbackQuery.message().chat().id();
+        SendMessage sendMessage = answerMethodFactory.getSendMessage(chatId, answerMessage, inlineKeyboardMarkup);
+        telegramBot.execute(sendMessage);
     }
 }

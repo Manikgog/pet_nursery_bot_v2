@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.pet.nursery.entity.Animal;
 import ru.pet.nursery.entity.Nursery;
 import ru.pet.nursery.entity.User;
+import ru.pet.nursery.enumerations.AnimalType;
 import ru.pet.nursery.mapper.AnimalDTOForUserMapper;
 import ru.pet.nursery.repository.AnimalRepo;
 import ru.pet.nursery.repository.NurseryRepo;
@@ -152,6 +153,41 @@ public class AnimalService {
     }
 
     /**
+     * Метод для получения байтового массива для передачи через телеграм
+     * @param id - идентификатор животного
+     * @return байтовый массив фотографии
+     * @throws IOException - исключение ввода-вывода
+     */
+    public byte[] getPhotoByteArray(int id) throws IOException {
+
+        Animal animal = animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException((long)id));
+        if(animal.getPhotoPath() == null){
+            throw new ImageNotFoundException("Путь к файлу с изображением отсутствует!");
+        }
+        Path path = Paths.get(animal.getPhotoPath());
+        if(!Files.exists(path)){
+            throw new ImageNotFoundException("Файл с изображением не найден!");
+        }
+        int size;
+        SeekableByteChannel seekableByteChannel = null;
+        try{
+            seekableByteChannel = Files.newByteChannel(path, EnumSet.of(READ));
+            size = (int)seekableByteChannel.size();
+        } catch (IOException e) {
+            throw new ImageNotFoundException(e.getMessage());
+        } finally {
+            seekableByteChannel.close();
+        }
+        byte[] photoByteArray = new byte[size];
+        try(InputStream is = Files.newInputStream(path)){
+            photoByteArray = is.readAllBytes();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return photoByteArray;
+    }
+
+    /**
      * Метод для удаления записи из таблицы animal_table по id
      * @param id - primary key животного в таблице animal_table
      * @return удаленная запись животного
@@ -242,5 +278,20 @@ public class AnimalService {
      */
     public ResponseEntity<List<Animal>> getAll() {
         return ResponseEntity.of(Optional.of(animalRepo.findAll()));
+    }
+
+    /**
+     * Метод для получения из базы данных только котов или только собак
+     */
+    public List<Animal> getAllAnimalsByType(AnimalType animalType){
+        return animalRepo.findByAnimalType(animalType);
+    }
+
+
+    /**
+     * Метод для получения объекта Animal
+     */
+    public Animal get(int id){
+        return animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException((long) id));
     }
 }

@@ -8,6 +8,8 @@ import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
 import java.util.List;
 
 import ru.pet.nursery.handler.Handler;
@@ -32,7 +34,12 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         updates.forEach(update -> {
             logger.info("Processing update: {}", update);
             if(update != null) {
-                handler.answer(update);
+                try {
+                    handler.answer(update);
+                } catch (IOException e) {
+                    logger.error(e.getMessage());
+                    throw new RuntimeException(e);
+                }
             }
         });
         return UpdatesListener.CONFIRMED_UPDATES_ALL;

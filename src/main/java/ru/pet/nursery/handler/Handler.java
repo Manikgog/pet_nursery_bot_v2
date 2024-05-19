@@ -5,6 +5,8 @@ import com.pengrad.telegrambot.model.Update;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+
 @Service
 @Slf4j
 public class Handler {
@@ -18,7 +20,7 @@ public class Handler {
         this.commandHandler = commandHandler;
         this.messageHandler = messageHandler;
     }
-    public void answer(Update update) {
+    public void answer(Update update) throws IOException {
         // проверяем есть ли пользователь, отправивший update в базе данных
         // если нет, то добавляем его данные в базу
        if(update.callbackQuery() != null){
