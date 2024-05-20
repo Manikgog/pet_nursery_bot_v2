@@ -18,7 +18,7 @@ public class Constants {
     public static User POLUMNA_LAVGOOD;
     static {
         USER = new User();
-        USER.setTelegramUserId(1);
+        USER.setTelegramUserId(1L);
         USER.setFirstName("нет");
         USER.setLastName("нет");
         USER.setUserName("нет");
@@ -26,7 +26,7 @@ public class Constants {
         USER.setPhoneNumber("нет");
 
         GARRY_POTTER = new User();
-        GARRY_POTTER.setTelegramUserId(2);
+        GARRY_POTTER.setTelegramUserId(2L);
         GARRY_POTTER.setFirstName("Гарри");
         GARRY_POTTER.setLastName("Поттер");
         GARRY_POTTER.setUserName("G.Potter");
@@ -34,7 +34,7 @@ public class Constants {
         GARRY_POTTER.setPhoneNumber("8-987-654-321-98");
 
         GERMIONA_GREINDGER = new User();
-        GERMIONA_GREINDGER.setTelegramUserId(3);
+        GERMIONA_GREINDGER.setTelegramUserId(3L);
         GERMIONA_GREINDGER.setFirstName("Гермиона");
         GERMIONA_GREINDGER.setLastName("Грейнджер");
         GERMIONA_GREINDGER.setUserName("G.Greyndger");
@@ -42,7 +42,7 @@ public class Constants {
         GERMIONA_GREINDGER.setPhoneNumber("8-123-654-987-12");
 
         RON_WISLY = new User();
-        RON_WISLY.setTelegramUserId(4);
+        RON_WISLY.setTelegramUserId(4L);
         RON_WISLY.setFirstName("Рон");
         RON_WISLY.setLastName("Уизли");
         RON_WISLY.setUserName("R.Wisly");
@@ -50,7 +50,7 @@ public class Constants {
         RON_WISLY.setPhoneNumber("8-987-896-547-32");
 
         POLUMNA_LAVGOOD = new User();
-        POLUMNA_LAVGOOD.setTelegramUserId(5);
+        POLUMNA_LAVGOOD.setTelegramUserId(5L);
         POLUMNA_LAVGOOD.setFirstName("Полумна");
         POLUMNA_LAVGOOD.setLastName("Лавгуд");
         POLUMNA_LAVGOOD.setUserName("P.Lavgood");
@@ -63,12 +63,12 @@ public class Constants {
     public static Nursery NURSERY_2;
     static{
         NURSERY_1 = new Nursery();
-        NURSERY_1.setId(1);
+        NURSERY_1.setId(1L);
         NURSERY_1.setAddress("Астана Калинина д.24");
         NURSERY_1.setPhoneNumber("8-965-569-326-54");
 
         NURSERY_2 = new Nursery();
-        NURSERY_2.setId(2);
+        NURSERY_2.setId(2L);
         NURSERY_2.setAddress("Астана ул. Кировградская д.32");
         NURSERY_2.setPhoneNumber("8-954-568-98-97");
     }
@@ -88,7 +88,7 @@ public class Constants {
         VASKA_DTO.setGender(Gender.MALE);
         VASKA_DTO.setDescription("Рыжий кот. Левое ухо ободрано.");
         VASKA_DTO.setBirthDate(LocalDate.of(2023,1,1));
-        VASKA_DTO.setNurseryId(1);
+        VASKA_DTO.setNurseryId(1L);
 
         PALKAN_DTO = new AnimalDTO();
         PALKAN_DTO.setAnimalName("Палкан");
@@ -96,10 +96,10 @@ public class Constants {
         PALKAN_DTO.setGender(Gender.MALE);
         PALKAN_DTO.setDescription("Немецкая овчарка.");
         PALKAN_DTO.setBirthDate(LocalDate.of(2020,1,1));
-        PALKAN_DTO.setNurseryId(2);
+        PALKAN_DTO.setNurseryId(2L);
 
         VASKA = new Animal();
-        VASKA.setId(0);
+        VASKA.setId(0L);
         VASKA.setAnimalName("Васька");
         VASKA.setAnimalType(AnimalType.CAT);
         VASKA.setGender(Gender.MALE);
@@ -109,7 +109,7 @@ public class Constants {
         VASKA.setDescription("Рыжий кот. Левое ухо ободрано.");
 
         VASKA_FROM_DB = new Animal();
-        VASKA_FROM_DB.setId(1);
+        VASKA_FROM_DB.setId(1L);
         VASKA_FROM_DB.setAnimalName("Васька");
         VASKA_FROM_DB.setAnimalType(AnimalType.CAT);
         VASKA_FROM_DB.setGender(Gender.MALE);
@@ -119,7 +119,7 @@ public class Constants {
         VASKA_FROM_DB.setDescription("Рыжий кот. Левое ухо ободрано.");
 
         PALKAN = new Animal();
-        PALKAN.setId(0);
+        PALKAN.setId(0L);
         PALKAN.setAnimalName("Палкан");
         PALKAN.setAnimalType(AnimalType.DOG);
         PALKAN.setGender(Gender.MALE);
@@ -129,7 +129,7 @@ public class Constants {
         PALKAN.setDescription("Немецкая овчарка.");
 
         PALKAN_FROM_DB = new Animal();
-        PALKAN_FROM_DB.setId(2);
+        PALKAN_FROM_DB.setId(2L);
         PALKAN_FROM_DB.setAnimalName("Палкан");
         PALKAN_FROM_DB.setAnimalType(AnimalType.DOG);
         PALKAN_FROM_DB.setGender(Gender.MALE);

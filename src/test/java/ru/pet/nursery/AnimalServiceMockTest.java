@@ -33,7 +33,7 @@ public class AnimalServiceMockTest {
     @Test
     public void uploadAnimal_positiveTest(){
         when(animalRepo.save(VASKA)).thenReturn(VASKA_FROM_DB);
-        when(nurseryRepo.findById(1)).thenReturn(Optional.ofNullable(NURSERY_1));
+        when(nurseryRepo.findById(1L)).thenReturn(Optional.ofNullable(NURSERY_1));
         when(userRepo.findById(1L)).thenReturn(Optional.ofNullable(USER));
         ResponseEntity<Animal> actualResult = animalService.uploadAnimal(VASKA_DTO);
         Assertions.assertEquals(VASKA.getAnimalName(), actualResult.getBody().getAnimalName());
@@ -42,7 +42,7 @@ public class AnimalServiceMockTest {
         Assertions.assertEquals(VASKA.getDescription(), actualResult.getBody().getDescription());
 
         when(animalRepo.save(PALKAN)).thenReturn(PALKAN_FROM_DB);
-        when(nurseryRepo.findById(2)).thenReturn(Optional.ofNullable(NURSERY_2));
+        when(nurseryRepo.findById(2L)).thenReturn(Optional.ofNullable(NURSERY_2));
         when(userRepo.findById(1L)).thenReturn(Optional.ofNullable(USER));
         actualResult = animalService.uploadAnimal(PALKAN_DTO);
         Assertions.assertEquals(PALKAN.getAnimalName(), actualResult.getBody().getAnimalName());

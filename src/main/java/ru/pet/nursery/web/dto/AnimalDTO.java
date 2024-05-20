@@ -21,7 +21,7 @@ public class AnimalDTO {
     @Enumerated(EnumType.STRING)
     private Gender gender;
     private LocalDate birthDate;
-    private int nurseryId;
+    private Long nurseryId;
     private String description;
 
     @Override
