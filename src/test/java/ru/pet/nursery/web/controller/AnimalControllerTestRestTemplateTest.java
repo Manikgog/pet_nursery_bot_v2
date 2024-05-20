@@ -84,7 +84,7 @@ public class AnimalControllerTestRestTemplateTest {
         List<Nursery> nurseriesFromDB = nurseryRepo.findAll();
         for(Nursery n : nurseriesFromDB){
             for(int j = 0; j < NUMBER_OF_ANIMALS; j++){
-                animalRepo.save(createAnimal(n.getId()));
+                animalRepo.save(createAnimal(Math.toIntExact(n.getId())));
             }
         }
     }
@@ -186,7 +186,7 @@ public class AnimalControllerTestRestTemplateTest {
             Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
             Assertions.assertThat(responseEntity.getBody()).isNotNull();
             // проверяется наличие загруженного через POST запрос объекта в базе данных
-            Optional<Animal> animalFromDB = animalRepo.findById(Math.toIntExact(responseEntity.getBody().getId()));
+            Optional<Animal> animalFromDB = animalRepo.findById(responseEntity.getBody().getId());
             Assertions.assertThat(animalFromDB).isPresent();
             Assertions.assertThat(animalFromDB.get())
                     .usingRecursiveComparison()
@@ -367,7 +367,7 @@ public class AnimalControllerTestRestTemplateTest {
         Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         Assertions.assertThat(responseEntity.getBody()).isEqualTo(HttpStatus.OK);
         // проверяется содержание ячеек с информацией о возвращении животного
-        Animal animalAfterReturn = animalRepo.findById(Math.toIntExact(animal.getId())).get();
+        Animal animalAfterReturn = animalRepo.findById(animal.getId()).get();
         // проверяется ячейка с датой возвращения.
         Assertions.assertThat(animalAfterReturn.getPetReturnDate()).isEqualTo(LocalDate.now());
         // проверяется ячейка с идентификатором человека, который забрал животное

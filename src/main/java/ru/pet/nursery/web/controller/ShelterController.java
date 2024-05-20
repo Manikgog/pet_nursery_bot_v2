@@ -125,7 +125,6 @@ public class ShelterController {
             )
     })
     @DeleteMapping("/{shelterId}")
-
     public ResponseEntity<Nursery> deleteShelter(@PathVariable Long shelterId) {
         return ResponseEntity.ok(shelterService.removeShelter(shelterId));
     }
@@ -151,7 +150,7 @@ public class ShelterController {
             )
     })
     @GetMapping(name = "/getNursery", params = {"page","size"})
-    public ResponseEntity<List<Nursery>> getNursery(@RequestParam("page") Integer page, @RequestParam("size") Integer size) {
+    public ResponseEntity<List<Nursery>> getNursery(@RequestParam @Min(1) int page, @RequestParam @Min(1) int size) {
         return ResponseEntity.ok(shelterService.getAllShelter(page, size));
     }
 

@@ -1,4 +1,4 @@
-package ru.pet.nursery;
+package ru.pet.nursery.web;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -13,8 +13,8 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.mockito.Mockito.when;
-import static ru.pet.nursery.Constants.NURSERY_1;
-import static ru.pet.nursery.Constants.VASKA_DTO;
+import static ru.pet.nursery.web.Constants.NURSERY_1;
+import static ru.pet.nursery.web.Constants.VASKA_DTO;
 
 @ExtendWith(MockitoExtension.class)
 public class ValidatorUnitTest {
@@ -54,4 +54,5 @@ public class ValidatorUnitTest {
         VASKA_DTO.setBirthDate(LocalDate.now().plusDays(1));
         Assertions.assertThrows(IllegalFieldException.class, () -> validator.validateAnimalDTO(VASKA_DTO));
     }
+
 }

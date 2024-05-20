@@ -60,4 +60,15 @@ public class NurseryExceptionHandler {
     public ResponseEntity<String> handleUserNotValidException(UserNotValidException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
+
+
+    @ExceptionHandler(IllegalParameterException.class)
+    public ResponseEntity<String> handleIllegalParameterException(IllegalParameterException e){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
+    @ExceptionHandler(ReportIsExistException.class)
+    public ResponseEntity<String> handleReportIsExistException(ReportIsExistException e){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
 }

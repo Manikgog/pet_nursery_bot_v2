@@ -1,7 +1,5 @@
 package ru.pet.nursery.web.validator;
 
-import ru.pet.nursery.entity.Nursery;
-import ru.pet.nursery.enumerations.AnimalType;
 import ru.pet.nursery.repository.NurseryRepo;
 import ru.pet.nursery.web.dto.AnimalDTO;
 import ru.pet.nursery.web.exception.IllegalFieldException;
@@ -13,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Component
 public class Validator {
     private final NurseryRepo nurseryRepo;
     public Validator(NurseryRepo nurseryRepo){
@@ -32,7 +31,11 @@ public class Validator {
     public void validateAnimalDTO(AnimalDTO animalDTO){
         List<String> messageList = new ArrayList<>();
         messageList.add(validateAnimalName(animalDTO.getAnimalName()));
-        messageList.add(validateAnimalType(animalDTO.getAnimalType().toString()));
+        if(animalDTO.getAnimalType() == null){
+            messageList.add("Поле AnimalType не должно быть равным null");
+        }else {
+            messageList.add(validateAnimalType(animalDTO.getAnimalType().toString()));
+        }
         messageList.add(validateGender(animalDTO.getGender().toString()));
         messageList.add(validateDescription(animalDTO.getDescription()));
         messageList.add(validateAnimalBirthDate(animalDTO.getBirthDate()));
@@ -52,7 +55,7 @@ public class Validator {
      * @return строка для добавления в итоговое сообщение об ошибке.
      */
     private String validateAnimalName(String animalName){
-        if(animalName == null || animalName.isEmpty()){
+        if(animalName == null || animalName.isEmpty() || animalName.isBlank()){
             return "Поле animalName класса AnimalDTO не должно быть пустым";
         }
         return "";
@@ -64,7 +67,7 @@ public class Validator {
      * @return строка для добавления в итоговое сообщение об ошибке.
      */
     private String validateAnimalType(String animalType){
-        if(animalType == null || animalType.isEmpty()){
+        if(animalType == null || animalType.isEmpty() || animalType.isBlank()){
             return "Поле animalType класса AnimalDTO не должно быть пустым";
         }
         return "";

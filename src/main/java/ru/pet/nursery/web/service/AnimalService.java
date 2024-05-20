@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.pet.nursery.entity.Animal;
 import ru.pet.nursery.entity.Nursery;
 import ru.pet.nursery.entity.User;
+import ru.pet.nursery.enumerations.AnimalType;
 import ru.pet.nursery.mapper.AnimalDTOForUserMapper;
 import ru.pet.nursery.repository.AnimalRepo;
 import ru.pet.nursery.repository.NurseryRepo;
@@ -90,7 +91,7 @@ public class AnimalService {
         String strPath = System.getProperty("user.dir");
         strPath += animals_images;
         Path path = Path.of(strPath);
-        Path filePath = Path.of(path.toString(), animalId + "." + getExtention(Objects.requireNonNull(animalPhoto.getOriginalFilename())));
+        Path filePath = Path.of(path.toString(), animalId + "." + getExtension(Objects.requireNonNull(animalPhoto.getOriginalFilename())));
         Files.createDirectories(filePath.getParent());
         Files.deleteIfExists(filePath);
 
@@ -102,7 +103,8 @@ public class AnimalService {
             bis.transferTo(bos);
         }
 
-        animalRepo.updatePhotoPathColumn(filePath.toString(), animalId);
+        animalFromDB.get().setPhotoPath(filePath.toString());
+        animalRepo.save(animalFromDB.get());
 
         return ResponseEntity.ok().build();
     }
@@ -112,7 +114,7 @@ public class AnimalService {
      * @param fileName - имя файла
      * @return строка, содержащая расширения файла
      */
-    public String getExtention(String fileName){
+    public String getExtension(String fileName){
         return fileName.substring(fileName.lastIndexOf('.') + 1);
     }
 
@@ -152,6 +154,41 @@ public class AnimalService {
     }
 
     /**
+     * Метод для получения байтового массива для передачи через телеграм
+     * @param id - идентификатор животного
+     * @return байтовый массив фотографии
+     * @throws IOException - исключение ввода-вывода
+     */
+    public byte[] getPhotoByteArray(int id) throws IOException {
+
+        Animal animal = animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException((long)id));
+        if(animal.getPhotoPath() == null){
+            throw new ImageNotFoundException("Путь к файлу с изображением отсутствует!");
+        }
+        Path path = Paths.get(animal.getPhotoPath());
+        if(!Files.exists(path)){
+            throw new ImageNotFoundException("Файл с изображением не найден!");
+        }
+        int size;
+        SeekableByteChannel seekableByteChannel = null;
+        try{
+            seekableByteChannel = Files.newByteChannel(path, EnumSet.of(READ));
+            size = (int)seekableByteChannel.size();
+        } catch (IOException e) {
+            throw new ImageNotFoundException(e.getMessage());
+        } finally {
+            seekableByteChannel.close();
+        }
+        byte[] photoByteArray = new byte[size];
+        try(InputStream is = Files.newInputStream(path)){
+            photoByteArray = is.readAllBytes();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return photoByteArray;
+    }
+
+    /**
      * Метод для удаления записи из таблицы animal_table по id
      * @param id - primary key животного в таблице animal_table
      * @return удаленная запись животного
@@ -172,12 +209,13 @@ public class AnimalService {
      * @param adoptedId - идентификатор усыновителя в таблице
      * @return статус HTTP
      */
-    public ResponseEntity insertDataOfHuman(Integer animalId, Long adoptedId) {
+    public ResponseEntity<Animal> insertDataOfHuman(Integer animalId, Long adoptedId) {
         Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(Long.valueOf(animalId)));
         User userAdopted = userRepo.findById(adoptedId).orElseThrow(() -> new EntityNotFoundException(adoptedId));
-        animalRepo.updateWhoTookPetAndTookDate(userAdopted.getTelegramUserId(), LocalDate.now(), animalFromDB.getId());
-
-        return ResponseEntity.ok().build();
+        animalFromDB.setUser(userAdopted);
+        animalFromDB.setTookDate(LocalDate.now());
+        Animal newAnimal = animalRepo.save(animalFromDB);
+        return ResponseEntity.of(Optional.of(newAnimal));
     }
 
     /**
@@ -217,10 +255,11 @@ public class AnimalService {
      * @param animalId - идентификатор животного в таблице animal_table
      * @return HttpStatus
      */
-    public ResponseEntity insertDateOfReturn(Integer animalId) {
-        Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(Long.valueOf(animalId)));
-        animalRepo.updateReturnDateAnimal(LocalDate.now(), animalFromDB.getId());
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Animal> insertDateOfReturn(Integer animalId) {
+        Animal animalOld = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(Long.valueOf(animalId)));
+        animalOld.setPetReturnDate(LocalDate.now());
+        Animal newAnimal = animalRepo.save(animalOld);
+        return ResponseEntity.of(Optional.of(newAnimal));
     }
 
     /**
@@ -236,9 +275,24 @@ public class AnimalService {
 
     /**
      * Метод для получения всего списка животных
-     * @return список всех животных
+     * @return - ResponseEntity<List<Animal>>
      */
     public ResponseEntity<List<Animal>> getAll() {
         return ResponseEntity.of(Optional.of(animalRepo.findAll()));
+    }
+
+    /**
+     * Метод для получения из базы данных только котов или только собак
+     */
+    public List<Animal> getAllAnimalsByType(AnimalType animalType){
+        return animalRepo.findByAnimalType(animalType);
+    }
+
+
+    /**
+     * Метод для получения объекта Animal
+     */
+    public Animal get(int id){
+        return animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException((long) id));
     }
 }
