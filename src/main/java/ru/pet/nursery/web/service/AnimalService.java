@@ -90,7 +90,7 @@ public class AnimalService {
         String strPath = System.getProperty("user.dir");
         strPath += animals_images;
         Path path = Path.of(strPath);
-        Path filePath = Path.of(path.toString(), animalId + "." + getExtention(Objects.requireNonNull(animalPhoto.getOriginalFilename())));
+        Path filePath = Path.of(path.toString(), animalId + "." + getExtension(Objects.requireNonNull(animalPhoto.getOriginalFilename())));
         Files.createDirectories(filePath.getParent());
         Files.deleteIfExists(filePath);
 
@@ -113,7 +113,7 @@ public class AnimalService {
      * @param fileName - имя файла
      * @return строка, содержащая расширения файла
      */
-    public String getExtention(String fileName){
+    public String getExtension(String fileName){
         return fileName.substring(fileName.lastIndexOf('.') + 1);
     }
 
@@ -208,13 +208,13 @@ public class AnimalService {
      * @param adoptedId - идентификатор усыновителя в таблице
      * @return статус HTTP
      */
-    public ResponseEntity insertDataOfHuman(Integer animalId, Long adoptedId) {
+    public ResponseEntity<Animal> insertDataOfHuman(Integer animalId, Long adoptedId) {
         Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(Long.valueOf(animalId)));
         User userAdopted = userRepo.findById(adoptedId).orElseThrow(() -> new EntityNotFoundException(adoptedId));
         animalFromDB.setUser(userAdopted);
         animalFromDB.setTookDate(LocalDate.now());
-        animalRepo.save(animalFromDB);
-        return ResponseEntity.ok().build();
+        Animal newAnimal = animalRepo.save(animalFromDB);
+        return ResponseEntity.of(Optional.of(newAnimal));
     }
 
     /**
@@ -254,11 +254,11 @@ public class AnimalService {
      * @param animalId - идентификатор животного в таблице animal_table
      * @return HttpStatus
      */
-    public ResponseEntity insertDateOfReturn(Integer animalId) {
+    public ResponseEntity<Animal> insertDateOfReturn(Integer animalId) {
         Animal animalOld = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(Long.valueOf(animalId)));
         animalOld.setPetReturnDate(LocalDate.now());
-        animalRepo.save(animalOld);
-        return ResponseEntity.ok().build();
+        Animal newAnimal = animalRepo.save(animalOld);
+        return ResponseEntity.of(Optional.of(newAnimal));
     }
 
     /**

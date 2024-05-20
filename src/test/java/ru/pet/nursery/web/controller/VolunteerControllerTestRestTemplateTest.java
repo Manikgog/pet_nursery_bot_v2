@@ -20,6 +20,7 @@ import ru.pet.nursery.entity.User;
 import ru.pet.nursery.entity.Volunteer;
 import ru.pet.nursery.repository.UserRepo;
 import ru.pet.nursery.repository.VolunteerRepo;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -38,13 +39,13 @@ public class VolunteerControllerTestRestTemplateTest {
     @Autowired
     private VolunteerRepo volunteerRepo;
     private final Faker faker = new Faker();
-
     private final int NUMBER_OF_USERS = 10;
-    private final int NUMBER_OF_VOLUNTEERS = NUMBER_OF_USERS /3;
+    private final int NUMBER_OF_VOLUNTEERS = NUMBER_OF_USERS / 3;
     private final List<User> users = new ArrayList<>();
     private final List<Volunteer> volunteers = new ArrayList<>();
+
     @BeforeEach
-    public void beforeEach(){
+    public void beforeEach() {
         for (int i = 0; i < NUMBER_OF_USERS; i++) {
             users.add(createUser());
         }
@@ -56,7 +57,7 @@ public class VolunteerControllerTestRestTemplateTest {
         volunteerRepo.saveAll(volunteers);
     }
 
-    private User createUser(){
+    private User createUser() {
         User user = new User();
         user.setTelegramUserId(faker.random().nextInt(0, 1000000000));
         String firstName = faker.name().firstName();
@@ -69,7 +70,7 @@ public class VolunteerControllerTestRestTemplateTest {
         return user;
     }
 
-    private Volunteer createVolunteer(int i){
+    private Volunteer createVolunteer(int i) {
         Volunteer volunteer = new Volunteer();
         volunteer.setId(0);
         volunteer.setName(users.get(i).getUserName());
@@ -80,7 +81,7 @@ public class VolunteerControllerTestRestTemplateTest {
     }
 
     @AfterEach
-    public void afterEach(){
+    public void afterEach() {
         users.clear();
         volunteers.clear();
         userRepo.deleteAll();
@@ -93,7 +94,7 @@ public class VolunteerControllerTestRestTemplateTest {
      * telegramUserId такого же как и в объекте волонтёра
      */
     @Test
-    public void upload_positiveTest(){
+    public void upload_positiveTest() {
         User user = new User();
         int telegramUserId = faker.random().nextInt(0, 1000000000);
         user.setTelegramUserId(telegramUserId);
@@ -136,7 +137,7 @@ public class VolunteerControllerTestRestTemplateTest {
     @Test
     public void upload_negativeTestByNameNull() {
         // Получение объекта класса Volunteer с полем имени равным null
-        User user = users.get(faker.random().nextInt(0, NUMBER_OF_USERS));
+        User user = users.get(faker.random().nextInt(0, NUMBER_OF_USERS - 1));
 
         Volunteer volunteer = new Volunteer();
         volunteer.setId(0);
@@ -301,8 +302,6 @@ public class VolunteerControllerTestRestTemplateTest {
     }
 
 
-
-
     /**
      * Проверка работы метода при передаче невалидного
      * telegramUserId равного null
@@ -360,7 +359,6 @@ public class VolunteerControllerTestRestTemplateTest {
     }
 
 
-
     /**
      * Проверка работы метода при передаче невалидного
      * telegramUserId, который отсутствует в базе данных
@@ -371,13 +369,13 @@ public class VolunteerControllerTestRestTemplateTest {
         User user = users.get(faker.random().nextInt(0, NUMBER_OF_USERS - 1));
         // нахождение telegramUserId, который отсутствует в базе данных
         int telegramUserId = 1;
-        while(true){
+        while (true) {
             int finalTelegramUserId = telegramUserId;
-            if(users.stream()
+            if (users.stream()
                     .map(User::getTelegramUserId)
                     .filter(t -> t == finalTelegramUserId)
                     .findFirst()
-                    .isEmpty()){
+                    .isEmpty()) {
                 break;
             }
             telegramUserId = faker.random().nextInt(0, 100);
@@ -408,7 +406,7 @@ public class VolunteerControllerTestRestTemplateTest {
      * при валидных входных параметрах
      */
     @Test
-    public void updateName_positiveTest(){
+    public void updateName_positiveTest() {
         List<Volunteer> volunteersFromDB = volunteerRepo.findAll();
         for (int i = 0; i < NUMBER_OF_VOLUNTEERS; i++) {
             Volunteer volunteer = volunteersFromDB.get(faker.random().nextInt(1, volunteersFromDB.size() - 1));
@@ -434,7 +432,7 @@ public class VolunteerControllerTestRestTemplateTest {
      * невалидном id
      */
     @Test
-    public void updateName_negativeTestByNotValidId(){
+    public void updateName_negativeTestByNotValidId() {
         List<Volunteer> volunteersFromDB = volunteerRepo.findAll();
         for (int i = 0; i < NUMBER_OF_VOLUNTEERS; i++) {
             int id = getNotValidId(volunteersFromDB);
@@ -453,13 +451,12 @@ public class VolunteerControllerTestRestTemplateTest {
     }
 
 
-
     /**
      * Проверка правильности работы метода при
      * невалидном name
      */
     @Test
-    public void updateName_negativeTestByNotValidName(){
+    public void updateName_negativeTestByNotValidName() {
         List<Volunteer> volunteersFromDB = volunteerRepo.findAll();
 
         Volunteer volunteer = volunteersFromDB.get(faker.random().nextInt(1, volunteersFromDB.size() - 1));
@@ -494,7 +491,7 @@ public class VolunteerControllerTestRestTemplateTest {
      * валидного значения статуса
      */
     @Test
-    public void putStatus_positiveTest(){
+    public void putStatus_positiveTest() {
         List<Volunteer> volunteersFromDB = volunteerRepo.findAll();
         for (int i = 0; i < NUMBER_OF_VOLUNTEERS; i++) {
             Volunteer volunteer = volunteersFromDB.get(faker.random().nextInt(1, volunteersFromDB.size() - 1));
@@ -545,7 +542,7 @@ public class VolunteerControllerTestRestTemplateTest {
      * идентификатора и телефонного номера
      */
     @Test
-    public void putPhone_positiveTest(){
+    public void putPhone_positiveTest() {
         List<Volunteer> volunteersFromDB = volunteerRepo.findAll();
         for (int i = 0; i < NUMBER_OF_VOLUNTEERS; i++) {
             Volunteer volunteer = volunteersFromDB.get(faker.random().nextInt(1, volunteersFromDB.size() - 1));
@@ -571,7 +568,7 @@ public class VolunteerControllerTestRestTemplateTest {
      * невалидном id
      */
     @Test
-    public void putPhone_negativeTestByNotValidId(){
+    public void putPhone_negativeTestByNotValidId() {
         List<Volunteer> volunteersFromDB = volunteerRepo.findAll();
         for (int i = 0; i < NUMBER_OF_VOLUNTEERS; i++) {
             int id = getNotValidId(volunteersFromDB);
@@ -594,7 +591,7 @@ public class VolunteerControllerTestRestTemplateTest {
      * невалидного значения phoneNumber
      */
     @Test
-    public void putPhone_negativeTestByNotValidPhone(){
+    public void putPhone_negativeTestByNotValidPhone() {
         List<Volunteer> volunteersFromDB = volunteerRepo.findAll();
 
         Volunteer volunteer = volunteersFromDB.get(faker.random().nextInt(1, volunteersFromDB.size() - 1));
@@ -625,7 +622,6 @@ public class VolunteerControllerTestRestTemplateTest {
         Assertions.assertThat(responseEntity.getBody()).isEqualTo("Строка не должна быть пустой");
 
 
-
         newPhone = "";
         responseEntity = testRestTemplate.exchange(
                 "http://localhost:" + port + "/volunteer/{id}/phone?phone={newPhone}",
@@ -644,7 +640,7 @@ public class VolunteerControllerTestRestTemplateTest {
      * передаваемого в метод объекта
      */
     @Test
-    public void put_positiveTest(){
+    public void put_positiveTest() {
         List<Volunteer> volunteersFromDB = volunteerRepo.findAll();
         for (int i = 0; i < NUMBER_OF_VOLUNTEERS; i++) {
             Volunteer volunteer = volunteersFromDB.get(faker.random().nextInt(1, volunteersFromDB.size() - 1));
@@ -697,7 +693,7 @@ public class VolunteerControllerTestRestTemplateTest {
      * Проверка метода при получении валидного id
      */
     @Test
-    public void get_positiveTest(){
+    public void get_positiveTest() {
         List<Volunteer> volunteersFromDB = volunteerRepo.findAll();
         for (int i = 0; i < NUMBER_OF_VOLUNTEERS; i++) {
             Volunteer volunteer = volunteersFromDB.get(faker.random().nextInt(1, volunteersFromDB.size() - 1));
@@ -727,10 +723,10 @@ public class VolunteerControllerTestRestTemplateTest {
      * идентификатора волонтёра
      */
     @Test
-    public void get_negativeTestByNotValidId(){
+    public void get_negativeTestByNotValidId() {
         List<Volunteer> volunteersFromDB = volunteerRepo.findAll();
         for (int i = 0; i < NUMBER_OF_VOLUNTEERS; i++) {
-           int id = getNotValidId(volunteersFromDB);
+            int id = getNotValidId(volunteersFromDB);
             ResponseEntity<String> responseEntity = testRestTemplate.exchange(
                     "http://localhost:" + port + "/volunteer/{id}",
                     HttpMethod.GET,
@@ -747,10 +743,11 @@ public class VolunteerControllerTestRestTemplateTest {
 
     /**
      * Метод для получения невалидного идентификатора волонтёра
+     *
      * @param volunteers - список волонтёров
      * @return невалидный id волонтера
      */
-    private int getNotValidId(List<Volunteer> volunteers){
+    private int getNotValidId(List<Volunteer> volunteers) {
         int id = faker.random().nextInt(1, 1000000000);
         while (true) {
             int finalId = id;
@@ -772,26 +769,26 @@ public class VolunteerControllerTestRestTemplateTest {
      * идентификатора волонтёра
      */
     @Test
-    public void delete_positiveTest(){
+    public void delete_positiveTest() {
         List<Volunteer> volunteersFromDB = volunteerRepo.findAll();
-        for (int i = 0; i < NUMBER_OF_VOLUNTEERS - 1; i++) {
-            Volunteer volunteer = volunteersFromDB.get(faker.random().nextInt(1, volunteersFromDB.size() - 1));
-            int id = volunteer.getId();
 
-            ResponseEntity<Volunteer> responseEntity = testRestTemplate.exchange(
-                    "http://localhost:" + port + "/volunteer/{id}",
-                    HttpMethod.DELETE,
-                    HttpEntity.EMPTY,
-                    Volunteer.class,
-                    Map.of("id", id));
+        Volunteer volunteer = volunteersFromDB.get(faker.random().nextInt(1, volunteersFromDB.size() - 1));
+        int id = volunteer.getId();
 
-            Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-            Assertions.assertThat(responseEntity.getBody()).isNotNull();
-            Assertions.assertThat(responseEntity.getBody())
-                    .usingRecursiveComparison()
-                    .isEqualTo(volunteer);
-            Assertions.assertThat(volunteerRepo.findById(id).isEmpty()).isEqualTo(true);
-        }
+        ResponseEntity<Volunteer> responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/volunteer/{id}",
+                HttpMethod.DELETE,
+                HttpEntity.EMPTY,
+                Volunteer.class,
+                Map.of("id", id));
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody())
+                .usingRecursiveComparison()
+                .isEqualTo(volunteer);
+        Assertions.assertThat(volunteerRepo.findById(id).isEmpty()).isEqualTo(true);
+
     }
 
     /**
@@ -799,7 +796,7 @@ public class VolunteerControllerTestRestTemplateTest {
      * идентификатора волонтёра
      */
     @Test
-    public void delete_negativeTestByNotValidId(){
+    public void delete_negativeTestByNotValidId() {
         List<Volunteer> volunteersFromDB = volunteerRepo.findAll();
         for (int i = 0; i < NUMBER_OF_VOLUNTEERS; i++) {
             int id = getNotValidId(volunteersFromDB);
@@ -822,7 +819,7 @@ public class VolunteerControllerTestRestTemplateTest {
      * волонтёров
      */
     @Test
-    public void getAll_Test(){
+    public void getAll_Test() {
 
         ResponseEntity<List<Volunteer>> responseEntity = testRestTemplate.exchange(
                 "http://localhost:" + port + "/volunteer",

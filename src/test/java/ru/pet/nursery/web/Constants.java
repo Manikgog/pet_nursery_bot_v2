@@ -65,13 +65,17 @@ public class Constants {
     static{
         NURSERY_1 = new Nursery();
         NURSERY_1.setId(1L);
+        NURSERY_1.setNameShelter("Надежда");
         NURSERY_1.setAddress("Астана Калинина д.24");
         NURSERY_1.setPhoneNumber("8-965-569-326-54");
+        NURSERY_1.setForDog(false);
 
         NURSERY_2 = new Nursery();
         NURSERY_2.setId(2L);
+        NURSERY_2.setNameShelter("Вера");
         NURSERY_2.setAddress("Астана ул. Кировградская д.32");
         NURSERY_2.setPhoneNumber("8-954-568-98-97");
+        NURSERY_2.setForDog(true);
     }
 
     public final static AnimalDTO VASKA_DTO;

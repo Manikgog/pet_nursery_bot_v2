@@ -31,7 +31,11 @@ public class Validator {
     public void validateAnimalDTO(AnimalDTO animalDTO){
         List<String> messageList = new ArrayList<>();
         messageList.add(validateAnimalName(animalDTO.getAnimalName()));
-        messageList.add(validateAnimalType(animalDTO.getAnimalType().toString()));
+        if(animalDTO.getAnimalType() == null){
+            messageList.add("Поле AnimalType не должно быть равным null");
+        }else {
+            messageList.add(validateAnimalType(animalDTO.getAnimalType().toString()));
+        }
         messageList.add(validateGender(animalDTO.getGender().toString()));
         messageList.add(validateDescription(animalDTO.getDescription()));
         messageList.add(validateAnimalBirthDate(animalDTO.getBirthDate()));

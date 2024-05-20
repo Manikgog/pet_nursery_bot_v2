@@ -104,7 +104,7 @@ public class AnimalController {
             }
     )
     @PostMapping("/{animalId}/return")
-    public ResponseEntity insertDateOfReturningAnimal(@PathVariable Integer animalId){
+    public ResponseEntity<Animal> insertDateOfReturningAnimal(@PathVariable Integer animalId){
         return animalService.insertDateOfReturn(animalId);
     }
 
