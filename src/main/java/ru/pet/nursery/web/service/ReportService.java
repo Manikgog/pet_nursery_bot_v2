@@ -26,7 +26,7 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 @Service
 public class ReportService {
     @Value("${path.to.report_foto.folder}")
-    private String report_foto;
+    private String report_Photo;
     private final ReportRepo reportRepo;
     private final UserRepo userRepo;
     private final ReportValidator reportValidator;
@@ -79,7 +79,7 @@ public class ReportService {
      * @return ResponseEntity.ok()
      * @throws IOException - исключение ввода-вывода
      */
-    public ResponseEntity updateFoto(long telegramUserId, MultipartFile reportFoto) throws IOException {
+    public ResponseEntity<User> updateFoto(long telegramUserId, MultipartFile reportFoto) throws IOException {
         reportValidator.validateIsAdopter(telegramUserId);
         User user = userRepo.findById(telegramUserId).orElseThrow(() -> new EntityNotFoundException(telegramUserId));
         Report reportFromDB = reportRepo.findByUser(user)
@@ -88,7 +88,7 @@ public class ReportService {
                 .findFirst()
                 .orElseThrow(() -> new EntityNotFoundException(telegramUserId));
         String strPath = System.getProperty("user.dir");
-        strPath += report_foto;
+        strPath += report_Photo;
         Path path = Path.of(strPath);
         Path filePath = Path.of(path.toString(), reportFromDB.getId() + "." + getExtension(Objects.requireNonNull(reportFoto.getOriginalFilename())));
         Files.createDirectories(filePath.getParent());
@@ -102,7 +102,7 @@ public class ReportService {
             bis.transferTo(bos);
         }
 
-        updateFotoPathColumn(filePath.toString(), reportFromDB.getId());
+        updatePhotoPathColumn(filePath.toString(), reportFromDB.getId());
 
         return ResponseEntity.ok().build();
     }
@@ -116,10 +116,10 @@ public class ReportService {
         return fileName.substring(fileName.lastIndexOf('.') + 1);
     }
 
-    private void updateFotoPathColumn(String path, long id){
+    private void updatePhotoPathColumn(String path, long id){
         Report reportOld = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
         reportOld.setPath_to_foto(path);
-        Report reportNew = reportRepo.save(reportOld);
+        reportRepo.save(reportOld);
     }
 
 

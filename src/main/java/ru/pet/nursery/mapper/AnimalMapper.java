@@ -16,7 +16,7 @@ public class AnimalMapper implements Mapper<Animal, AnimalDTO>{
         animalDTO.setAnimalType(animal.getAnimalType());
         animalDTO.setGender(animal.getGender());
         animalDTO.setBirthDate(animal.getBirthDate());
-        animalDTO.setNurseryId(Math.toIntExact(animal.getNursery().getId()));
+        animalDTO.setNurseryId(animal.getNursery().getId());
         animalDTO.setDescription(animal.getDescription());
         return animalDTO;
     }

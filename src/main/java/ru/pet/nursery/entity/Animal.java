@@ -7,6 +7,7 @@ import ru.pet.nursery.enumerations.AnimalType;
 import ru.pet.nursery.enumerations.Gender;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
@@ -51,7 +52,7 @@ public class Animal {
     @JoinColumn(name = "telegramUserId")
     private User user;
 
-    private LocalDate tookDate;
+    private LocalDateTime tookDate;
 
     @ManyToOne
     @JoinColumn(name = "nursery_id")
@@ -60,14 +61,14 @@ public class Animal {
     @Column(columnDefinition="TEXT")
     private String description;
 
-    private LocalDate petReturnDate;
+    private LocalDateTime petReturnDate;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Animal animal = (Animal) o;
-        return id == animal.id && Objects.equals(animalName, animal.animalName) && animalType == animal.animalType && gender == animal.gender && Objects.equals(birthDate, animal.birthDate) && Objects.equals(photoPath, animal.photoPath) && Objects.equals(user, animal.user) && Objects.equals(tookDate, animal.tookDate) && Objects.equals(nursery, animal.nursery) && Objects.equals(description, animal.description) && Objects.equals(petReturnDate, animal.petReturnDate);
+        return Objects.equals(id, animal.id) && Objects.equals(animalName, animal.animalName) && animalType == animal.animalType && gender == animal.gender && Objects.equals(birthDate, animal.birthDate) && Objects.equals(photoPath, animal.photoPath) && Objects.equals(user, animal.user) && Objects.equals(tookDate, animal.tookDate) && Objects.equals(nursery, animal.nursery) && Objects.equals(description, animal.description) && Objects.equals(petReturnDate, animal.petReturnDate);
     }
 
     @Override

@@ -14,6 +14,5 @@ public class Commands {
         commandsActions = new HashMap<>();
         commandsActions.put("/start", new StartAction());
         commandsActions.put("/info", new InfoAction());
-
     }
 }
