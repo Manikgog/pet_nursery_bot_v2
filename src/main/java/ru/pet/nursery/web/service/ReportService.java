@@ -3,6 +3,7 @@ package ru.pet.nursery.web.service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import ru.pet.nursery.entity.Report;
 import ru.pet.nursery.entity.User;
@@ -17,6 +18,8 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -26,7 +29,7 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 @Service
 public class ReportService {
     @Value("${path.to.report_foto.folder}")
-    private String report_Photo;
+    private String report_photo;
     private final ReportRepo reportRepo;
     private final UserRepo userRepo;
     private final ReportValidator reportValidator;
@@ -54,7 +57,8 @@ public class ReportService {
         Report newReport = new Report();
         newReport.setId(0);
         newReport.setUser(user);
-        newReport.setReportDate(LocalDate.now());
+        newReport.setReportDate(LocalDateTime.now());
+        newReport.setNextReportDate(LocalDateTime.now().plusDays(1));
         Report reportFromDB = reportRepo.save(newReport);
         return ResponseEntity.of(Optional.of(reportFromDB));
     }
@@ -84,11 +88,11 @@ public class ReportService {
         User user = userRepo.findById(telegramUserId).orElseThrow(() -> new EntityNotFoundException(telegramUserId));
         Report reportFromDB = reportRepo.findByUser(user)
                 .stream()
-                .filter(r -> r.getReportDate().equals(LocalDate.now()))
+                .filter(r -> r.getReportDate().equals(LocalDateTime.now()))
                 .findFirst()
                 .orElseThrow(() -> new EntityNotFoundException(telegramUserId));
         String strPath = System.getProperty("user.dir");
-        strPath += report_Photo;
+        strPath += report_photo;
         Path path = Path.of(strPath);
         Path filePath = Path.of(path.toString(), reportFromDB.getId() + "." + getExtension(Objects.requireNonNull(reportFoto.getOriginalFilename())));
         Files.createDirectories(filePath.getParent());
@@ -118,10 +122,9 @@ public class ReportService {
 
     private void updatePhotoPathColumn(String path, long id){
         Report reportOld = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
-        reportOld.setPath_to_foto(path);
+        reportOld.setPath_to_photo(path);
         reportRepo.save(reportOld);
     }
-
 
     /**
      * Метод для обновления поля diet в строке с идентификатором id
@@ -137,7 +140,6 @@ public class ReportService {
         return ResponseEntity.of(Optional.of(reportNew));
     }
 
-
     /**
      * Метод для обновления поля health в строке с идентификатором id
      * @param id - идентификатор отчёта в таблице отчётов
@@ -151,7 +153,6 @@ public class ReportService {
         Report reportNew = reportRepo.save(reportOld);
         return ResponseEntity.of(Optional.of(reportNew));
     }
-
 
     /**
      * Метод для обновления поля behaviour в строке с идентификатором id
@@ -167,7 +168,6 @@ public class ReportService {
         return ResponseEntity.of(Optional.of(reportNew));
     }
 
-
     /**
      * Метод для обновления поля allItemsIsAccepted в строке с идентификатором id
      * @param id - идентификатор отчёта в таблице отчётов
@@ -180,7 +180,6 @@ public class ReportService {
         Report reportNew = reportRepo.save(reportOld);
         return ResponseEntity.of(Optional.of(reportNew));
     }
-
 
     /**
      * Метод для обновления поля fotoIsAaccepted в строке с идентификатором id
@@ -195,7 +194,6 @@ public class ReportService {
         return ResponseEntity.of(Optional.of(reportNew));
     }
 
-
     /**
      * Метод для обновления поля dietIsAccepted в строке с идентификатором id
      * @param id - идентификатор отчёта в таблице отчётов
@@ -208,7 +206,6 @@ public class ReportService {
         Report reportNew = reportRepo.save(reportOld);
         return ResponseEntity.of(Optional.of(reportNew));
     }
-
 
     /**
      * Метод для обновления поля healthIsAccepted в строке с идентификатором id
@@ -223,8 +220,6 @@ public class ReportService {
         return ResponseEntity.of(Optional.of(reportNew));
     }
 
-
-
     /**
      * Метод для обновления поля behaviourIsAccepted в строке с идентификатором id
      * @param id - идентификатор отчёта в таблице отчётов
@@ -238,7 +233,6 @@ public class ReportService {
         return ResponseEntity.of(Optional.of(reportNew));
     }
 
-
     /**
      * Метод для получения из базы данных списка отчётов по переданной дате
      * @param date - дата
@@ -246,5 +240,14 @@ public class ReportService {
      */
     public ResponseEntity<List<Report>> getListOfReportByDate(LocalDate date) {
         return ResponseEntity.of(Optional.ofNullable(reportRepo.findByReportDate(date)));
+    }
+
+    /**
+     * Метод поиска животных от даты когда его взяли
+     * @return список всех животных которых взяли
+     */
+    @Transactional(readOnly = true)
+    public List<Report> findByPetReturnDate() {
+        return reportRepo.findByNextReportDate(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS));
     }
 }

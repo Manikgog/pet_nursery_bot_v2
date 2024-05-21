@@ -33,5 +33,4 @@ public interface AnimalRepo extends JpaRepository<Animal, Long> {
     Animal findByUser(User user);
     List<Animal> findByAnimalType(AnimalType animalType);
 
-    List<Animal> findByPetReturnDate(LocalDateTime localDateTime);
 }
