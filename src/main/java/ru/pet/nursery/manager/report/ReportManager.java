@@ -1,7 +1,10 @@
 package ru.pet.nursery.manager.report;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.CallbackQuery;
+import com.pengrad.telegrambot.model.Document;
 import com.pengrad.telegrambot.model.PhotoSize;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
@@ -19,19 +22,14 @@ import ru.pet.nursery.web.exception.IllegalFieldException;
 import ru.pet.nursery.web.exception.IllegalParameterException;
 import ru.pet.nursery.web.service.ReportService;
 import ru.pet.nursery.web.validator.ReportValidator;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 
-import static java.nio.file.StandardOpenOption.CREATE_NEW;
 import static ru.pet.nursery.data.CallbackData.*;
 import static ru.pet.nursery.data.MessageData.*;
 
@@ -268,20 +266,38 @@ public class ReportManager extends AbstractManager {
     public void uploadPhotoToReport(Update update) throws IOException {
         long adopterId = update.message().chat().id();
         User user = userRepo.findById(adopterId).orElseThrow(() -> new IllegalFieldException("Идентификатор пользователя " + adopterId + " отсутствует в базе данных"));
+        Report report = reportService.findByUserAndDate(user, LocalDate.now());
         List<Animal> animals = animalRepo.findByUser(user);
         if(animals.isEmpty()){
             throw new IllegalParameterException("Пользователь с id = " + adopterId + " не усыновлял питомца");
         }
 
-        Animal animalOld = animals.get(0);
-
         if(update.message().photo() != null){
-            List<PhotoSize> photos = Arrays.stream(update.message().photo()).toList();
-            PhotoSize photo = photos.get(0);
-            String fileId = photo.fileId();
-            String file = photo.toString();
 
-            URL url = new URL("https://api.telegram.org/bot" + telegramBot.getToken() + "/getFile?file_id=" + fileId);
+            PhotoSize[] photos = update.message().photo();
+            Document document = update.message().document();
+            String fileId = null;
+            String extension = ".png";
+            if(photos != null){
+                fileId = photos[photos.length - 1].fileId();
+            } else if (document != null) {
+                fileId = document.fileId();
+                String mime = document.mimeType();
+                switch (mime){
+                    case "image/png" -> extension = ".png";
+                    case "image/jpeg" -> extension = ".jpg";
+                    default -> {
+                        sendMessage(adopterId, "Формат файла не поддерживается");
+                        return;
+                    }
+                }
+            }
+            String response = String.format(
+                    "https://api.telegram.org/bot%s/getFile?file_id=%s",
+                    telegramBot.getToken(),
+                    fileId);
+
+            URL url = new URL(response);
 
             String strPath = System.getProperty("user.dir");
             if(strPath.contains("\\")){
@@ -291,16 +307,28 @@ public class ReportManager extends AbstractManager {
             }
             strPath += reportPhoto;
             Path path = Path.of(strPath);
-            Path filePath = Path.of(path.toString(), animalOld.getId() + LocalDate.now().toString() + "."/* + getExtension(Objects.requireNonNull(animalPhoto.getOriginalFilename()))*/);
+            Path filePath = Path.of(path.toString(),  report.getId() + "_" + LocalDate.now().toString() + extension);
             Files.createDirectories(filePath.getParent());
             Files.deleteIfExists(filePath);
 
-            try(BufferedInputStream bis = new BufferedInputStream(url.openStream(), 1024);
-                OutputStream os = Files.newOutputStream(filePath, CREATE_NEW);
-                BufferedOutputStream bos = new BufferedOutputStream(os, 1024)
-            ){
-                bis.transferTo(bos);
-            }
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode jsonNode = mapper.readTree(url);
+
+            String urlTelegramFile = jsonNode.get("result").get("file_path").asText();
+            urlTelegramFile = String.format("https://api.telegram.org/file/bot%s/%s",
+                    telegramBot.getToken(),
+                    urlTelegramFile);
+
+            Files.copy(
+                    new URL(urlTelegramFile).openStream(),
+                    filePath,
+                    StandardCopyOption.REPLACE_EXISTING
+            );
+
+            reportService.updatePhotoPath(report.getId(), filePath.toString());
+
+            sendMessage(user.getTelegramUserId(), "Фотография вашего питомца добавлена к отчёту");
+
         }
 
     }
@@ -319,7 +347,7 @@ public class ReportManager extends AbstractManager {
         }
         reportService.updateDiet(report.getId(), diet);
 
-        answerSuccessUpdate(user.getTelegramUserId(), "Описание диеты вашего питомца добавлено к отчёту");
+        sendMessage(user.getTelegramUserId(), "Описание диеты вашего питомца добавлено к отчёту");
     }
 
 
@@ -338,7 +366,7 @@ public class ReportManager extends AbstractManager {
         }
         reportService.updateHealth(report.getId(), health);
 
-        answerSuccessUpdate(user.getTelegramUserId(), "Описание здоровья вашего питомца добавлено к отчёту");
+        sendMessage(user.getTelegramUserId(), "Описание здоровья вашего питомца добавлено к отчёту");
     }
 
 
@@ -356,10 +384,10 @@ public class ReportManager extends AbstractManager {
            return;
         }
         reportService.updateBehaviour(report.getId(), behaviour);
-        answerSuccessUpdate(user.getTelegramUserId(), "Описание поведения вашего питомца добавлено к отчёту");
+        sendMessage(user.getTelegramUserId(), "Описание поведения вашего питомца добавлено к отчёту");
     }
 
-    public void answerSuccessUpdate(long chatId, String text){
+    public void sendMessage(long chatId, String text){
         SendMessage sendMessage = answerMethodFactory.getSendMessage(chatId,
                 text,
                 null);

@@ -260,4 +260,12 @@ public class ReportService {
     }
 
 
+    public Report updatePhotoPath(long reportId, String path){
+        Report reportOld = reportRepo.findById(reportId).orElseThrow(() -> new EntityNotFoundException(reportId));
+        reportOld.setPath_to_foto(path);
+        Report reportNew = reportRepo.save(reportOld);
+        return reportNew;
+    }
+
+
 }
