@@ -10,6 +10,6 @@ import java.util.List;
 
 @Repository
 public interface AnimalRepo extends JpaRepository<Animal, Integer> {
-    Animal findByUser(User user);
+    List<Animal> findByUser(User user);
     List<Animal> findByAnimalType(AnimalType animalType);
 }

@@ -26,7 +26,7 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 @Service
 public class ReportService {
     @Value("${path.to.report_foto.folder}")
-    private String report_foto;
+    private String REPORT_FOTO;
     private final ReportRepo reportRepo;
     private final UserRepo userRepo;
     private final ReportValidator reportValidator;
@@ -88,7 +88,7 @@ public class ReportService {
                 .findFirst()
                 .orElseThrow(() -> new EntityNotFoundException(telegramUserId));
         String strPath = System.getProperty("user.dir");
-        strPath += report_foto;
+        strPath += REPORT_FOTO;
         Path path = Path.of(strPath);
         Path filePath = Path.of(path.toString(), reportFromDB.getId() + "." + getExtension(Objects.requireNonNull(reportFoto.getOriginalFilename())));
         Files.createDirectories(filePath.getParent());
@@ -164,6 +164,7 @@ public class ReportService {
         validator.stringValidate(behaviour);
         reportOld.setBehaviour(behaviour);
         Report reportNew = reportRepo.save(reportOld);
+
         return ResponseEntity.of(Optional.of(reportNew));
     }
 
@@ -247,4 +248,16 @@ public class ReportService {
     public ResponseEntity<List<Report>> getListOfReportByDate(LocalDate date) {
         return ResponseEntity.of(Optional.ofNullable(reportRepo.findByReportDate(date)));
     }
+
+    /**
+     * Метод для поиска отчёта по усыновителю и по дате отчёта
+     * @param user - усыновитель
+     * @param date - дата отчёта
+     * @return объект отчёта
+     */
+    public Report findByUserAndDate(User user, LocalDate date){
+        return reportRepo.findByUserAndReportDate(user, date);
+    }
+
+
 }
