@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.constraints.Min;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -129,7 +128,7 @@ public class UserController {
      * @param pageSize количество элементов в списке
      * @return ResponseEntity в котором содержится список объектов, равное pageSize
      */
-    @Operation(summary = "Получить список всех пользователей из БД построчно", responses = {
+    @Operation(summary = "Получить список всех пользователей из БД постранично", responses = {
             @ApiResponse(
                     responseCode = "200",
                     description = "Получение постраничного списка выполнено",

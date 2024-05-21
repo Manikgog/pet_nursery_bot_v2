@@ -186,10 +186,13 @@ public class InfoManager extends AbstractManager {
      * @throws IOException - исключение ввода-вывода
      */
     public void catPhoto(CallbackQuery callbackQuery) throws IOException {
-        List<Animal> cats = animalService.getAllAnimalsByType(AnimalType.CAT);
-        int id = cats.get(getNextId(callbackQuery.message().chat().id(), cats)).getId();
+        List<Animal> cats = animalService.getAllAnimalsByType(AnimalType.CAT)
+                .stream()
+                .filter(a -> a.getUser().getTelegramUserId() == 1L)
+                .toList();
+        int id = Math.toIntExact(cats.get(getNextId(callbackQuery.message().chat().id(), cats)).getId());
         String name = animalService.get(id).getAnimalName();
-        if(animalService.get(id).getPhotoPath().isEmpty()){
+        if(animalService.get(id).getPhotoPath() == null){
             SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                     "Фотография отсуствует",
                     keyboardFactory.getInlineKeyboard(
@@ -228,10 +231,13 @@ public class InfoManager extends AbstractManager {
      * @throws IOException - исключение ввода-вывода
      */
     public void dogPhoto(CallbackQuery callbackQuery) throws IOException {
-        List<Animal> dogs = animalService.getAllAnimalsByType(AnimalType.DOG);
-        int id = dogs.get(getNextId(callbackQuery.message().chat().id(), dogs)).getId();
+        List<Animal> dogs = animalService.getAllAnimalsByType(AnimalType.DOG)
+                .stream()
+                .filter(a -> a.getUser().getTelegramUserId() == 1L)
+                .toList();
+        int id = Math.toIntExact(dogs.get(getNextId(callbackQuery.message().chat().id(), dogs)).getId());
         String name = animalService.get(id).getAnimalName();
-        if(animalService.get(id).getPhotoPath().isEmpty()){
+        if(animalService.get(id).getPhotoPath() == null){
             SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                     "Фотография отсуствует",
                     keyboardFactory.getInlineKeyboard(
@@ -253,7 +259,7 @@ public class InfoManager extends AbstractManager {
                                 "Назад"),
                         List.of(1, 1, 1),
                         List.of(DOG_INFORMATION,
-                                CAT_PHOTO,
+                                DOG_PHOTO,
                                 DOGS)
                 ));
         telegramBot.execute(sendPhoto);
@@ -275,6 +281,7 @@ public class InfoManager extends AbstractManager {
             if(newId >= animals.size()){
                 newId = 0;
                 userId_animalId.put(chatId, 0);
+                return newId;
             }
             userId_animalId.put(chatId, newId);
             return newId;
@@ -310,7 +317,10 @@ public class InfoManager extends AbstractManager {
      * @param callbackQuery - запрос обратного вызова
      */
     public void catInformation(CallbackQuery callbackQuery){
-        List<Animal> cats = animalService.getAllAnimalsByType(AnimalType.CAT);
+        List<Animal> cats = animalService.getAllAnimalsByType(AnimalType.CAT)
+                .stream()
+                .filter(a -> a.getUser().getTelegramUserId() == 1L)
+                .toList();
         if(userId_animalId.containsKey(callbackQuery.message().chat().id())) {
             int catIndex = userId_animalId.get(callbackQuery.message().chat().id());
             String description = cats.get(catIndex).getDescription();
@@ -334,7 +344,10 @@ public class InfoManager extends AbstractManager {
      * @param callbackQuery - запрос обратного вызова
      */
     public void dogInformation(CallbackQuery callbackQuery){
-        List<Animal> dogs = animalService.getAllAnimalsByType(AnimalType.DOG);
+        List<Animal> dogs = animalService.getAllAnimalsByType(AnimalType.DOG)
+                .stream()
+                .filter(a -> a.getUser().getTelegramUserId() == 1L)
+                .toList();
         if(userId_animalId.containsKey(callbackQuery.message().chat().id())) {
             int dogIndex = userId_animalId.get(callbackQuery.message().chat().id());
             String description = dogs.get(dogIndex).getDescription();

@@ -60,7 +60,7 @@ public class AnimalService {
     public ResponseEntity<Animal> uploadAnimal(AnimalDTO animalDTO) {
         validator.validateAnimalDTO(animalDTO);
         Nursery nursery = nurseryRepo.findById(animalDTO.getNurseryId())
-                .orElseThrow(() -> new EntityNotFoundException((long) animalDTO.getNurseryId()));
+                .orElseThrow(() -> new EntityNotFoundException(animalDTO.getNurseryId()));
         User user = userRepo.findById(1L).orElseThrow(() -> new EntityNotFoundException(1L));
         Animal newAnimal = new Animal();
         newAnimal.setAnimalName(animalDTO.getAnimalName());
@@ -81,7 +81,6 @@ public class AnimalService {
      * @return ResponseEntity<Animal> - объект ResponseEntity содержащий объект Animal взятый из базы данных с
      *                                  измененным полем photo_path
      * @throws IOException - исключение ввода-вывода при работе с файлами
-     * @throws InterruptedException - исключение добавлено из-за наличия метода sleep
      */
     public ResponseEntity uploadPhoto(Integer animalId, MultipartFile animalPhoto) throws IOException {
         Optional<Animal> animalFromDB = animalRepo.findById(animalId);
@@ -89,6 +88,11 @@ public class AnimalService {
             throw new EntityNotFoundException((long)animalId);
         }
         String strPath = System.getProperty("user.dir");
+        if(strPath.contains("\\")){
+            strPath += "\\";
+        }else{
+            strPath += "/";
+        }
         strPath += animals_images;
         Path path = Path.of(strPath);
         Path filePath = Path.of(path.toString(), animalId + "." + getExtension(Objects.requireNonNull(animalPhoto.getOriginalFilename())));
@@ -159,7 +163,7 @@ public class AnimalService {
      * @return байтовый массив фотографии
      * @throws IOException - исключение ввода-вывода
      */
-    public byte[] getPhotoByteArray(int id) throws IOException {
+    public byte[] getPhotoByteArray(int id) {
 
         Animal animal = animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException((long)id));
         if(animal.getPhotoPath() == null){
@@ -169,17 +173,7 @@ public class AnimalService {
         if(!Files.exists(path)){
             throw new ImageNotFoundException("Файл с изображением не найден!");
         }
-        int size;
-        SeekableByteChannel seekableByteChannel = null;
-        try{
-            seekableByteChannel = Files.newByteChannel(path, EnumSet.of(READ));
-            size = (int)seekableByteChannel.size();
-        } catch (IOException e) {
-            throw new ImageNotFoundException(e.getMessage());
-        } finally {
-            seekableByteChannel.close();
-        }
-        byte[] photoByteArray = new byte[size];
+        byte[] photoByteArray;
         try(InputStream is = Files.newInputStream(path)){
             photoByteArray = is.readAllBytes();
         } catch (IOException e) {
@@ -257,7 +251,10 @@ public class AnimalService {
      */
     public ResponseEntity<Animal> insertDateOfReturn(Integer animalId) {
         Animal animalOld = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(Long.valueOf(animalId)));
+        User user1 = userRepo.findById(1L).orElseThrow(() -> new EntityNotFoundException(Long.valueOf(animalId)));
         animalOld.setPetReturnDate(LocalDate.now());
+        animalOld.setUser(user1);
+        animalOld.setTookDate(null);
         Animal newAnimal = animalRepo.save(animalOld);
         return ResponseEntity.of(Optional.of(newAnimal));
     }
