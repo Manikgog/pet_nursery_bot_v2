@@ -21,6 +21,8 @@ import ru.pet.nursery.web.exception.IllegalParameterException;
 import ru.pet.nursery.web.exception.ReportIsExistException;
 import ru.pet.nursery.web.validator.ReportValidator;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
@@ -59,9 +61,10 @@ public class ReportValidatorUnitTest {
         animal.setNursery(NURSERY_1);
         animal.setBirthDate(faker.date().birthdayLocalDate());
         animal.setPhotoPath(null);
-
+        List<Animal> animals = new ArrayList<>();
+        animals.add(animal);
         when(userRepo.findById(adopterId)).thenReturn(Optional.of(user));
-        when(animalRepo.findByUser(user)).thenReturn(animal);
+        when(animalRepo.findByUser(user)).thenReturn(animals);
         reportValidator.validate(adopterId);
     }
 
@@ -117,11 +120,12 @@ public class ReportValidatorUnitTest {
         animal.setNursery(NURSERY_1);
         animal.setBirthDate(faker.date().birthdayLocalDate());
         animal.setPhotoPath(null);
-
+        List<Animal> animals = new ArrayList<>();
+        animals.add(animal);
         Report report = new Report();
 
         when(userRepo.findById(adopterId)).thenReturn(Optional.of(user));
-        when(animalRepo.findByUser(user)).thenReturn(animal);
+        when(animalRepo.findByUser(user)).thenReturn(animals);
         when(reportRepo.findByUserAndReportDate(user, LocalDate.now())).thenReturn(report);
         Assertions.assertThrows(ReportIsExistException.class, () -> reportValidator.validate(adopterId));
     }
@@ -143,12 +147,12 @@ public class ReportValidatorUnitTest {
 
         // если пользователь не является усыновителем
         when(userRepo.findById(userId)).thenReturn(Optional.of(new User()));
-        when(animalRepo.findByUser(new User())).thenReturn(null);
+        when(animalRepo.findByUser(new User())).thenReturn(new ArrayList<>());
         Assertions.assertThrows(IllegalParameterException.class, () -> reportValidator.validateIsAdopter(userId));
 
         // если все в норме
         when(userRepo.findById(userId)).thenReturn(Optional.of(new User()));
-        when(animalRepo.findByUser(new User())).thenReturn(new Animal());
+        when(animalRepo.findByUser(new User())).thenReturn(List.of(new Animal()));
         reportValidator.validateIsAdopter(userId);
     }
 

@@ -59,7 +59,7 @@ public class VolunteerControllerTestRestTemplateTest {
 
     private User createUser() {
         User user = new User();
-        user.setTelegramUserId(faker.random().nextInt(0, 1000000000));
+        user.setTelegramUserId(faker.random().nextLong(0, 1000000000));
         String firstName = faker.name().firstName();
         user.setFirstName(firstName);
         String lastName = faker.name().lastName();
@@ -96,7 +96,7 @@ public class VolunteerControllerTestRestTemplateTest {
     @Test
     public void upload_positiveTest() {
         User user = new User();
-        int telegramUserId = faker.random().nextInt(0, 1000000000);
+        long telegramUserId = faker.random().nextInt(0, 1000000000);
         user.setTelegramUserId(telegramUserId);
         String firstName = faker.name().firstName();
         user.setFirstName(firstName);

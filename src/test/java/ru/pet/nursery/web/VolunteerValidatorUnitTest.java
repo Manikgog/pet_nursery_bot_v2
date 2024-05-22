@@ -167,13 +167,9 @@ public class VolunteerValidatorUnitTest {
 
         volunteer.setTelegramUserId(0);                                             // подстановка в качестве telegramUserId невалидного числа
 
-        when(userRepo.findById(anyLong())).thenReturn(Optional.of(user));
-
         Assertions.assertThrows(IllegalFieldException.class, () -> validator.validate(volunteer));
 
         volunteer.setTelegramUserId(-1);                                             // подстановка в качестве telegramUserId невалидного числа
-
-        when(userRepo.findById(anyLong())).thenReturn(Optional.of(user));
 
         Assertions.assertThrows(IllegalFieldException.class, () -> validator.validate(volunteer));
 

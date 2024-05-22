@@ -68,7 +68,7 @@ public class ReportValidator {
     public void validateIsAdopter(long telegramUserId){
         User user = userRepo.findById(telegramUserId).orElseThrow(() -> new EntityNotFoundException(telegramUserId));
         List<Animal> adoptedAnimalsByUser = animalRepo.findByUser(user);
-        if(user.getTelegramUserId() == 1 || adoptedAnimalsByUser.isEmpty()){
+        if(adoptedAnimalsByUser.isEmpty()){
             throw new IllegalParameterException("Пользователь с id = " + telegramUserId + " не усыновлял питомца");
         }
     }

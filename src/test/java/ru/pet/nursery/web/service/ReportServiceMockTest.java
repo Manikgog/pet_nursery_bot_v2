@@ -66,8 +66,8 @@ public class ReportServiceMockTest {
         reportFromDB.setId(1);
         reportFromDB.setReportDate(report.getReportDate());
         reportFromDB.setUser(report.getUser());
-        when(reportRepo.save(report)).thenReturn(reportFromDB);
-        Assertions.assertEquals(reportFromDB, reportService.upload(adopterId));
+        when(reportRepo.save(any())).thenReturn(reportFromDB);
+        Assertions.assertEquals(ResponseEntity.of(Optional.of(reportFromDB)), reportService.upload(adopterId));
     }
 
 

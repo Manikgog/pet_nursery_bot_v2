@@ -10,7 +10,7 @@ import ru.pet.nursery.enumerations.AnimalType;
 import java.util.List;
 
 @Repository
-public interface AnimalRepo extends JpaRepository<Animal, Integer> {
+public interface AnimalRepo extends JpaRepository<Animal, Long> {
     List<Animal> findByUser(User user);
     List<Animal> findByAnimalType(AnimalType animalType);
     List<Animal> findByUserIsNull(PageRequest pageRequest);

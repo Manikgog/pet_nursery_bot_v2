@@ -1,4 +1,4 @@
-package ru.pet.nursery;
+package ru.pet.nursery.web;
 
 import ru.pet.nursery.entity.Animal;
 import ru.pet.nursery.entity.Nursery;
@@ -114,7 +114,7 @@ public class Constants {
         VASKA.setDescription("Рыжий кот. Левое ухо ободрано.");
 
         VASKA_FROM_DB = new Animal();
-        VASKA_FROM_DB.setId(1L);
+        VASKA_FROM_DB.setId(0L);
         VASKA_FROM_DB.setAnimalName("Васька");
         VASKA_FROM_DB.setAnimalType(AnimalType.CAT);
         VASKA_FROM_DB.setGender(Gender.MALE);

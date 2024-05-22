@@ -35,7 +35,7 @@ import static ru.pet.nursery.data.MessageData.*;
 
 @Component
 public class ReportManager extends AbstractManager {
-    private final String reportPhoto = "report_photo";
+    private final String REPORT_PHOTO = "report_photo";
     private final AnswerMethodFactory answerMethodFactory;
     private final KeyboardFactory keyboardFactory;
     private final ReportValidator reportValidator;
@@ -273,7 +273,6 @@ public class ReportManager extends AbstractManager {
         }
 
         if(update.message().photo() != null){
-
             PhotoSize[] photos = update.message().photo();
             Document document = update.message().document();
             String fileId = null;
@@ -305,9 +304,9 @@ public class ReportManager extends AbstractManager {
             }else{
                 strPath += "/";
             }
-            strPath += reportPhoto;
+            strPath += REPORT_PHOTO;
             Path path = Path.of(strPath);
-            Path filePath = Path.of(path.toString(),  report.getId() + "_" + LocalDate.now().toString() + extension);
+            Path filePath = Path.of(path.toString(),  report.getId() + "_" + LocalDate.now() + extension);
             Files.createDirectories(filePath.getParent());
             Files.deleteIfExists(filePath);
 
@@ -328,9 +327,9 @@ public class ReportManager extends AbstractManager {
             reportService.updatePhotoPath(report.getId(), filePath.toString());
 
             sendMessage(user.getTelegramUserId(), "Фотография вашего питомца добавлена к отчёту");
-
+            return;
         }
-
+        sendMessage(user.getTelegramUserId(), "Мы ожидали от вас фото питомца");
     }
 
     public void uploadDietToReport(Update update){
@@ -341,6 +340,10 @@ public class ReportManager extends AbstractManager {
             throw new IllegalParameterException("Пользователь с id = " + adopterId + " не усыновлял питомца");
         }
         String diet = update.message().text();
+        if(diet.isBlank() || diet.isEmpty()){
+            sendMessage(user.getTelegramUserId(), "Описание диеты не должно быть пустой строкой");
+            return;
+        }
         Report report = reportService.findByUserAndDate(user, LocalDate.now());
         if(report == null) {
             return;
@@ -360,6 +363,10 @@ public class ReportManager extends AbstractManager {
             throw new IllegalParameterException("Пользователь с id = " + adopterId + " не усыновлял питомца");
         }
         String health = update.message().text();
+        if(health.isBlank() || health.isEmpty()){
+            sendMessage(user.getTelegramUserId(), "Описание здоровья не должно быть пустой строкой");
+            return;
+        }
         Report report = reportService.findByUserAndDate(user, LocalDate.now());
         if(report == null) {
             return;
@@ -379,6 +386,10 @@ public class ReportManager extends AbstractManager {
         }
 
         String behaviour = update.message().text();
+        if(behaviour.isBlank() || behaviour.isEmpty()){
+            sendMessage(user.getTelegramUserId(), "Описание поведения не должно быть пустой строкой");
+            return;
+        }
         Report report = reportService.findByUserAndDate(user, LocalDate.now());
         if(report == null) {
            return;

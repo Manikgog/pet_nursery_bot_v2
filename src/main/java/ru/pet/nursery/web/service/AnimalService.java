@@ -82,10 +82,10 @@ public class AnimalService {
      *                                  измененным полем photo_path
      * @throws IOException - исключение ввода-вывода при работе с файлами
      */
-    public ResponseEntity uploadPhoto(Integer animalId, MultipartFile animalPhoto) throws IOException {
+    public ResponseEntity uploadPhoto(long animalId, MultipartFile animalPhoto) throws IOException {
         Optional<Animal> animalFromDB = animalRepo.findById(animalId);
         if(animalFromDB.isEmpty()){
-            throw new EntityNotFoundException((long)animalId);
+            throw new EntityNotFoundException(animalId);
         }
         String strPath = System.getProperty("user.dir");
         if(strPath.contains("\\")){
@@ -128,8 +128,8 @@ public class AnimalService {
      * @param response - объект в котором возвращается изображение животного
      * @throws IOException - исключение ввода-вывода при работе с файлами
      */
-    public void getAnimalPhoto(int id, HttpServletResponse response) throws IOException {
-        Animal animal = animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException((long)id));
+    public void getAnimalPhoto(long id, HttpServletResponse response) throws IOException {
+        Animal animal = animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
         if(animal.getPhotoPath() == null){
             throw new ImageNotFoundException("Путь к файлу с изображением отсутствует!");
         }
@@ -162,9 +162,9 @@ public class AnimalService {
      * @param id - идентификатор животного
      * @return байтовый массив фотографии
      */
-    public byte[] getPhotoByteArray(int id) {
+    public byte[] getPhotoByteArray(long id) {
 
-        Animal animal = animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException((long)id));
+        Animal animal = animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
         if(animal.getPhotoPath() == null){
             throw new ImageNotFoundException("Путь к файлу с изображением отсутствует!");
         }
@@ -186,14 +186,14 @@ public class AnimalService {
      * @param id - primary key животного в таблице animal_table
      * @return удаленная запись животного
      */
-    public ResponseEntity<Animal> delete(Integer id) {
+    public ResponseEntity<Animal> delete(long id) {
         return ResponseEntity.of(Optional.of(
                 animalRepo.findById(id)
                 .map(animalToDel -> {
                     animalRepo.delete(animalToDel);
                     return animalToDel;
                 })
-                .orElseThrow(() -> new EntityNotFoundException(Long.valueOf(id)))));
+                .orElseThrow(() -> new EntityNotFoundException(id))));
     }
 
     /**
@@ -202,8 +202,8 @@ public class AnimalService {
      * @param adoptedId - идентификатор усыновителя в таблице
      * @return статус HTTP
      */
-    public ResponseEntity<Animal> insertDataOfHuman(Integer animalId, Long adoptedId) {
-        Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(Long.valueOf(animalId)));
+    public ResponseEntity<Animal> insertDataOfHuman(long animalId, Long adoptedId) {
+        Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(animalId));
         User userAdopted = userRepo.findById(adoptedId).orElseThrow(() -> new EntityNotFoundException(adoptedId));
         // проверка на то, что у человека уже есть животное на испытательном сроке
         if(!animalRepo.findByUser(userAdopted).isEmpty()){
@@ -249,8 +249,8 @@ public class AnimalService {
      * @param animalId - идентификатор животного в таблице animal_table
      * @return HttpStatus
      */
-    public ResponseEntity<Animal> insertDateOfReturn(Integer animalId) {
-        Animal animalOld = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(Long.valueOf(animalId)));
+    public ResponseEntity<Animal> insertDateOfReturn(long animalId) {
+        Animal animalOld = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(animalId));
         animalOld.setPetReturnDate(LocalDate.now());
         animalOld.setUser(null);
         animalOld.setTookDate(null);
@@ -263,9 +263,9 @@ public class AnimalService {
      * @param animalId - идентификатор животного в таблице animal_table
      * @return HttpStatus
      */
-    public ResponseEntity<AnimalDTOForUser> getById(Integer animalId) {
+    public ResponseEntity<AnimalDTOForUser> getById(long animalId) {
         AnimalDTOForUserMapper animalDTOForUserMapper = new AnimalDTOForUserMapper();
-        Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(Long.valueOf(animalId)));
+        Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(animalId));
         return ResponseEntity.of(Optional.of(animalDTOForUserMapper.perform(animalFromDB)));
     }
 
@@ -288,7 +288,7 @@ public class AnimalService {
     /**
      * Метод для получения объекта Animal
      */
-    public Animal get(int id){
-        return animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException((long) id));
+    public Animal get(long id){
+        return animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
     }
 }

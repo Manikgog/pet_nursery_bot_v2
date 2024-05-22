@@ -188,7 +188,7 @@ public class InfoManager extends AbstractManager {
     public void catPhoto(CallbackQuery callbackQuery) throws IOException {
         List<Animal> cats = animalService.getAllAnimalsByType(AnimalType.CAT)
                 .stream()
-                .filter(a -> a.getUser().getTelegramUserId() == 1L)
+                .filter(a -> a.getUser() == null)
                 .toList();
         int id = Math.toIntExact(cats.get(getNextId(callbackQuery.message().chat().id(), cats)).getId());
         String name = animalService.get(id).getAnimalName();
@@ -233,7 +233,7 @@ public class InfoManager extends AbstractManager {
     public void dogPhoto(CallbackQuery callbackQuery) throws IOException {
         List<Animal> dogs = animalService.getAllAnimalsByType(AnimalType.DOG)
                 .stream()
-                .filter(a -> a.getUser().getTelegramUserId() == 1L)
+                .filter(a -> a.getUser() == null)
                 .toList();
         int id = Math.toIntExact(dogs.get(getNextId(callbackQuery.message().chat().id(), dogs)).getId());
         String name = animalService.get(id).getAnimalName();
@@ -319,7 +319,7 @@ public class InfoManager extends AbstractManager {
     public void catInformation(CallbackQuery callbackQuery){
         List<Animal> cats = animalService.getAllAnimalsByType(AnimalType.CAT)
                 .stream()
-                .filter(a -> a.getUser().getTelegramUserId() == 1L)
+                .filter(a -> a.getUser() == null)
                 .toList();
         if(userId_animalId.containsKey(callbackQuery.message().chat().id())) {
             int catIndex = userId_animalId.get(callbackQuery.message().chat().id());
@@ -346,7 +346,7 @@ public class InfoManager extends AbstractManager {
     public void dogInformation(CallbackQuery callbackQuery){
         List<Animal> dogs = animalService.getAllAnimalsByType(AnimalType.DOG)
                 .stream()
-                .filter(a -> a.getUser().getTelegramUserId() == 1L)
+                .filter(a -> a.getUser() == null)
                 .toList();
         if(userId_animalId.containsKey(callbackQuery.message().chat().id())) {
             int dogIndex = userId_animalId.get(callbackQuery.message().chat().id());

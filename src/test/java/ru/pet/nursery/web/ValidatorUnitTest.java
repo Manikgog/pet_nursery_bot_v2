@@ -8,13 +8,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.pet.nursery.repository.NurseryRepo;
 import ru.pet.nursery.web.exception.IllegalFieldException;
+import ru.pet.nursery.web.exception.PageNumberException;
+import ru.pet.nursery.web.exception.PageSizeException;
 import ru.pet.nursery.web.validator.Validator;
 import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.mockito.Mockito.when;
-import static ru.pet.nursery.web.Constants.NURSERY_1;
-import static ru.pet.nursery.web.Constants.VASKA_DTO;
+import static ru.pet.nursery.web.Constants.*;
+
 
 @ExtendWith(MockitoExtension.class)
 public class ValidatorUnitTest {
@@ -55,4 +57,16 @@ public class ValidatorUnitTest {
         Assertions.assertThrows(IllegalFieldException.class, () -> validator.validateAnimalDTO(VASKA_DTO));
     }
 
+    @Test
+    public void validatePageNumber_Test(){
+        Assertions.assertThrows(PageNumberException.class, () -> validator.validatePageNumber(0));
+        Assertions.assertThrows(PageNumberException.class, () -> validator.validatePageNumber(-1));
+    }
+
+
+    @Test
+    public void validatePageSize_Test(){
+        Assertions.assertThrows(PageSizeException.class, () -> validator.validatePageSize(0));
+        Assertions.assertThrows(PageSizeException.class, () -> validator.validatePageSize(-1));
+    }
 }
