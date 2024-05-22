@@ -14,7 +14,7 @@ import java.util.Objects;
 @Setter
 @Getter
 public class AnimalDTOForUser {
-    private int id;
+    private Long id;
 
     private String animalName;
 

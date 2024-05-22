@@ -149,7 +149,7 @@ public class ShelterController {
                     )
             )
     })
-    @GetMapping
+    @GetMapping(name = "/getNursery", params = {"page","size"})
     public ResponseEntity<List<Nursery>> getNursery(@RequestParam @Min(1) int page, @RequestParam @Min(1) int size) {
         return ResponseEntity.ok(shelterService.getAllShelter(page, size));
     }
@@ -174,10 +174,10 @@ public class ShelterController {
                     )
             )
     })
-    @GetMapping("/getShelterFor")
-    public ResponseEntity<List<Nursery>> getShelterForKindOfAnimals(@RequestParam Boolean kindOfAnimal,
-                                                                    @RequestParam @Min(1) int page,
-                                                                    @RequestParam @Min(1) int size) {
+    @GetMapping("/getShelterForKindOfAnimals")
+    public ResponseEntity<List<Nursery>> getShelterForKindOfAnimals(@RequestParam("kindOfAnimal") Boolean kindOfAnimal,
+                                                                    @RequestParam("page") Integer page,
+                                                                    @RequestParam("size") Integer size) {
         return ResponseEntity.ok(shelterService.getShelterForDog(kindOfAnimal, page, size));
     }
 }

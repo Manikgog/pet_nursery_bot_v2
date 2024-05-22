@@ -13,10 +13,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.pet.nursery.entity.Animal;
 import ru.pet.nursery.entity.Report;
 import ru.pet.nursery.web.service.ReportService;
-
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
@@ -194,7 +192,7 @@ public class ReportController {
     )
     @PutMapping("/{id}/{fotoIsAccepted}")
     public ResponseEntity<Report> putIsFotoAccepted(@PathVariable long id, @PathVariable boolean isFotoAccepted){
-        return reportService.updateFotoIsAccepted(id, isFotoAccepted);
+        return reportService.updatePhotoIsAccepted(id, isFotoAccepted);
     }
 
 

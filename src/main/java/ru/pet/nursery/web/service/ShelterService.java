@@ -4,12 +4,16 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.pet.nursery.entity.Nursery;
+import ru.pet.nursery.mapper.ShelterMapper;
 import ru.pet.nursery.repository.ShelterRepo;
+import ru.pet.nursery.web.dto.ShelterDTO;
 import ru.pet.nursery.web.exception.ShelterNotFoundException;
 import ru.pet.nursery.web.exception.ShelterNullException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Service
 public class ShelterService {
@@ -74,11 +78,11 @@ public class ShelterService {
      */
     public Nursery removeShelter(Long id) {
         return shelterRepo.findById(id)
-                        .map(shelterToDel -> {
-                            shelterRepo.delete(shelterToDel);
-                            return shelterToDel;
-                        })
-                        .orElseThrow(() -> new ShelterNotFoundException("Приют с id = " + id + " не найден"));
+                .map(shelterToDel -> {
+                    shelterRepo.delete(shelterToDel);
+                    return shelterToDel;
+                })
+                .orElseThrow(() -> new ShelterNotFoundException("Приют с id = " + id + " не найден"));
     }
 
     /**
@@ -89,8 +93,7 @@ public class ShelterService {
      * @return лист объектов с информацией для пользователя.
      */
     public List<Nursery> getAllShelter(Integer pageNo, Integer pageSize) {
-        PageRequest pageable = PageRequest.of(pageNo - 1, pageSize);
-        return shelterRepo.findAll(pageable).getContent();
+        return shelterRepo.findAll(PageRequest.of(pageNo-1,pageSize)).getContent();
     }
 
     /**
@@ -103,7 +106,11 @@ public class ShelterService {
      */
     public List<Nursery> getShelterForDog(Boolean kindOfAnimal, Integer pageNo, Integer pageSize) {
         PageRequest pageable = PageRequest.of(pageNo - 1, pageSize);
-        return shelterRepo.findAll(pageable).stream().filter(pet -> pet.isForDog()==kindOfAnimal).toList();
+        return shelterRepo.findAll(pageable).stream().filter(pet -> pet.isForDog() == kindOfAnimal).toList();
+    }
+
+    public List<Nursery> getAll() {
+        return shelterRepo.findAll().stream().toList();
     }
 
 }

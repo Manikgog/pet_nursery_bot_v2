@@ -60,7 +60,7 @@ public class AnimalService {
     public ResponseEntity<Animal> uploadAnimal(AnimalDTO animalDTO) {
         validator.validateAnimalDTO(animalDTO);
         Nursery nursery = nurseryRepo.findById(animalDTO.getNurseryId())
-                .orElseThrow(() -> new EntityNotFoundException((long) animalDTO.getNurseryId()));
+                .orElseThrow(() -> new EntityNotFoundException(animalDTO.getNurseryId()));
         User user = userRepo.findById(1L).orElseThrow(() -> new EntityNotFoundException(1L));
         Animal newAnimal = new Animal();
         newAnimal.setAnimalName(animalDTO.getAnimalName());
@@ -88,9 +88,14 @@ public class AnimalService {
             throw new EntityNotFoundException((long)animalId);
         }
         String strPath = System.getProperty("user.dir");
+        if(strPath.contains("\\")){
+            strPath += "\\";
+        }else{
+            strPath += "/";
+        }
         strPath += animals_images;
         Path path = Path.of(strPath);
-        Path filePath = Path.of(path.toString(), animalId + "." + getExtention(Objects.requireNonNull(animalPhoto.getOriginalFilename())));
+        Path filePath = Path.of(path.toString(), animalId + "." + getExtension(Objects.requireNonNull(animalPhoto.getOriginalFilename())));
         Files.createDirectories(filePath.getParent());
         Files.deleteIfExists(filePath);
 
@@ -113,7 +118,7 @@ public class AnimalService {
      * @param fileName - имя файла
      * @return строка, содержащая расширения файла
      */
-    public String getExtention(String fileName){
+    public String getExtension(String fileName){
         return fileName.substring(fileName.lastIndexOf('.') + 1);
     }
 
@@ -158,7 +163,7 @@ public class AnimalService {
      * @return байтовый массив фотографии
      * @throws IOException - исключение ввода-вывода
      */
-    public byte[] getPhotoByteArray(int id) throws IOException {
+    public byte[] getPhotoByteArray(int id) {
 
         Animal animal = animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException((long)id));
         if(animal.getPhotoPath() == null){
@@ -168,17 +173,7 @@ public class AnimalService {
         if(!Files.exists(path)){
             throw new ImageNotFoundException("Файл с изображением не найден!");
         }
-        int size;
-        SeekableByteChannel seekableByteChannel = null;
-        try{
-            seekableByteChannel = Files.newByteChannel(path, EnumSet.of(READ));
-            size = (int)seekableByteChannel.size();
-        } catch (IOException e) {
-            throw new ImageNotFoundException(e.getMessage());
-        } finally {
-            seekableByteChannel.close();
-        }
-        byte[] photoByteArray = new byte[size];
+        byte[] photoByteArray;
         try(InputStream is = Files.newInputStream(path)){
             photoByteArray = is.readAllBytes();
         } catch (IOException e) {
@@ -208,13 +203,13 @@ public class AnimalService {
      * @param adoptedId - идентификатор усыновителя в таблице
      * @return статус HTTP
      */
-    public ResponseEntity insertDataOfHuman(Integer animalId, Long adoptedId) {
+    public ResponseEntity<Animal> insertDataOfHuman(Integer animalId, Long adoptedId) {
         Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(Long.valueOf(animalId)));
         User userAdopted = userRepo.findById(adoptedId).orElseThrow(() -> new EntityNotFoundException(adoptedId));
         animalFromDB.setUser(userAdopted);
         animalFromDB.setTookDate(LocalDate.now());
-        animalRepo.save(animalFromDB);
-        return ResponseEntity.ok().build();
+        Animal newAnimal = animalRepo.save(animalFromDB);
+        return ResponseEntity.of(Optional.of(newAnimal));
     }
 
     /**
@@ -254,11 +249,14 @@ public class AnimalService {
      * @param animalId - идентификатор животного в таблице animal_table
      * @return HttpStatus
      */
-    public ResponseEntity insertDateOfReturn(Integer animalId) {
+    public ResponseEntity<Animal> insertDateOfReturn(Integer animalId) {
         Animal animalOld = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(Long.valueOf(animalId)));
+        User user1 = userRepo.findById(1L).orElseThrow(() -> new EntityNotFoundException(Long.valueOf(animalId)));
         animalOld.setPetReturnDate(LocalDate.now());
-        animalRepo.save(animalOld);
-        return ResponseEntity.ok().build();
+        animalOld.setUser(user1);
+        animalOld.setTookDate(null);
+        Animal newAnimal = animalRepo.save(animalOld);
+        return ResponseEntity.of(Optional.of(newAnimal));
     }
 
     /**

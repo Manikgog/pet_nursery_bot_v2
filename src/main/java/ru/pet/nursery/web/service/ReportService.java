@@ -90,7 +90,7 @@ public class ReportService {
         String strPath = System.getProperty("user.dir");
         strPath += report_foto;
         Path path = Path.of(strPath);
-        Path filePath = Path.of(path.toString(), reportFromDB.getId() + "." + getExtention(Objects.requireNonNull(reportFoto.getOriginalFilename())));
+        Path filePath = Path.of(path.toString(), reportFromDB.getId() + "." + getExtension(Objects.requireNonNull(reportFoto.getOriginalFilename())));
         Files.createDirectories(filePath.getParent());
         Files.deleteIfExists(filePath);
 
@@ -112,7 +112,7 @@ public class ReportService {
      * @param fileName - имя файла
      * @return строка, содержащая расширения файла
      */
-    public String getExtention(String fileName){
+    public String getExtension(String fileName){
         return fileName.substring(fileName.lastIndexOf('.') + 1);
     }
 
@@ -185,12 +185,12 @@ public class ReportService {
     /**
      * Метод для обновления поля fotoIsAaccepted в строке с идентификатором id
      * @param id - идентификатор отчёта в таблице отчётов
-     * @param isFotoAccepted - принята или не принята (true или false) волонтером фотография питомца
+     * @param isPhotoAccepted - принята или не принята (true или false) волонтером фотография питомца
      * @return ResponseEntity<Report> - измененный объект отчёта из базы данных
      */
-    public ResponseEntity<Report> updateFotoIsAccepted(long id, boolean isFotoAccepted) {
+    public ResponseEntity<Report> updatePhotoIsAccepted(long id, boolean isPhotoAccepted) {
         Report reportOld = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
-        reportOld.setFotoIsAaccepted(isFotoAccepted);
+        reportOld.setPhotoIsAccepted(isPhotoAccepted);
         Report reportNew = reportRepo.save(reportOld);
         return ResponseEntity.of(Optional.of(reportNew));
     }

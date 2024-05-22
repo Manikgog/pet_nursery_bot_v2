@@ -35,7 +35,7 @@ public class ReportValidator {
         User user = userRepo.findById(adopterId)
                 .orElseThrow(() -> new IllegalFieldException("Идентификатор пользователя " + adopterId + " отсутствует в базе данных"));
         validateIsAdopter(adopterId);
-        // проверяется составлялся ли отчёт для этого пользователя сегодня
+        // проверяется, составлялся ли отчёт для этого пользователя сегодня
         if(isReportInDataBase(adopterId, user)){
             throw new ReportIsExistException("Отчет за сегодняшний день уже есть в базе данных");
         }
@@ -58,29 +58,6 @@ public class ReportValidator {
             throw new IllegalFieldException("Поле даты не должно быть равным null");
         }
     }
-
-    /**
-     * Метод для проверки наличия в базе данных пользователей
-     * строки с переданным идентификатором
-     * @param telegramUserId - идентификатор пользователя телеграма
-     */
-    public void validateTelegramUserId(long telegramUserId){
-        if(userRepo.findById(telegramUserId).isEmpty()){
-            throw new IllegalFieldException("Идентификатор пользователя " + telegramUserId + " отсутствует в базе данных");
-        }
-    }
-
-    /**
-     * Метод для проверки наличия в базе данных строки
-     * с переданным идентификатором
-     * @param id - идентификатор отчёта
-     */
-    public void validateId(long id){
-        if(reportRepo.findById(id).isEmpty()){
-            throw new EntityNotFoundException(id);
-        }
-    }
-
 
     /**
      * Метод для проверки усыновлял ли животное из наших

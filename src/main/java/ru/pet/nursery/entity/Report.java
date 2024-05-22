@@ -35,8 +35,8 @@ public class Report {
     @Column(columnDefinition="TEXT", name="behaviour")
     private String behaviour;
 
-    @Column(name = "foto_is_accepted", nullable = false)
-    private boolean fotoIsAaccepted;
+    @Column(name = "photo_is_accepted", nullable = false)
+    private boolean photoIsAccepted;
 
     @Column(name = "diet_is_accepted", nullable = false)
     private boolean dietIsAccepted;

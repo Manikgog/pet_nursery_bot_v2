@@ -1,4 +1,4 @@
-package ru.pet.nursery.web.controller;
+package ru.pet.nursery;
 
 import net.datafaker.Faker;
 import org.assertj.core.api.Assertions;
@@ -64,7 +64,7 @@ public class AnimalControllerTestRestTemplateTest {
     public void beforeEach(){
         List<User> userList = new ArrayList<>();
         User userNoone = new User();
-        userNoone.setTelegramUserId(1);
+        userNoone.setTelegramUserId(1L);
         userNoone.setUserName("нет");
         userNoone.setAddress("нет");
         userNoone.setFirstName("нет");
@@ -96,7 +96,7 @@ public class AnimalControllerTestRestTemplateTest {
         userRepo.deleteAll();
     }
 
-    private Animal createAnimal(int nurseryId){
+    private Animal createAnimal(Long nurseryId){
         Animal animal = new Animal();
         animal.setAnimalName(faker.name().name());
         Random rnd = new Random();
@@ -155,7 +155,7 @@ public class AnimalControllerTestRestTemplateTest {
 
     private User createUser(int i){
         User user = new User();
-        user.setTelegramUserId(i + 10);
+        user.setTelegramUserId((long)i + 10);
         user.setFirstName(faker.name().firstName());
         user.setLastName(faker.name().lastName());
         user.setUserName(user.getFirstName() + user.getLastName());
@@ -174,7 +174,7 @@ public class AnimalControllerTestRestTemplateTest {
             animalDTO.setAnimalType(isCat ? AnimalType.CAT : AnimalType.DOG);
             boolean isMale = rnd.nextBoolean();
             animalDTO.setGender(isMale ? Gender.MALE : Gender.FEMALE);
-            animalDTO.setNurseryId(Math.toIntExact(nurseryRepo.findById(1).get().getId()));
+            animalDTO.setNurseryId(nurseryRepo.findById(1L).get().getId());
             animalDTO.setBirthDate(faker.date().birthdayLocalDate(MIN_AGE, MAX_AGE));
             animalDTO.setDescription(faker.examplify(animalDTO.getAnimalName()));
 
@@ -242,7 +242,7 @@ public class AnimalControllerTestRestTemplateTest {
             Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
             Assertions.assertThat(responseEntity.getBody()).isEqualTo(HttpStatus.OK);
 
-            Animal animalAfterAdoption = animalRepo.findById(animal.getId()).get();
+            Animal animalAfterAdoption = animalRepo.findById(Math.toIntExact(animal.getId())).get();
             Assertions.assertThat(animalAfterAdoption.getUser().getTelegramUserId()).isEqualTo(user.getTelegramUserId());
             Assertions.assertThat(animalAfterAdoption.getTookDate()).isEqualTo(LocalDate.now());
         }
@@ -256,7 +256,7 @@ public class AnimalControllerTestRestTemplateTest {
     public void uploadPhotoAnimal_negativeTest(){
         List<Animal> animalsFromDB = animalRepo.findAll();
         Random rnd = new Random();
-        List<Integer> animalsIds = animalsFromDB.stream().map(Animal::getId).toList();
+        List<Long> animalsIds = animalsFromDB.stream().map(Animal::getId).toList();
         int wrongAnimalId;
         while (true) {
             wrongAnimalId = rnd.nextInt(animalsIds.size() + 10);
@@ -294,7 +294,7 @@ public class AnimalControllerTestRestTemplateTest {
         List<Animal> animalsFromDB = animalRepo.findAll();
         Random rnd = new Random();
         int size = animalsFromDB.size();
-        List<Integer> animalsIds = animalsFromDB.stream().map(a -> a.getId()).toList();
+        List<Long> animalsIds = animalsFromDB.stream().map(a -> a.getId()).toList();
         int wrongAnimalId;
         for (int i = 0; i < 5; i++) {
             while (true) {
@@ -402,7 +402,7 @@ public class AnimalControllerTestRestTemplateTest {
         List<Animal> animalsFromDB = animalRepo.findAll();
         Random rnd = new Random();
         int size = animalsFromDB.size();
-        List<Integer> animalsIds = animalsFromDB.stream().map(a -> a.getId()).toList();
+        List<Long> animalsIds = animalsFromDB.stream().map(a -> a.getId()).toList();
         int wrongAnimalId;
         while (true) {
             wrongAnimalId = rnd.nextInt(animalsIds.size() + 10);
@@ -415,9 +415,9 @@ public class AnimalControllerTestRestTemplateTest {
     @Test
     public void getAnimalPhoto_positiveTest(){
         // получение идентификатора из таблицы animal_table
-        int correctAnimalId = getCorrectAnimalId();
+        Long correctAnimalId = getCorrectAnimalId();
         // сначала надо загрузить фотографию для найденного идентификатора животного
-        uploadAnimalPhoto(correctAnimalId);
+        uploadAnimalPhoto(Math.toIntExact(correctAnimalId));
 
         ResponseEntity<String> responseEntity = testRestTemplate.exchange(
                 "http://localhost:" + port + "/animal/{correctAnimalId}/photo",
@@ -430,7 +430,7 @@ public class AnimalControllerTestRestTemplateTest {
         Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
-    private int getCorrectAnimalId(){
+    private Long getCorrectAnimalId(){
         List<Animal> animalsFromDB = animalRepo.findAll();
         Random rnd = new Random();
         return animalsFromDB.get(rnd.nextInt(animalsFromDB.size())).getId();
@@ -463,8 +463,8 @@ public class AnimalControllerTestRestTemplateTest {
     public void deleteAnimal_positiveTest(){
         for (int i = 0; i < 5; i++) {
             // получение валидного идентификатора животного
-            int animalId = getCorrectAnimalId();
-            Animal animalToDelete = animalRepo.findById(animalId).get();
+            Long animalId = getCorrectAnimalId();
+            Animal animalToDelete = animalRepo.findById(Math.toIntExact(animalId)).get();
 
             ResponseEntity<Animal> responseEntity = testRestTemplate
                     .exchange(
@@ -477,7 +477,7 @@ public class AnimalControllerTestRestTemplateTest {
 
             Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
             Assertions.assertThat(responseEntity.getBody()).isEqualTo(animalToDelete);
-            Assertions.assertThat(Optional.empty()).isEqualTo(animalRepo.findById(animalId));
+            Assertions.assertThat(Optional.empty()).isEqualTo(animalRepo.findById(Math.toIntExact(animalId)));
         }
     }
 
@@ -544,14 +544,14 @@ public class AnimalControllerTestRestTemplateTest {
     public void getById_positiveTest(){
         for (int i = 0; i < NUMBER_OF_ANIMALS/4; i++) {
             // получение валидного идентификатора питомца
-            int correctAnimalId = getCorrectAnimalId();
-            Animal animal = animalRepo.findById(correctAnimalId).get();
+            Long correctAnimalId = getCorrectAnimalId();
+            Animal animal = animalRepo.findById(Math.toIntExact(correctAnimalId)).get();
             AnimalDTOForUser animalDTOForUser = new AnimalDTOForUser();
             animalDTOForUser.setId(animal.getId());
             animalDTOForUser.setAnimalName(animal.getAnimalName());
             animalDTOForUser.setAnimalType(animal.getAnimalType());
             animalDTOForUser.setGender(animal.getGender());
-            animalDTOForUser.setNursery(nurseryRepo.findById(Math.toIntExact(animal.getNursery().getId())).get());
+            animalDTOForUser.setNursery(nurseryRepo.findById(animal.getNursery().getId()).get());
             animalDTOForUser.setBirthDate(animal.getBirthDate());
             animalDTOForUser.setDescription(animal.getDescription());
             ResponseEntity<AnimalDTOForUser> responseEntity =
