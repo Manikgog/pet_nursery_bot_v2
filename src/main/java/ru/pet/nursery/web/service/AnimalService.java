@@ -18,6 +18,7 @@ import ru.pet.nursery.web.dto.AnimalDTO;
 import ru.pet.nursery.web.dto.AnimalDTOForUser;
 import ru.pet.nursery.web.exception.EntityNotFoundException;
 import ru.pet.nursery.web.exception.ImageNotFoundException;
+import ru.pet.nursery.web.exception.UserNotValidException;
 import ru.pet.nursery.web.validator.Validator;
 
 import java.io.*;
@@ -61,7 +62,6 @@ public class AnimalService {
         validator.validateAnimalDTO(animalDTO);
         Nursery nursery = nurseryRepo.findById(animalDTO.getNurseryId())
                 .orElseThrow(() -> new EntityNotFoundException(animalDTO.getNurseryId()));
-        User user = userRepo.findById(1L).orElseThrow(() -> new EntityNotFoundException(1L));
         Animal newAnimal = new Animal();
         newAnimal.setAnimalName(animalDTO.getAnimalName());
         newAnimal.setAnimalType(animalDTO.getAnimalType());
@@ -69,7 +69,7 @@ public class AnimalService {
         newAnimal.setGender(animalDTO.getGender());
         newAnimal.setBirthDate(animalDTO.getBirthDate());
         newAnimal.setNursery(nursery);
-        newAnimal.setUser(user);                            // если стоит цифра 1 значит животное никто не взял
+        newAnimal.setUser(null);                            // если стоит цифра 1 значит животное никто не взял
         Animal animalFromDB = animalRepo.save(newAnimal);
         return ResponseEntity.of(Optional.of(animalFromDB));
     }
@@ -161,7 +161,6 @@ public class AnimalService {
      * Метод для получения байтового массива для передачи через телеграм
      * @param id - идентификатор животного
      * @return байтовый массив фотографии
-     * @throws IOException - исключение ввода-вывода
      */
     public byte[] getPhotoByteArray(int id) {
 
@@ -206,6 +205,10 @@ public class AnimalService {
     public ResponseEntity<Animal> insertDataOfHuman(Integer animalId, Long adoptedId) {
         Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(Long.valueOf(animalId)));
         User userAdopted = userRepo.findById(adoptedId).orElseThrow(() -> new EntityNotFoundException(adoptedId));
+        // проверка на то, что у человека уже есть животное на испытательном сроке
+        if(!animalRepo.findByUser(userAdopted).isEmpty()){
+            throw new UserNotValidException(userAdopted.getFirstName() + " " + userAdopted.getLastName() + " уже взял животное на испытательный срок.");
+        }
         animalFromDB.setUser(userAdopted);
         animalFromDB.setTookDate(LocalDate.now());
         Animal newAnimal = animalRepo.save(animalFromDB);
@@ -223,10 +226,7 @@ public class AnimalService {
         validator.validatePageNumber(pageNumber);
         validator.validatePageSize(pageSize);
         PageRequest pageRequest = PageRequest.of(pageNumber - 1, pageSize);
-        List<Animal> animals = animalRepo.findAll(pageRequest).getContent()
-                .stream()
-                .filter(a -> a.getUser().getTelegramUserId() == 1L)
-                .toList();
+        List<Animal> animals = animalRepo.findByUserIsNull(pageRequest);
         List<AnimalDTOForUser> resultAnimals = convertListAnimalToListAnimalDTO(animals);
         return ResponseEntity.of(Optional.of(resultAnimals));
     }
@@ -239,7 +239,7 @@ public class AnimalService {
     private List<AnimalDTOForUser> convertListAnimalToListAnimalDTO(List<Animal> animals){
         AnimalDTOForUserMapper animalDTOForUserMapper = new AnimalDTOForUserMapper();
         return animals.stream()
-                .filter(animal -> animal.getUser().getTelegramUserId() == 1)
+                .filter(animal -> animal.getUser() == null)
                 .map(animalDTOForUserMapper::perform)
                 .toList();
     }
@@ -251,16 +251,15 @@ public class AnimalService {
      */
     public ResponseEntity<Animal> insertDateOfReturn(Integer animalId) {
         Animal animalOld = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(Long.valueOf(animalId)));
-        User user1 = userRepo.findById(1L).orElseThrow(() -> new EntityNotFoundException(Long.valueOf(animalId)));
         animalOld.setPetReturnDate(LocalDate.now());
-        animalOld.setUser(user1);
+        animalOld.setUser(null);
         animalOld.setTookDate(null);
         Animal newAnimal = animalRepo.save(animalOld);
         return ResponseEntity.of(Optional.of(newAnimal));
     }
 
     /**
-     * Метод для возвращения объекта AnimalDTOForUser оп идентификатору животного
+     * Метод для возвращения объекта AnimalDTOForUser по идентификатору животного
      * @param animalId - идентификатор животного в таблице animal_table
      * @return HttpStatus
      */
