@@ -2,7 +2,6 @@ package ru.pet.nursery.data;
 
 public class CallbackData {
     public static final String INFO = "info";
-    public static final String GET = "get";
     public static final String REPORT = "report";
     public static final String VOLUNTEER = "volunteer";
     public static final String HEALTH = "health";

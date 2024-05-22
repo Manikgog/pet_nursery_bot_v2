@@ -18,16 +18,20 @@ import ru.pet.nursery.entity.Animal;
 import ru.pet.nursery.entity.User;
 import ru.pet.nursery.enumerations.AnimalType;
 import ru.pet.nursery.enumerations.Gender;
+import ru.pet.nursery.mapper.AnimalDTOForUserMapper;
 import ru.pet.nursery.repository.AnimalRepo;
 import ru.pet.nursery.repository.NurseryRepo;
 import ru.pet.nursery.repository.UserRepo;
 import ru.pet.nursery.web.dto.AnimalDTO;
+import ru.pet.nursery.web.dto.AnimalDTOForUser;
 import ru.pet.nursery.web.exception.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -239,7 +243,7 @@ public class AnimalServiceMockTest {
      * @return байтовый массив
      * @throws IOException - checked исключение
      */
-    private byte[] getByteArray(Path path) throws IOException {
+    private byte[] getByteArray(Path path) {
         if(!Files.exists(path)){
             throw new ImageNotFoundException("Файл с изображением не найден!");
         }
@@ -361,6 +365,62 @@ public class AnimalServiceMockTest {
         long notValidId = -1;
         Mockito.doThrow(new EntityNotFoundException(notValidId)).when(animalRepo).findById(notValidId);
         Assertions.assertThrows(EntityNotFoundException.class, () -> animalService.insertDateOfReturn(notValidId));
+    }
+
+    @Test
+    public void getById_TestByNotValidId(){
+        long animalId = -1;
+        Assertions.assertThrows(EntityNotFoundException.class, () -> animalService.getById(animalId));
+    }
+
+
+    @Test
+    public void getAll_Test(){
+        List<Animal> animals = new ArrayList<>();
+        when(animalRepo.findAll()).thenReturn(animals);
+        Assertions.assertEquals(ResponseEntity.of(Optional.of(animals)), animalService.getAll());
+    }
+
+
+    @Test
+    public void getAllAnimalsByType_Test(){
+        List<Animal> animals = new ArrayList<>();
+        when(animalRepo.findByAnimalType(AnimalType.CAT)).thenReturn(animals);
+        Assertions.assertEquals(animals, animalService.getAllAnimalsByType(AnimalType.CAT));
+    }
+
+
+    @Test
+    public void get_Test(){
+        long animalId = 1;
+        Animal animal = new Animal();
+        when(animalRepo.findById(animalId)).thenReturn(Optional.of(animal));
+        Assertions.assertEquals(animal, animalService.get(animalId));
+    }
+
+
+    @Test
+    public void convertListAnimalToListAnimalDTO_Test(){
+        List<Animal> animals = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Animal animal = new Animal();
+            animal.setId((long)i + 1);
+            animal.setAnimalName(faker.name().name());
+            animal.setAnimalType(faker.random().nextBoolean() ? AnimalType.CAT : AnimalType.DOG);
+            animal.setGender(faker.random().nextBoolean() ? Gender.MALE : Gender.FEMALE);
+            animal.setBirthDate(faker.date().birthdayLocalDate(1, 20));
+            animal.setNursery(animal.getAnimalType() == AnimalType.CAT ? NURSERY_1 : NURSERY_2);
+            animal.setDescription(faker.examplify(animal.getAnimalName() + animal.getAnimalType()));
+        }
+
+        AnimalDTOForUserMapper animalDTOForUserMapper = new AnimalDTOForUserMapper();
+        List<AnimalDTOForUser> resultList = animals.stream()
+                .filter(animal -> animal.getUser() == null)
+                .map(animalDTOForUserMapper::perform)
+                .toList();
+
+        Assertions.assertEquals(resultList, animalService.convertListAnimalToListAnimalDTO(animals));
+
     }
 
 }

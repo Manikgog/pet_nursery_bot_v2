@@ -236,7 +236,7 @@ public class AnimalService {
      * @param animals - список объектов Animal
      * @return список объектов AnimalDTOForUser
      */
-    private List<AnimalDTOForUser> convertListAnimalToListAnimalDTO(List<Animal> animals){
+    public List<AnimalDTOForUser> convertListAnimalToListAnimalDTO(List<Animal> animals){
         AnimalDTOForUserMapper animalDTOForUserMapper = new AnimalDTOForUserMapper();
         return animals.stream()
                 .filter(animal -> animal.getUser() == null)

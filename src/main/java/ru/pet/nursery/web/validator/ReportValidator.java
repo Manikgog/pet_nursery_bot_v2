@@ -6,7 +6,6 @@ import ru.pet.nursery.entity.User;
 import ru.pet.nursery.repository.AnimalRepo;
 import ru.pet.nursery.repository.ReportRepo;
 import ru.pet.nursery.repository.UserRepo;
-import ru.pet.nursery.web.exception.EntityNotFoundException;
 import ru.pet.nursery.web.exception.IllegalFieldException;
 import ru.pet.nursery.web.exception.IllegalParameterException;
 import ru.pet.nursery.web.exception.ReportIsExistException;
@@ -30,13 +29,10 @@ public class ReportValidator {
 
     /**
      * Метод для валидации объекта класса Report
-     * @param adopterId - идентификатор усыновителя из таблицы user_table
+     * @param user - усыновитель из таблицы user_table
      */
-    public void validate(long adopterId){
-        // проверяется есть ли данный пользователь в базе данных
-        User user = userRepo.findById(adopterId)
-                .orElseThrow(() -> new IllegalFieldException("Идентификатор пользователя " + adopterId + " отсутствует в базе данных"));
-        validateIsAdopter(adopterId);
+    public void validate(User user){
+        validateIsAdopter(user);
         // проверяется, составлялся ли отчёт для этого пользователя сегодня
         if(isReportInDataBase(user)){
             throw new ReportIsExistException("Отчет за сегодняшний день уже есть в базе данных");
@@ -65,11 +61,10 @@ public class ReportValidator {
      * Метод для проверки усыновлял ли животное из наших
      * приютов человек с переданным telegramUserId
      */
-    public void validateIsAdopter(long telegramUserId){
-        User user = userRepo.findById(telegramUserId).orElseThrow(() -> new EntityNotFoundException(telegramUserId));
+    public void validateIsAdopter(User user){
         List<Animal> adoptedAnimalsByUser = animalRepo.findByUser(user);
         if(adoptedAnimalsByUser.isEmpty()){
-            throw new IllegalParameterException("Пользователь с id = " + telegramUserId + " не усыновлял питомца");
+            throw new IllegalParameterException("Пользователь с id = " + user.getTelegramUserId() + " не усыновлял питомца");
         }
     }
 

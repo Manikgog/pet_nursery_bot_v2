@@ -18,6 +18,7 @@ import ru.pet.nursery.factory.KeyboardFactory;
 import ru.pet.nursery.manager.AbstractManager;
 import ru.pet.nursery.repository.AnimalRepo;
 import ru.pet.nursery.repository.UserRepo;
+import ru.pet.nursery.web.exception.EntityNotFoundException;
 import ru.pet.nursery.web.exception.IllegalFieldException;
 import ru.pet.nursery.web.exception.IllegalParameterException;
 import ru.pet.nursery.web.service.ReportService;
@@ -61,17 +62,20 @@ public class ReportManager extends AbstractManager {
 
     @Override
     public void answerCommand(Update update){
-        // здесь должен возвращаться список в виде кнопок нажав на которые можно отправить отчет:
-        // инструкция по отправке отчета
-        // отправка отчета
-        String answerMessage = """
-                  // здесь должен возвращаться список в виде кнопок нажав на которые можно отправить отчет:
-                  // инструкция по отправке отчета
-                  // отправка отчета
-                """;
         SendMessage sendMessage = answerMethodFactory.getSendMessage(update.message().chat().id(),
-                answerMessage,
-                null);
+                """
+                        Здесь Вы можете посмотреть инструкцию и отправить отчёт
+                        """,
+                keyboardFactory.getInlineKeyboard(
+                        List.of("инструкция по отправке отчёта",
+                                "фото питомца",
+                                "поведение питомца",
+                                "диета питомца",
+                                "здоровье питомца",
+                                "назад"),
+                        List.of(1, 1, 1, 1, 1, 1),
+                        List.of(INSTRUCTION, FOTO, BEHAVIOUR, DIET, HEALTH, START)
+                ));
         telegramBot.execute(sendMessage);
     }
 
@@ -127,15 +131,15 @@ public class ReportManager extends AbstractManager {
     public void answerFoto(CallbackQuery callbackQuery){
         // проверить есть ли в базе данных пользователь с таким chatId, который усыновил животное
         long adopterId = callbackQuery.message().chat().id();
+        User user = userRepo.findById(adopterId).orElseThrow(() -> new EntityNotFoundException(adopterId));
         try {
-            reportValidator.validateIsAdopter(adopterId);
+            reportValidator.validateIsAdopter(user);
         }catch (IllegalParameterException e){
             // если пользователь не усыновлял животное, то отправить пользователю сообщение, что он не усыновлял животное
             answerUserIsNotAdopter(callbackQuery);
             return;
         }
         // проверить есть ли в базе данных в таблице report_table отчёт для этого пользователя на сегодня
-        User user = userRepo.findById(adopterId).orElseThrow(() -> new IllegalFieldException("Идентификатор пользователя " + adopterId + " отсутствует в базе данных"));
         if(!reportValidator.isReportInDataBase(user)){
             // если отчёта в базе данных на сегодня ещё нет, то создаём его
             reportService.upload(adopterId);
@@ -160,15 +164,15 @@ public class ReportManager extends AbstractManager {
     public void answerHealth(CallbackQuery callbackQuery){
         // проверить есть ли в базе данных пользователь с таким chatId, который усыновил животное
         long adopterId = callbackQuery.message().chat().id();
+        User user = userRepo.findById(adopterId).orElseThrow(() -> new EntityNotFoundException(adopterId));
         try {
-            reportValidator.validateIsAdopter(adopterId);
+            reportValidator.validateIsAdopter(user);
         }catch (IllegalParameterException e){
             // если пользователь не усыновлял животное, то отправить пользователю сообщение, что он не усыновлял животное
             answerUserIsNotAdopter(callbackQuery);
             return;
         }
         // проверить есть ли в базе данных в таблице report_table отчёт для этого пользователя на сегодня
-        User user = userRepo.findById(adopterId).orElseThrow(() -> new IllegalFieldException("Идентификатор пользователя " + adopterId + " отсутствует в базе данных"));
         if(!reportValidator.isReportInDataBase(user)){
             // если отчёта в базе данных на сегодня ещё нет, то создаём его
             reportService.upload(adopterId);
@@ -192,15 +196,15 @@ public class ReportManager extends AbstractManager {
     public void answerDiet(CallbackQuery callbackQuery){
         // проверить есть ли в базе данных пользователь с таким chatId, который усыновил животное
         long adopterId = callbackQuery.message().chat().id();
+        User user = userRepo.findById(adopterId).orElseThrow(() -> new EntityNotFoundException(adopterId));
         try {
-            reportValidator.validateIsAdopter(adopterId);
+            reportValidator.validateIsAdopter(user);
         }catch (IllegalParameterException e){
             // если пользователь не усыновлял животное, то отправить пользователю сообщение, что он не усыновлял животное
             answerUserIsNotAdopter(callbackQuery);
             return;
         }
         // проверить есть ли в базе данных в таблице report_table отчёт для этого пользователя на сегодня
-        User user = userRepo.findById(adopterId).orElseThrow(() -> new IllegalFieldException("Идентификатор пользователя " + adopterId + " отсутствует в базе данных"));
         if(!reportValidator.isReportInDataBase(user)){
             // если отчёта в базе данных на сегодня ещё нет, то создаём его
             reportService.upload(adopterId);
@@ -224,15 +228,15 @@ public class ReportManager extends AbstractManager {
     public void answerBehaviour(CallbackQuery callbackQuery){
         // проверить есть ли в базе данных пользователь с таким chatId, который усыновил животное
         long adopterId = callbackQuery.message().chat().id();
+        User user = userRepo.findById(adopterId).orElseThrow(() -> new EntityNotFoundException(adopterId));
         try {
-            reportValidator.validateIsAdopter(adopterId);
+            reportValidator.validateIsAdopter(user);
         }catch (IllegalParameterException e){
             // если пользователь не усыновлял животное, то отправить пользователю сообщение, что он не усыновлял животное
             answerUserIsNotAdopter(callbackQuery);
             return;
         }
         // проверить есть ли в базе данных в таблице report_table отчёт для этого пользователя на сегодня
-        User user = userRepo.findById(adopterId).orElseThrow(() -> new IllegalFieldException("Идентификатор пользователя " + adopterId + " отсутствует в базе данных"));
         if(!reportValidator.isReportInDataBase(user)){
             // если отчёта в базе данных на сегодня ещё нет, то создаём его
             reportService.upload(adopterId);

@@ -10,6 +10,7 @@ import ru.pet.nursery.repository.ReportRepo;
 import ru.pet.nursery.repository.UserRepo;
 import ru.pet.nursery.web.exception.EntityNotFoundException;
 import ru.pet.nursery.web.exception.IllegalFieldException;
+import ru.pet.nursery.web.exception.ReportIsExistException;
 import ru.pet.nursery.web.validator.ReportValidator;
 import ru.pet.nursery.web.validator.VolunteerValidator;
 
@@ -48,9 +49,14 @@ public class ReportService {
      * @return ResponseEntity.of(Optional.of(reportFromDB))
      */
     public ResponseEntity<Report> upload(long adopterId) {
-        reportValidator.validate(adopterId);
         User user = userRepo.findById(adopterId)
                 .orElseThrow(() -> new IllegalFieldException("Идентификатор пользователя " + adopterId + " отсутствует в базе данных"));
+        try {
+            reportValidator.validate(user);
+        }catch (ReportIsExistException e){
+            Report reportFromDB = reportRepo.findByUserAndReportDate(user, LocalDate.now());
+            return ResponseEntity.of(Optional.of(reportFromDB));
+        }
         Report newReport = new Report();
         newReport.setId(0);
         newReport.setUser(user);
@@ -80,8 +86,9 @@ public class ReportService {
      * @throws IOException - исключение ввода-вывода
      */
     public ResponseEntity updateFoto(long telegramUserId, MultipartFile reportFoto) throws IOException {
-        reportValidator.validateIsAdopter(telegramUserId);
+
         User user = userRepo.findById(telegramUserId).orElseThrow(() -> new EntityNotFoundException(telegramUserId));
+        reportValidator.validateIsAdopter(user);
         Report reportFromDB = reportRepo.findByUser(user)
                 .stream()
                 .filter(r -> r.getReportDate().equals(LocalDate.now()))

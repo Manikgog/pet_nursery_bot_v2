@@ -15,7 +15,6 @@ import ru.pet.nursery.enumerations.Gender;
 import ru.pet.nursery.repository.AnimalRepo;
 import ru.pet.nursery.repository.ReportRepo;
 import ru.pet.nursery.repository.UserRepo;
-import ru.pet.nursery.web.exception.EntityNotFoundException;
 import ru.pet.nursery.web.exception.IllegalFieldException;
 import ru.pet.nursery.web.exception.IllegalParameterException;
 import ru.pet.nursery.web.exception.ReportIsExistException;
@@ -23,7 +22,6 @@ import ru.pet.nursery.web.validator.ReportValidator;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 
 import static org.mockito.Mockito.when;
@@ -63,9 +61,8 @@ public class ReportValidatorUnitTest {
         animal.setPhotoPath(null);
         List<Animal> animals = new ArrayList<>();
         animals.add(animal);
-        when(userRepo.findById(adopterId)).thenReturn(Optional.of(user));
         when(animalRepo.findByUser(user)).thenReturn(animals);
-        reportValidator.validate(adopterId);
+        reportValidator.validate(user);
     }
 
     /**
@@ -73,8 +70,7 @@ public class ReportValidatorUnitTest {
      */
     @Test
     public void validate_negativeTestByNotValidId(){
-        long adopterId = -2;
-        Assertions.assertThrows(IllegalFieldException.class, () -> reportValidator.validate(adopterId));
+        Assertions.assertThrows(IllegalParameterException.class, () -> reportValidator.validate(new User()));
     }
 
     /**
@@ -92,8 +88,7 @@ public class ReportValidatorUnitTest {
         user.setFirstName(faker.name().firstName());
         user.setLastName(faker.name().lastName());
 
-        when(userRepo.findById(adopterId)).thenReturn(Optional.of(user));
-        Assertions.assertThrows(IllegalParameterException.class, () -> reportValidator.validate(adopterId));
+        Assertions.assertThrows(IllegalParameterException.class, () -> reportValidator.validate(user));
     }
 
     /**
@@ -124,10 +119,9 @@ public class ReportValidatorUnitTest {
         animals.add(animal);
         Report report = new Report();
 
-        when(userRepo.findById(adopterId)).thenReturn(Optional.of(user));
         when(animalRepo.findByUser(user)).thenReturn(animals);
         when(reportRepo.findByUserAndReportDate(user, LocalDate.now())).thenReturn(report);
-        Assertions.assertThrows(ReportIsExistException.class, () -> reportValidator.validate(adopterId));
+        Assertions.assertThrows(ReportIsExistException.class, () -> reportValidator.validate(user));
     }
 
 
@@ -141,20 +135,28 @@ public class ReportValidatorUnitTest {
 
     @Test
     public void validateIsAdopter_Test(){
-        // при отсутствии пользователя в базе данных
-        long userId = 2;
-        Assertions.assertThrows(EntityNotFoundException.class, () -> reportValidator.validateIsAdopter(userId));
-
+        User user = new User();
         // если пользователь не является усыновителем
-        when(userRepo.findById(userId)).thenReturn(Optional.of(new User()));
-        when(animalRepo.findByUser(new User())).thenReturn(new ArrayList<>());
-        Assertions.assertThrows(IllegalParameterException.class, () -> reportValidator.validateIsAdopter(userId));
+        when(animalRepo.findByUser(user)).thenReturn(new ArrayList<>());
+        Assertions.assertThrows(IllegalParameterException.class, () -> reportValidator.validateIsAdopter(user));
 
         // если все в норме
-        when(userRepo.findById(userId)).thenReturn(Optional.of(new User()));
-        when(animalRepo.findByUser(new User())).thenReturn(List.of(new Animal()));
-        reportValidator.validateIsAdopter(userId);
+        when(animalRepo.findByUser(user)).thenReturn(List.of(new Animal()));
+        reportValidator.validateIsAdopter(user);
     }
+
+
+    @Test
+    public void isReportInDataBase_Test(){
+        User user = new User();
+        when(reportRepo.findByUserAndReportDate(user, LocalDate.now())).thenReturn(null);
+        Assertions.assertFalse(reportValidator.isReportInDataBase(user));
+
+        Report report = new Report();
+        when(reportRepo.findByUserAndReportDate(user, LocalDate.now())).thenReturn(report);
+        Assertions.assertTrue(reportValidator.isReportInDataBase(user));
+    }
+
 
 
 }
