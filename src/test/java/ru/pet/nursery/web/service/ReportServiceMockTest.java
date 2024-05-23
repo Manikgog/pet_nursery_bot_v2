@@ -107,27 +107,20 @@ public class ReportServiceMockTest {
         String fileName = "animalPhoto";
         byte[] array = new byte[]{1, 2, 3, 4, 5, 6, 7, 8};
         MultipartFile multipartFile = new MockMultipartFile(fileName, array);
-        when(userRepo.findById(userId)).thenReturn(Optional.of(user));
-        when(reportRepo.findByUser(user)).thenReturn(listOfReports);
         when(reportRepo.findById(report.getId())).thenReturn(Optional.of(report));
-        Assertions.assertEquals(ResponseEntity.ok().build(), reportService.updateFoto(userId, multipartFile));
+        Assertions.assertEquals(ResponseEntity.ok().build(), reportService.updateFoto(report.getId(), multipartFile));
     }
 
 
     @Test
     public void updateFoto_negativeTest(){
-        // проверка работы метода при невалидном userId
-        long userId = -1;
+        // проверка работы метода при невалидном reportId
+        long reportId = -1;
         String fileName = "animalPhoto";
         byte[] array = new byte[]{1, 2, 3, 4, 5, 6, 7, 8};
         MultipartFile multipartFile = new MockMultipartFile(fileName, array);
-        Assertions.assertThrows(EntityNotFoundException.class, () -> reportService.updateFoto(userId, multipartFile));
+        Assertions.assertThrows(EntityNotFoundException.class, () -> reportService.updateFoto(reportId, multipartFile));
 
-        // проверка работы метода при отсутствии отчёта для текущего пользователя на сегодня
-        User user = new User();
-        user.setTelegramUserId(userId);
-        when(userRepo.findById(userId)).thenReturn(Optional.of(user));
-        Assertions.assertThrows(EntityNotFoundException.class, () -> reportService.updateFoto(userId, multipartFile));
     }
 
 

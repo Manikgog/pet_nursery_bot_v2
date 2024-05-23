@@ -91,9 +91,9 @@ public class ReportController {
                     )
             }
     )
-    @PutMapping(value = "/{id}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity putFoto(@PathVariable long id, @RequestParam MultipartFile animalPhoto) throws IOException {
-        return reportService.updateFoto(id, animalPhoto);
+    @PutMapping(value = "/{reportId}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity putFoto(@PathVariable long reportId, @RequestParam MultipartFile animalPhoto) throws IOException {
+        return reportService.updateFoto(reportId, animalPhoto);
     }
 
 
@@ -111,9 +111,9 @@ public class ReportController {
                     )
             }
     )
-    @PutMapping("/{id}/diet")
-    public ResponseEntity<Report> putDiet(@PathVariable long id, @RequestBody String diet){
-        return reportService.updateDiet(id, diet);
+    @PutMapping("/{reportId}/diet")
+    public ResponseEntity<Report> putDiet(@PathVariable long reportId, @RequestParam String diet){
+        return reportService.updateDiet(reportId, diet);
     }
 
 
@@ -131,9 +131,9 @@ public class ReportController {
                     )
             }
     )
-    @PutMapping("/{id}/health")
-    public ResponseEntity<Report> putHealth(@PathVariable long id, @RequestBody String health){
-        return reportService.updateHealth(id, health);
+    @PutMapping("/{reportId}/health")
+    public ResponseEntity<Report> putHealth(@PathVariable long reportId, @RequestParam String health){
+        return reportService.updateHealth(reportId, health);
     }
 
 
@@ -150,9 +150,9 @@ public class ReportController {
                     )
             }
     )
-    @PutMapping("/{id}/behaviour")
-    public ResponseEntity<Report> putBehaviour(@PathVariable long id, @RequestBody String behaviour){
-        return reportService.updateBehaviour(id, behaviour);
+    @PutMapping("/{reportId}/behaviour")
+    public ResponseEntity<Report> putBehaviour(@PathVariable long reportId, @RequestParam String behaviour){
+        return reportService.updateBehaviour(reportId, behaviour);
     }
 
 
@@ -169,9 +169,9 @@ public class ReportController {
                     )
             }
     )
-    @PutMapping("/{id}/acceptAll")
-    public ResponseEntity<Report> putIsAllItemsAccepted(@PathVariable long id, @RequestParam boolean AllItemsIsAccepted){
-        return reportService.updateIsAllItemsIsAccepted(id, AllItemsIsAccepted);
+    @PutMapping("/{reportId}/acceptAll")
+    public ResponseEntity<Report> putIsAllItemsAccepted(@PathVariable long reportId, @RequestParam boolean acceptAll){
+        return reportService.updateIsAllItemsIsAccepted(reportId, acceptAll);
     }
 
 
@@ -188,9 +188,9 @@ public class ReportController {
                     )
             }
     )
-    @PutMapping("/{id}/acceptPhoto")
-    public ResponseEntity<Report> putIsFotoAccepted(@PathVariable long id, @RequestParam boolean FotoIsAccepted){
-        return reportService.updatePhotoIsAccepted(id, FotoIsAccepted);
+    @PutMapping("/{reportId}/acceptPhoto")
+    public ResponseEntity<Report> putIsFotoAccepted(@PathVariable long reportId, @RequestParam boolean acceptPhoto){
+        return reportService.updatePhotoIsAccepted(reportId, acceptPhoto);
     }
 
 
@@ -207,9 +207,9 @@ public class ReportController {
                     )
             }
     )
-    @PutMapping("/{id}/acceptDiet")
-    public ResponseEntity<Report> putIsDietAccepted(@PathVariable long id, @RequestParam boolean DietIsAccepted){
-        return reportService.updateIsDietAccepted(id, DietIsAccepted);
+    @PutMapping("/{reportId}/acceptDiet")
+    public ResponseEntity<Report> putIsDietAccepted(@PathVariable long reportId, @RequestParam boolean acceptDiet){
+        return reportService.updateIsDietAccepted(reportId, acceptDiet);
     }
 
 
@@ -226,9 +226,9 @@ public class ReportController {
                     )
             }
     )
-    @PutMapping("/{id}/acceptHealth")
-    public ResponseEntity<Report> putIsHealthAccepted(@PathVariable long id, @RequestParam boolean HealthIsAccepted){
-        return reportService.updateIsHealthAccepted(id, HealthIsAccepted);
+    @PutMapping("/{reportId}/acceptHealth")
+    public ResponseEntity<Report> putIsHealthAccepted(@PathVariable long reportId, @RequestParam boolean acceptHealth){
+        return reportService.updateIsHealthAccepted(reportId, acceptHealth);
     }
 
 
@@ -245,9 +245,9 @@ public class ReportController {
                     )
             }
     )
-    @PutMapping("/{id}/acceptBehaviour")
-    public ResponseEntity<Report> putIsBehaviourAccepted(@PathVariable long id, @RequestParam boolean BehaviourIsAccepted){
-        return reportService.updateIsBehaviourAccepted(id, BehaviourIsAccepted);
+    @PutMapping("/{reportId}/acceptBehaviour")
+    public ResponseEntity<Report> putIsBehaviourAccepted(@PathVariable long reportId, @RequestParam boolean acceptBehaviour){
+        return reportService.updateIsBehaviourAccepted(reportId, acceptBehaviour);
     }
 
 

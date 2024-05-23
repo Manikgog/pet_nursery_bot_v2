@@ -80,20 +80,13 @@ public class ReportService {
      * Метод для загрузки фотографии питомца для отчета,
      * которая загружается на диск, а путь к ней в базу
      * данных
-     * @param telegramUserId - идентификатор пользователя
+     * @param id - идентификатор отчёта
      * @param reportFoto - файл с фотографией
      * @return ResponseEntity.ok()
      * @throws IOException - исключение ввода-вывода
      */
-    public ResponseEntity updateFoto(long telegramUserId, MultipartFile reportFoto) throws IOException {
-
-        User user = userRepo.findById(telegramUserId).orElseThrow(() -> new EntityNotFoundException(telegramUserId));
-        reportValidator.validateIsAdopter(user);
-        Report reportFromDB = reportRepo.findByUser(user)
-                .stream()
-                .filter(r -> r.getReportDate().equals(LocalDate.now()))
-                .findFirst()
-                .orElseThrow(() -> new EntityNotFoundException(telegramUserId));
+    public ResponseEntity updateFoto(long id, MultipartFile reportFoto) throws IOException {
+        Report reportFromDB = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
         String strPath = System.getProperty("user.dir");
         strPath += REPORT_FOTO;
         Path path = Path.of(strPath);

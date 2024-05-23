@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
@@ -74,8 +75,13 @@ public class ReportControllerTestRestTemplateTest {
         nurseryRepo.saveAll(nurseries);
         List<Nursery> nurseriesFromDB = nurseryRepo.findAll();
         for(Nursery n : nurseriesFromDB){
+            boolean isAdopted = false;
             for(int j = 0; j < NUMBER_OF_ANIMALS; j++){
-                animalRepo.save(createAnimal(n));
+                if(j%2 == 0){
+                    isAdopted = true;
+                }
+                animalRepo.save(createAnimal(n, isAdopted));
+                isAdopted = false;
             }
         }
     }
@@ -88,7 +94,7 @@ public class ReportControllerTestRestTemplateTest {
         nurseryRepo.deleteAll();
     }
 
-    private Animal createAnimal(Nursery nursery){
+    private Animal createAnimal(Nursery nursery, boolean isAdopted){
         Animal animal = new Animal();
         animal.setAnimalName(faker.name().name());
         Random rnd = new Random();
@@ -98,7 +104,6 @@ public class ReportControllerTestRestTemplateTest {
         animal.setNursery(nursery);
         animal.setBirthDate(faker.date().birthdayLocalDate(MIN_AGE, MAX_AGE));
         animal.setPhotoPath(null);
-        boolean isAdopted = rnd.nextInt(10) <= 2;
         if(isAdopted){
             User whoNotAdopt = findUserWhoNotAdopt();
             animal.setUser(whoNotAdopt);
@@ -211,8 +216,27 @@ public class ReportControllerTestRestTemplateTest {
     @Test
     public void upload_negativeTestByUserNotAdopter(){
         User user = findUserWhoNotAdopt();
-        long notAdopterId = user.getTelegramUserId();
-
+        User newUser = new User();
+        long notAdopterId;
+        List<Long> usersId = userRepo.findAll()
+                .stream()
+                .map(User::getTelegramUserId)
+                .toList();
+        long newId = 1;
+        while(usersId.contains(newId)){
+            newId = faker.random().nextInt(0, 100);
+        }
+        if(user == null){
+            newUser.setUserName(faker.name().firstName());
+            newUser.setLastName(faker.name().lastName());
+            newUser.setFirstName(faker.name().firstName());
+            newUser.setTelegramUserId(newId);
+            newUser.setAddress(faker.address().fullAddress());
+            notAdopterId = newUser.getTelegramUserId();
+            userRepo.save(newUser);
+        }else {
+            notAdopterId = user.getTelegramUserId();
+        }
         ResponseEntity<String> responseEntity = testRestTemplate.postForEntity(
                 "http://localhost:" + port + "/report/" + notAdopterId,
                 null,
@@ -275,7 +299,21 @@ public class ReportControllerTestRestTemplateTest {
         newReport.setId(0);
         newReport.setReportDate(LocalDate.now());
         newReport.setUser(adopter);
+        Report report = reportRepo.save(newReport);
         // создаётся сущность запроса с фотографией
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = getRequestEntity();
+
+        ResponseEntity<String> responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/report/" + report.getId() + "/photo",
+                HttpMethod.PUT,
+                requestEntity,
+                String.class
+        );
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+
+    public HttpEntity<MultiValueMap<String, Object>> getRequestEntity(){
         String strPath = System.getProperty("user.dir");
         if(strPath.contains("\\")){
             strPath += "\\" + animalImagesDir + "\\1.jpg";
@@ -289,15 +327,433 @@ public class ReportControllerTestRestTemplateTest {
         body.add("animalPhoto", fileSystemResource);
         HttpEntity<MultiValueMap<String, Object>> requestEntity
                 = new HttpEntity<>(body, headers);
+        return requestEntity;
+    }
+
+    @Test
+    public void putPhoto_negativeTestByNotValidAdopterId(){
+        Report newReport = new Report();
+        newReport.setId(0);
+        // создаётся сущность запроса с фотографией
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = getRequestEntity();
 
         ResponseEntity<String> responseEntity = testRestTemplate.exchange(
-                "http://localhost:" + port + "/report/" + adopter.getTelegramUserId() + "/photo",
+                "http://localhost:" + port + "/report/" + newReport.getId() + "/photo",
                 HttpMethod.PUT,
                 requestEntity,
                 String.class
         );
-        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo("Ресурс с id = " + newReport.getId() + " не найден");
     }
 
+
+    @Test
+    public void putDiet_positiveTest(){
+        User user = findUsersWhoAdopt().stream().findFirst().get();
+        Report newReport = new Report();
+        newReport.setId(0);
+        newReport.setReportDate(LocalDate.now());
+        newReport.setUser(user);
+        Report reportFromDB = reportRepo.save(newReport);
+        String diet = "Диета";
+        ResponseEntity<Report> responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/report/" + reportFromDB.getId() + "/diet?diet=" + diet,
+                HttpMethod.PUT,
+                new HttpEntity<>(diet),
+                Report.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        reportFromDB = reportRepo.findByUserAndReportDate(user, LocalDate.now());
+        Assertions.assertThat(responseEntity.getBody()).usingRecursiveComparison().isEqualTo(reportFromDB);
+    }
+
+
+    @Test
+    public void putDiet_negativeTestByNotValidReportId(){
+        Report newReport = new Report();
+        newReport.setId(0);
+        String diet = "Диета";
+        ResponseEntity<String> responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/report/" + newReport.getId() + "/diet?diet=" + diet,
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                String.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo("Ресурс с id = " + newReport.getId() + " не найден");
+    }
+
+
+    @Test
+    public void putDiet_negativeTestByEmptyDietString(){
+        User user = findUserWhoNotAdopt();
+        Report newReport = new Report();
+        newReport.setId(0);
+        newReport.setReportDate(LocalDate.now());
+        newReport.setUser(user);
+        Report reportFromDB = reportRepo.save(newReport);
+        String diet = "";
+
+        ResponseEntity<String> responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/report/" + reportFromDB.getId() + "/diet?diet=" + diet,
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                String.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo("Строка не должна быть пустой");
+    }
+
+
+    @Test
+    public void putHealth_positiveTest(){
+        User user = findUsersWhoAdopt().stream().findFirst().get();
+        Report newReport = new Report();
+        newReport.setId(0);
+        newReport.setReportDate(LocalDate.now());
+        newReport.setUser(user);
+        Report reportFromDB = reportRepo.save(newReport);
+        String health = "Здоровье";
+        ResponseEntity<Report> responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/report/" + reportFromDB.getId() + "/health?health=" + health,
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                Report.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        reportFromDB = reportRepo.findByUserAndReportDate(user, LocalDate.now());
+        Assertions.assertThat(responseEntity.getBody()).usingRecursiveComparison().isEqualTo(reportFromDB);
+    }
+
+    @Test
+    public void putHealth_negativeTestByNotValidReportId(){
+        long reportId = 0;
+        String health = "Диета";
+        ResponseEntity<String> responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/report/" + reportId + "/health?health=" + health,
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                String.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo("Ресурс с id = " + reportId + " не найден");
+    }
+
+    @Test
+    public void putHealth_negativeTestByEmptyHealthString() {
+        User user = findUsersWhoAdopt().stream().findFirst().get();
+        Report newReport = new Report();
+        newReport.setId(0);
+        newReport.setReportDate(LocalDate.now());
+        newReport.setUser(user);
+        Report reportFromDB = reportRepo.save(newReport);
+        String health = "";
+
+        ResponseEntity<String> responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/report/" + reportFromDB.getId() + "/health?health=" + health,
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                String.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo("Строка не должна быть пустой");
+    }
+
+
+    @Test
+    public void putBehaviour_positiveTest(){
+        User user = findUsersWhoAdopt().stream().findFirst().get();
+        Report newReport = new Report();
+        newReport.setId(0);
+        newReport.setReportDate(LocalDate.now());
+        newReport.setUser(user);
+        Report reportFromDB = reportRepo.save(newReport);
+        String behaviour = "Здоровье";
+        ResponseEntity<Report> responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/report/" + reportFromDB.getId() + "/behaviour?behaviour=" + behaviour,
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                Report.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        reportFromDB = reportRepo.findByUserAndReportDate(user, LocalDate.now());
+        Assertions.assertThat(responseEntity.getBody()).usingRecursiveComparison().isEqualTo(reportFromDB);
+    }
+
+    @Test
+    public void putBehaviour_negativeTestByNotValidReportId(){
+        long reportId = 0;
+        String behaviour = "Поведение";
+        ResponseEntity<String> responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/report/" + reportId + "/behaviour?behaviour=" + behaviour,
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                String.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo("Ресурс с id = " + reportId + " не найден");
+    }
+
+    @Test
+    public void putBehaviour_negativeTestByEmptyBehaviourString() {
+        User user = findUsersWhoAdopt().stream().findFirst().get();
+        Report newReport = new Report();
+        newReport.setId(0);
+        newReport.setReportDate(LocalDate.now());
+        newReport.setUser(user);
+        Report reportFromDB = reportRepo.save(newReport);
+        String behaviour = "";
+
+        ResponseEntity<String> responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/report/" + reportFromDB.getId() + "/behaviour?behaviour=" + behaviour,
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                String.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo("Строка не должна быть пустой");
+    }
+
+
+    @Test
+    public void putIsAllItemsAccepted_positiveTest(){
+        User user = findUsersWhoAdopt().stream().findFirst().get();
+        Report newReport = new Report();
+        newReport.setId(0);
+        newReport.setReportDate(LocalDate.now());
+        newReport.setUser(user);
+        Report reportFromDB = reportRepo.save(newReport);
+        boolean acceptAll = true;
+        ResponseEntity<Report> responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/report/" + reportFromDB.getId() + "/acceptAll?acceptAll=" + acceptAll,
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                Report.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        reportFromDB = reportRepo.findByUserAndReportDate(user, LocalDate.now());
+        Assertions.assertThat(responseEntity.getBody()).usingRecursiveComparison().isEqualTo(reportFromDB);
+    }
+
+    @Test
+    public void putIsAllItemsAccepted_negativeTestByNotValidReportId(){
+        long reportId = 0;
+        boolean acceptAll = true;
+        ResponseEntity<String> responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/report/" + reportId + "/acceptAll?acceptAll=" + acceptAll,
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                String.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo("Ресурс с id = " + reportId + " не найден");
+    }
+
+    @Test
+    public void putIsFotoAccepted_positiveTest(){
+        User user = findUsersWhoAdopt().stream().findFirst().get();
+        Report newReport = new Report();
+        newReport.setId(0);
+        newReport.setReportDate(LocalDate.now());
+        newReport.setUser(user);
+        Report reportFromDB = reportRepo.save(newReport);
+        boolean acceptPhoto = true;
+        ResponseEntity<Report> responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/report/" + reportFromDB.getId() + "/acceptPhoto?acceptPhoto=" + acceptPhoto,
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                Report.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        reportFromDB = reportRepo.findByUserAndReportDate(user, LocalDate.now());
+        Assertions.assertThat(responseEntity.getBody()).usingRecursiveComparison().isEqualTo(reportFromDB);
+    }
+
+    @Test
+    public void putIsFotoAccepted_negativeTestByNotValidReportId(){
+        long reportId = 0;
+        boolean acceptPhoto = true;
+        ResponseEntity<String> responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/report/" + reportId + "/acceptPhoto?acceptPhoto=" + acceptPhoto,
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                String.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo("Ресурс с id = " + reportId + " не найден");
+    }
+    @Test
+    public void putIsDietAccepted_positiveTest(){
+        User user = findUsersWhoAdopt().stream().findFirst().get();
+        Report newReport = new Report();
+        newReport.setId(0);
+        newReport.setReportDate(LocalDate.now());
+        newReport.setUser(user);
+        Report reportFromDB = reportRepo.save(newReport);
+        boolean acceptDiet = true;
+        ResponseEntity<Report> responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/report/" + reportFromDB.getId() + "/acceptDiet?acceptDiet=" + acceptDiet,
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                Report.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        reportFromDB = reportRepo.findByUserAndReportDate(user, LocalDate.now());
+        Assertions.assertThat(responseEntity.getBody()).usingRecursiveComparison().isEqualTo(reportFromDB);
+    }
+
+
+    @Test
+    public void putIsDietAccepted_negativeTestByNotValidReportId(){
+        long reportId = 0;
+        boolean acceptDiet = true;
+        ResponseEntity<String> responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/report/" + reportId + "/acceptDiet?acceptDiet=" + acceptDiet,
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                String.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo("Ресурс с id = " + reportId + " не найден");
+    }
+
+    @Test
+    public void putIsHealthAccepted_positiveTest(){
+        User user = findUsersWhoAdopt().stream().findFirst().get();
+        Report newReport = new Report();
+        newReport.setId(0);
+        newReport.setReportDate(LocalDate.now());
+        newReport.setUser(user);
+        Report reportFromDB = reportRepo.save(newReport);
+        boolean acceptHealth = true;
+        ResponseEntity<Report> responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/report/" + reportFromDB.getId() + "/acceptHealth?acceptHealth=" + acceptHealth,
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                Report.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        reportFromDB = reportRepo.findByUserAndReportDate(user, LocalDate.now());
+        Assertions.assertThat(responseEntity.getBody()).usingRecursiveComparison().isEqualTo(reportFromDB);
+    }
+
+
+    @Test
+    public void putIsHealthAccepted_negativeTestByNotValidReportId(){
+        long reportId = 0;
+        boolean acceptHealth = true;
+        ResponseEntity<String> responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/report/" + reportId + "/acceptHealth?acceptHealth=" + acceptHealth,
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                String.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo("Ресурс с id = " + reportId + " не найден");
+    }
+
+    @Test
+    public void putIsBehaviourAccepted_positiveTest(){
+        User user = findUsersWhoAdopt().stream().findFirst().get();
+        Report newReport = new Report();
+        newReport.setId(0);
+        newReport.setReportDate(LocalDate.now());
+        newReport.setUser(user);
+        Report reportFromDB = reportRepo.save(newReport);
+        boolean acceptBehaviour = true;
+        ResponseEntity<Report> responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/report/" + reportFromDB.getId() + "/acceptBehaviour?acceptBehaviour=" + acceptBehaviour,
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                Report.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        reportFromDB = reportRepo.findByUserAndReportDate(user, LocalDate.now());
+        Assertions.assertThat(responseEntity.getBody()).usingRecursiveComparison().isEqualTo(reportFromDB);
+    }
+
+    @Test
+    public void putIsBehaviourAccepted_negativeTestByNotValidReportId(){
+        long reportId = 0;
+        boolean acceptBehaviour = true;
+        ResponseEntity<String> responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/report/" + reportId + "/acceptBehaviour?acceptBehaviour=" + acceptBehaviour,
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                String.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo("Ресурс с id = " + reportId + " не найден");
+    }
+
+
+    @Test
+    public void getListOfReportByDate_positiveTest(){
+        List<User> adopters = findUsersWhoAdopt();
+        List<Report> reports = new ArrayList<>();
+        for(User user : adopters){
+            Report newReport = new Report();
+            newReport.setId(0);
+            newReport.setReportDate(LocalDate.now());
+            newReport.setUser(user);
+            reports.add(reportRepo.save(newReport));
+        }
+
+        ResponseEntity<List<Report>> responseEntity = testRestTemplate
+                .exchange(
+                        "http://localhost:" + port + "/report/" + LocalDate.now(),
+                        HttpMethod.GET,
+                        HttpEntity.EMPTY,
+                        new ParameterizedTypeReference<>() {
+                        }
+                );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody())
+                .usingRecursiveComparison()
+                .ignoringCollectionOrder()
+                .isEqualTo(reports);
+    }
 
 }
