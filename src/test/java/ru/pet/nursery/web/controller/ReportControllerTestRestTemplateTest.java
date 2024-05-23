@@ -6,11 +6,14 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.*;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import ru.pet.nursery.entity.Animal;
 import ru.pet.nursery.entity.Nursery;
 import ru.pet.nursery.entity.Report;
@@ -24,11 +27,15 @@ import ru.pet.nursery.repository.UserRepo;
 import ru.pet.nursery.web.service.ReportService;
 import ru.pet.nursery.web.validator.ReportValidator;
 import ru.pet.nursery.web.validator.VolunteerValidator;
+
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ReportControllerTestRestTemplateTest {
+    @Value("${path.to.animals.folder}")
+    private String animalImagesDir;
     @LocalServerPort
     private int port;
     @Autowired
@@ -126,7 +133,7 @@ public class ReportControllerTestRestTemplateTest {
      * Метод для получения пользователя который усыновил животное
      * @return пользователь, усыновивший животное
      */
-    private List<User> findUserWhoAdopt(){
+    private List<User> findUsersWhoAdopt(){
         // список тех кто усыновлял животное
         return animalRepo.findAll()
                 .stream()
@@ -159,8 +166,7 @@ public class ReportControllerTestRestTemplateTest {
 
     @Test
     public void upload_positiveTest(){
-
-        List<User> adopters = findUserWhoAdopt();
+        List<User> adopters = findUsersWhoAdopt();
         User adopter = adopters.get(faker.random().nextInt(0, adopters.size() - 1));
         long adopterId = adopter.getTelegramUserId();
 
@@ -172,6 +178,125 @@ public class ReportControllerTestRestTemplateTest {
 
         Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         Assertions.assertThat(responseEntity.getBody()).isNotNull();
+    }
+
+    /**
+     * Проверка работы метода при передаче идентификатора пользователя,
+     * которого нет в базе данных
+     */
+    @Test
+    public void upload_negativeTestByNotValidId(){
+        List<User> adopters = findUsersWhoAdopt();
+        // находим невалидный adopterId
+        List<Long> ids = adopters
+                .stream()
+                .map(User::getTelegramUserId)
+                .toList();
+        long adopterId = 1;
+        while (ids.contains(adopterId)){
+            adopterId = faker.random().nextInt(0, 100);
+        }
+        ResponseEntity<String> responseEntity = testRestTemplate.postForEntity(
+                "http://localhost:" + port + "/report/" + adopterId,
+                null,
+                String.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo("Идентификатор пользователя " + adopterId + " отсутствует в базе данных");
+    }
+
+
+    @Test
+    public void upload_negativeTestByUserNotAdopter(){
+        User user = findUserWhoNotAdopt();
+        long notAdopterId = user.getTelegramUserId();
+
+        ResponseEntity<String> responseEntity = testRestTemplate.postForEntity(
+                "http://localhost:" + port + "/report/" + notAdopterId,
+                null,
+                String.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo("Пользователь с id = " + notAdopterId + " не усыновлял питомца");
+    }
+
+
+
+    @Test
+    public void delete_positiveTest(){
+        List<User> adopters = findUsersWhoAdopt();
+        User adopter = adopters.get(faker.random().nextInt(0, adopters.size() - 1));
+        Report newReport = new Report();
+        newReport.setId(0);
+        newReport.setReportDate(LocalDate.now());
+        newReport.setUser(adopter);
+        Report reportFromDB = reportRepo.save(newReport);
+        long reportId = reportFromDB.getId();
+        ResponseEntity<Report> responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/report/" + reportId,
+                HttpMethod.DELETE,
+                HttpEntity.EMPTY,
+                Report.class
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody()).usingRecursiveComparison().isEqualTo(reportFromDB);
+    }
+
+
+
+    @Test
+    public void delete_negativeTestByNotValidReportId(){
+        long reportId = 0;
+        ResponseEntity<String> responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/report/" + reportId,
+                HttpMethod.DELETE,
+                HttpEntity.EMPTY,
+                String.class
+        );
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo("Ресурс с id = " + reportId + " не найден");
+    }
+
+
+
+    @Test
+    public void putPhoto_positiveTest(){
+        // создаётся отчёт в базе данных
+        List<User> adopters = findUsersWhoAdopt();
+        User adopter = adopters.get(faker.random().nextInt(0, adopters.size() - 1));
+        Report newReport = new Report();
+        newReport.setId(0);
+        newReport.setReportDate(LocalDate.now());
+        newReport.setUser(adopter);
+        // создаётся сущность запроса с фотографией
+        String strPath = System.getProperty("user.dir");
+        if(strPath.contains("\\")){
+            strPath += "\\" + animalImagesDir + "\\1.jpg";
+        }else{
+            strPath += "/" + animalImagesDir + "/1.jpg";
+        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        FileSystemResource fileSystemResource = new FileSystemResource(strPath);
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("animalPhoto", fileSystemResource);
+        HttpEntity<MultiValueMap<String, Object>> requestEntity
+                = new HttpEntity<>(body, headers);
+
+        ResponseEntity<String> responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/report/" + adopter.getTelegramUserId() + "/photo",
+                HttpMethod.PUT,
+                requestEntity,
+                String.class
+        );
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
 

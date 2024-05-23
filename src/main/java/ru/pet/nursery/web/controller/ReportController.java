@@ -70,9 +70,9 @@ public class ReportController {
                             )
                     )
             })
-    @DeleteMapping
-    public ResponseEntity<Report> delete(long id){
-        return reportService.delete(id);
+    @DeleteMapping("/{reportId}")
+    public ResponseEntity<Report> delete(@PathVariable long reportId){
+        return reportService.delete(reportId);
     }
 
 
@@ -91,7 +91,7 @@ public class ReportController {
                     )
             }
     )
-    @PutMapping(value = "/{id}/foto", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/{id}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity putFoto(@PathVariable long id, @RequestParam MultipartFile animalPhoto) throws IOException {
         return reportService.updateFoto(id, animalPhoto);
     }

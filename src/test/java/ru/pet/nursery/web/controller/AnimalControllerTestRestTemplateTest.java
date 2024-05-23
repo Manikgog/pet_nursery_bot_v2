@@ -159,7 +159,7 @@ public class AnimalControllerTestRestTemplateTest {
         animalDTO.setAnimalType(AnimalType.CAT);
         boolean isMale = rnd.nextBoolean();
         animalDTO.setGender(isMale ? Gender.MALE : Gender.FEMALE);
-        Nursery nursery = nurseryRepo.findAll().stream().filter(n -> n.isForDog() == false).findFirst().get();
+        Nursery nursery = nurseryRepo.findAll().stream().filter(n -> !n.isForDog()).findFirst().get();
         animalDTO.setNurseryId(nursery.getId());
         animalDTO.setBirthDate(faker.date().birthdayLocalDate(MIN_AGE, MAX_AGE));
         animalDTO.setDescription(faker.examplify(animalDTO.getAnimalName()));
@@ -185,7 +185,11 @@ public class AnimalControllerTestRestTemplateTest {
         for (int i = 0; i < 5; i++) {
             Animal animal = animals.get(new Random().nextInt(animals.size()));
             String strPath = System.getProperty("user.dir");
-            strPath += "\\" + animalImagesDir + "\\1.jpg";
+            if(strPath.contains("\\")){
+                strPath += "\\" + animalImagesDir + "\\1.jpg";
+            }else{
+                strPath += "/" + animalImagesDir + "/1.jpg";
+            }
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
