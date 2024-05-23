@@ -62,6 +62,7 @@ public class ReportManager extends AbstractManager {
 
     @Override
     public void answerCommand(Update update){
+        logger.info("Processing update in method answerCommand ReportManager class: {}", update);
         SendMessage sendMessage = answerMethodFactory.getSendMessage(update.message().chat().id(),
                 """
                         Здесь Вы можете посмотреть инструкцию и отправить отчёт
@@ -86,6 +87,7 @@ public class ReportManager extends AbstractManager {
 
     @Override
     public void answerCallbackQuery(CallbackQuery callbackQuery){
+        logger.info("Processing callbackQuery in method answerCallbackQuery ReportManager class: {}", callbackQuery);
         SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                 """
                         Здесь Вы можете посмотреть инструкцию и отправить отчёт
@@ -104,6 +106,7 @@ public class ReportManager extends AbstractManager {
     }
 
     public void answerInstruction(CallbackQuery callbackQuery){
+        logger.info("Processing callbackQuery in method answerInstruction ReportManager class: {}", callbackQuery);
         SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                 """
                         Для выполнения отчёта необходимо
@@ -129,12 +132,14 @@ public class ReportManager extends AbstractManager {
      * @param callbackQuery - запрос обратного вызова пользователю
      */
     public void answerFoto(CallbackQuery callbackQuery){
+        logger.info("Processing callbackQuery in method answerFoto ReportManager class: {}", callbackQuery);
         // проверить есть ли в базе данных пользователь с таким chatId, который усыновил животное
         long adopterId = callbackQuery.message().chat().id();
         User user = userRepo.findById(adopterId).orElseThrow(() -> new EntityNotFoundException(adopterId));
         try {
             reportValidator.validateIsAdopter(user);
         }catch (IllegalParameterException e){
+            logger.warn(e.getMessage());
             // если пользователь не усыновлял животное, то отправить пользователю сообщение, что он не усыновлял животное
             answerUserIsNotAdopter(callbackQuery);
             return;
@@ -162,12 +167,14 @@ public class ReportManager extends AbstractManager {
     }
 
     public void answerHealth(CallbackQuery callbackQuery){
+        logger.info("Processing callbackQuery in method answerHealth ReportManager class: {}", callbackQuery);
         // проверить есть ли в базе данных пользователь с таким chatId, который усыновил животное
         long adopterId = callbackQuery.message().chat().id();
         User user = userRepo.findById(adopterId).orElseThrow(() -> new EntityNotFoundException(adopterId));
         try {
             reportValidator.validateIsAdopter(user);
         }catch (IllegalParameterException e){
+            logger.warn(e.getMessage());
             // если пользователь не усыновлял животное, то отправить пользователю сообщение, что он не усыновлял животное
             answerUserIsNotAdopter(callbackQuery);
             return;
@@ -194,12 +201,14 @@ public class ReportManager extends AbstractManager {
     }
 
     public void answerDiet(CallbackQuery callbackQuery){
+        logger.info("Processing callbackQuery in method answerDiet ReportManager class: {}", callbackQuery);
         // проверить есть ли в базе данных пользователь с таким chatId, который усыновил животное
         long adopterId = callbackQuery.message().chat().id();
         User user = userRepo.findById(adopterId).orElseThrow(() -> new EntityNotFoundException(adopterId));
         try {
             reportValidator.validateIsAdopter(user);
         }catch (IllegalParameterException e){
+            logger.warn(e.getMessage());
             // если пользователь не усыновлял животное, то отправить пользователю сообщение, что он не усыновлял животное
             answerUserIsNotAdopter(callbackQuery);
             return;
@@ -226,12 +235,14 @@ public class ReportManager extends AbstractManager {
     }
 
     public void answerBehaviour(CallbackQuery callbackQuery){
+        logger.info("Processing callbackQuery in method answerBehaviour ReportManager class: {}", callbackQuery);
         // проверить есть ли в базе данных пользователь с таким chatId, который усыновил животное
         long adopterId = callbackQuery.message().chat().id();
         User user = userRepo.findById(adopterId).orElseThrow(() -> new EntityNotFoundException(adopterId));
         try {
             reportValidator.validateIsAdopter(user);
         }catch (IllegalParameterException e){
+            logger.warn(e.getMessage());
             // если пользователь не усыновлял животное, то отправить пользователю сообщение, что он не усыновлял животное
             answerUserIsNotAdopter(callbackQuery);
             return;
@@ -258,6 +269,7 @@ public class ReportManager extends AbstractManager {
     }
 
     public void answerUserIsNotAdopter(CallbackQuery callbackQuery){
+        logger.warn("Method answerUserIsNotAdopter. User with id = {} is not adopter", callbackQuery.message().chat().id());
         String answerMessage = """
                   Вы не усыновляли нашего питомца
                 """;
@@ -268,11 +280,13 @@ public class ReportManager extends AbstractManager {
     }
 
     public void uploadPhotoToReport(Update update) throws IOException {
+        logger.info("Processing update in method uploadPhotoToReport ReportManager class: {}", update);
         long adopterId = update.message().chat().id();
         User user = userRepo.findById(adopterId).orElseThrow(() -> new IllegalFieldException("Идентификатор пользователя " + adopterId + " отсутствует в базе данных"));
         Report report = reportService.findByUserAndDate(user, LocalDate.now());
         List<Animal> animals = animalRepo.findByUser(user);
         if(animals.isEmpty()){
+            logger.warn("Method uploadPhotoToReport. User with id = {} is not adopter", adopterId);
             throw new IllegalParameterException("Пользователь с id = " + adopterId + " не усыновлял питомца");
         }
 
@@ -337,10 +351,12 @@ public class ReportManager extends AbstractManager {
     }
 
     public void uploadDietToReport(Update update){
+        logger.info("Processing update in method uploadDietToReport ReportManager class: {}", update);
         long adopterId = update.message().chat().id();
         User user = userRepo.findById(adopterId).orElseThrow(() -> new IllegalFieldException("Идентификатор пользователя " + adopterId + " отсутствует в базе данных"));
         List<Animal> animals = animalRepo.findByUser(user);
         if(animals.isEmpty()){
+            logger.warn("Method uploadDietToReport. User with id = {} is not adopter", adopterId);
             throw new IllegalParameterException("Пользователь с id = " + adopterId + " не усыновлял питомца");
         }
         String diet = update.message().text();
@@ -360,14 +376,17 @@ public class ReportManager extends AbstractManager {
 
 
     public void uploadHealthToReport(Update update){
+        logger.info("Processing update in method uploadHealthToReport ReportManager class: {}", update);
         long adopterId = update.message().chat().id();
         User user = userRepo.findById(adopterId).orElseThrow(() -> new IllegalFieldException("Идентификатор пользователя " + adopterId + " отсутствует в базе данных"));
         List<Animal> animals = animalRepo.findByUser(user);
         if(animals.isEmpty()){
+            logger.warn("Method uploadHealthToReport. User with id = {} is not adopter", adopterId);
             throw new IllegalParameterException("Пользователь с id = " + adopterId + " не усыновлял питомца");
         }
         String health = update.message().text();
         if(health.isBlank() || health.isEmpty()){
+            logger.warn("Method uploadHealthToReport. The description of health should not be an empty string. User id = {}", user.getTelegramUserId());
             sendMessage(user.getTelegramUserId(), "Описание здоровья не должно быть пустой строкой");
             return;
         }
@@ -382,10 +401,12 @@ public class ReportManager extends AbstractManager {
 
 
     public void uploadBehaviourToReport(Update update){
+        logger.info("Processing update in method uploadBehaviourToReport ReportManager class: {}", update);
         long adopterId = update.message().chat().id();
         User user = userRepo.findById(adopterId).orElseThrow(() -> new IllegalFieldException("Идентификатор пользователя " + adopterId + " отсутствует в базе данных"));
         List<Animal> animals = animalRepo.findByUser(user);
         if(animals.isEmpty()){
+            logger.warn("Method uploadBehaviourToReport. User with id = {} is not adopter", adopterId);
             throw new IllegalParameterException("Пользователь с id = " + adopterId + " не усыновлял питомца");
         }
 
@@ -403,6 +424,7 @@ public class ReportManager extends AbstractManager {
     }
 
     public void sendMessage(long chatId, String text){
+        logger.info("Processing method sendMessage ReportManager class: chatId: {}, text: {}", chatId, text);
         SendMessage sendMessage = answerMethodFactory.getSendMessage(chatId,
                 text,
                 null);

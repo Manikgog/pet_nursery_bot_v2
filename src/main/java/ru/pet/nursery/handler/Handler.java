@@ -3,13 +3,17 @@ package ru.pet.nursery.handler;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.pet.nursery.data.MessageData;
+
 import java.io.IOException;
 
 @Service
 @Slf4j
 public class Handler {
+    private final Logger logger = LoggerFactory.getLogger(Handler.class);
     private final CallbackQueryHandler callbackQueryHandler;
     private final CommandHandler commandHandler;
     private final MessageHandler messageHandler;
@@ -27,7 +31,7 @@ public class Handler {
     public void answer(Update update) throws IOException {
         // проверяем есть ли пользователь, отправивший update в базе данных
         // если нет, то добавляем его данные в базу
-
+        logger.info("Processing update in method answer of Handler class: {}", update);
 
        if(update.callbackQuery() != null){
 

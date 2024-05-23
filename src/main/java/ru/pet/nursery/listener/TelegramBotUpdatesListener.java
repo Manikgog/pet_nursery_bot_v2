@@ -8,11 +8,10 @@ import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import ru.pet.nursery.handler.Handler;
 
 import java.io.IOException;
 import java.util.List;
-
-import ru.pet.nursery.handler.Handler;
 @Service
 public class TelegramBotUpdatesListener implements UpdatesListener {
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);

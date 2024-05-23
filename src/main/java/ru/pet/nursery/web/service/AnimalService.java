@@ -1,6 +1,8 @@
 package ru.pet.nursery.web.service;
 
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +12,7 @@ import ru.pet.nursery.entity.Animal;
 import ru.pet.nursery.entity.Nursery;
 import ru.pet.nursery.entity.User;
 import ru.pet.nursery.enumerations.AnimalType;
+import ru.pet.nursery.manager.AbstractManager;
 import ru.pet.nursery.mapper.AnimalDTOForUserMapper;
 import ru.pet.nursery.repository.AnimalRepo;
 import ru.pet.nursery.repository.NurseryRepo;
@@ -20,7 +23,6 @@ import ru.pet.nursery.web.exception.EntityNotFoundException;
 import ru.pet.nursery.web.exception.ImageNotFoundException;
 import ru.pet.nursery.web.exception.UserNotValidException;
 import ru.pet.nursery.web.validator.Validator;
-
 import java.io.*;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
@@ -37,6 +39,7 @@ import static java.nio.file.StandardOpenOption.READ;
 
 @Service
 public class AnimalService {
+    private final Logger logger = LoggerFactory.getLogger(AbstractManager.class);
     @Value("${path.to.animals.folder}")
     private String animals_images;
     private final AnimalRepo animalRepo;
@@ -59,6 +62,7 @@ public class AnimalService {
      *         после загрузки
      */
     public ResponseEntity<Animal> uploadAnimal(AnimalDTO animalDTO) {
+        logger.info("Method uploadAnimal of AnimalService class with parameter AnimalDTO -> {}", animalDTO);
         validator.validateAnimalDTO(animalDTO);
         Nursery nursery = nurseryRepo.findById(animalDTO.getNurseryId())
                 .orElseThrow(() -> new EntityNotFoundException(animalDTO.getNurseryId()));
@@ -83,6 +87,7 @@ public class AnimalService {
      * @throws IOException - исключение ввода-вывода при работе с файлами
      */
     public ResponseEntity uploadPhoto(long animalId, MultipartFile animalPhoto) throws IOException {
+        logger.info("Method uploadPhoto of AnimalService class with parameters long -> {}, MultipartFile -> {}", animalId, animalPhoto);
         Optional<Animal> animalFromDB = animalRepo.findById(animalId);
         if(animalFromDB.isEmpty()){
             throw new EntityNotFoundException(animalId);
@@ -119,6 +124,7 @@ public class AnimalService {
      * @return строка, содержащая расширения файла
      */
     public String getExtension(String fileName){
+        logger.info("Method getExtension of AnimalService class with parameters String -> {}", fileName);
         return fileName.substring(fileName.lastIndexOf('.') + 1);
     }
 
@@ -129,6 +135,7 @@ public class AnimalService {
      * @throws IOException - исключение ввода-вывода при работе с файлами
      */
     public void getAnimalPhoto(long id, HttpServletResponse response) throws IOException {
+        logger.info("Method getAnimalPhoto of AnimalService class with parameters long -> {}, HttpServletResponse -> {}", id, response);
         Animal animal = animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
         if(animal.getPhotoPath() == null){
             throw new ImageNotFoundException("Путь к файлу с изображением отсутствует!");
@@ -163,7 +170,7 @@ public class AnimalService {
      * @return байтовый массив фотографии
      */
     public byte[] getPhotoByteArray(long id) {
-
+        logger.info("Method getPhotoByteArray of AnimalService class with parameter long -> {}", id);
         Animal animal = animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
         if(animal.getPhotoPath() == null){
             throw new ImageNotFoundException("Путь к файлу с изображением отсутствует!");
@@ -187,6 +194,7 @@ public class AnimalService {
      * @return удаленная запись животного
      */
     public ResponseEntity<Animal> delete(long id) {
+        logger.info("Method delete of AnimalService class with parameter long -> {}", id);
         return ResponseEntity.of(Optional.of(
                 animalRepo.findById(id)
                 .map(animalToDel -> {
@@ -203,6 +211,7 @@ public class AnimalService {
      * @return статус HTTP
      */
     public ResponseEntity<Animal> insertDataOfHuman(long animalId, Long adoptedId) {
+        logger.info("Method insertDataOfHuman of AnimalService class with parameter long -> {}, Long -> {}", animalId, adoptedId);
         Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(animalId));
         User userAdopted = userRepo.findById(adoptedId).orElseThrow(() -> new EntityNotFoundException(adoptedId));
         // проверка на то, что у человека уже есть животное на испытательном сроке
@@ -223,6 +232,7 @@ public class AnimalService {
      * @return ResponseEntity листа объектов AnimalDTOForUser c нужной для пользователя информацией
      */
     public ResponseEntity<List<AnimalDTOForUser>> getPageList(Integer pageNumber, Integer pageSize) {
+        logger.info("Method getPageList of AnimalService class with parameter Integer -> {}, Integer -> {}", pageNumber, pageSize);
         validator.validatePageNumber(pageNumber);
         validator.validatePageSize(pageSize);
         PageRequest pageRequest = PageRequest.of(pageNumber - 1, pageSize);
@@ -237,6 +247,7 @@ public class AnimalService {
      * @return список объектов AnimalDTOForUser
      */
     public List<AnimalDTOForUser> convertListAnimalToListAnimalDTO(List<Animal> animals){
+        logger.info("Method convertListAnimalToListAnimalDTO of AnimalService class with parameters List<Animal> -> {}", animals);
         AnimalDTOForUserMapper animalDTOForUserMapper = new AnimalDTOForUserMapper();
         return animals.stream()
                 .filter(animal -> animal.getUser() == null)
@@ -250,6 +261,7 @@ public class AnimalService {
      * @return HttpStatus
      */
     public ResponseEntity<Animal> insertDateOfReturn(long animalId) {
+        logger.info("Method insertDateOfReturn of AnimalService class with parameter long -> {}", animalId);
         Animal animalOld = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(animalId));
         animalOld.setPetReturnDate(LocalDate.now());
         animalOld.setUser(null);
@@ -264,6 +276,7 @@ public class AnimalService {
      * @return HttpStatus
      */
     public ResponseEntity<AnimalDTOForUser> getById(long animalId) {
+        logger.info("Method getById of AnimalService class with parameter long -> {}", animalId);
         AnimalDTOForUserMapper animalDTOForUserMapper = new AnimalDTOForUserMapper();
         Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(animalId));
         return ResponseEntity.of(Optional.of(animalDTOForUserMapper.perform(animalFromDB)));
@@ -274,6 +287,7 @@ public class AnimalService {
      * @return - ResponseEntity<List<Animal>>
      */
     public ResponseEntity<List<Animal>> getAll() {
+        logger.info("Method getAll of AnimalService class");
         return ResponseEntity.of(Optional.of(animalRepo.findAll()));
     }
 
@@ -281,6 +295,7 @@ public class AnimalService {
      * Метод для получения из базы данных только котов или только собак
      */
     public List<Animal> getAllAnimalsByType(AnimalType animalType){
+        logger.info("Method getAllAnimalsByType of AnimalService class with parameter AnimalType -> {}", animalType);
         return animalRepo.findByAnimalType(animalType);
     }
 
@@ -289,6 +304,7 @@ public class AnimalService {
      * Метод для получения объекта Animal
      */
     public Animal get(long id){
+        logger.info("Method get of AnimalService class with parameter long -> {}", id);
         return animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
     }
 }

@@ -50,6 +50,7 @@ public class InfoManager extends AbstractManager {
      */
     @Override
     public void answerCommand(Update update){
+        logger.info("the answerCommand method of the InfoManager class works. Parameter: Update -> {}", update);
         SendMessage sendMessage = answerMethodFactory.getSendMessage(update.message().chat().id(),
                 "Здесь вы можете посмотреть информацию о приютах, питомцах и требованиях к усыновителю",
                 keyboardFactory.getInlineKeyboard(
@@ -78,6 +79,7 @@ public class InfoManager extends AbstractManager {
      */
     @Override
     public void answerCallbackQuery(CallbackQuery callbackQuery){
+        logger.info("the answerCallbackQuery method of the InfoManager class works. Parameter: CallbackQuery -> {}", callbackQuery);
         SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                 "Здесь вы можете посмотреть информацию о приютах, питомцах и требованиях к усыновителю",
                 keyboardFactory.getInlineKeyboard(
@@ -100,6 +102,7 @@ public class InfoManager extends AbstractManager {
      * @param callbackQuery - запрос обратного вызова
      */
     public void addressAndPhoneNursery(CallbackQuery callbackQuery) {
+        logger.info("The addressAndPhoneNursery method of the InfoManager class works. Parameter: CallbackQuery -> {}", callbackQuery);
         List<Nursery> listOfNursery = shelterService.getAllShelter(1, 1000);
         StringBuilder nurseryInfo = new StringBuilder();
         for (Nursery nursery : listOfNursery) {
@@ -125,6 +128,7 @@ public class InfoManager extends AbstractManager {
      * @param callbackQuery - запрос обратного вызова
      */
     public void petInformation(CallbackQuery callbackQuery) {
+        logger.info("The petInformation method of the InfoManager class works. Parameter: CallbackQuery -> {}", callbackQuery);
         SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                 "Здесь вы можете посмотреть информацию о питомцах",
                 keyboardFactory.getInlineKeyboard(
@@ -140,6 +144,7 @@ public class InfoManager extends AbstractManager {
     }
 
     public void whatNeedForAdoption(CallbackQuery callbackQuery) {
+        logger.info("The whatNeedForAdoption method of the InfoManager class works. Parameter: CallbackQuery -> {}", callbackQuery);
         SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                 """
                         Приюты хотят быть уверены, что они усыновляют своих животных в семью, которая обеспечит им хороший дом.
@@ -161,6 +166,7 @@ public class InfoManager extends AbstractManager {
      * @param callbackQuery - запрос обратного вызова
      */
     public void catsInformation(CallbackQuery callbackQuery){
+        logger.info("The catsInformation method of the InfoManager class works. Parameter: CallbackQuery -> {}", callbackQuery);
         SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                 "Здесь вы можете посмотреть фотографии котов",
                 keyboardFactory.getInlineKeyboard(
@@ -186,6 +192,7 @@ public class InfoManager extends AbstractManager {
      * @throws IOException - исключение ввода-вывода
      */
     public void catPhoto(CallbackQuery callbackQuery) throws IOException {
+        logger.info("The catPhoto method of the InfoManager class works. Parameter: CallbackQuery -> {}", callbackQuery);
         List<Animal> cats = animalService.getAllAnimalsByType(AnimalType.CAT)
                 .stream()
                 .filter(a -> a.getUser() == null)
@@ -231,6 +238,7 @@ public class InfoManager extends AbstractManager {
      * @throws IOException - исключение ввода-вывода
      */
     public void dogPhoto(CallbackQuery callbackQuery) throws IOException {
+        logger.info("The dogPhoto method of the InfoManager class works. Parameter: CallbackQuery -> {}", callbackQuery);
         List<Animal> dogs = animalService.getAllAnimalsByType(AnimalType.DOG)
                 .stream()
                 .filter(a -> a.getUser() == null)
@@ -273,6 +281,7 @@ public class InfoManager extends AbstractManager {
      * @return новый идентификатор
      */
     private int getNextId(long chatId, List<Animal> animals){
+        logger.info("The getNextId method of the InfoManager class works. Parameters: long -> {}, List<Animal> -> {}", chatId, animals);
         if(userId_animalId.size() > 1000){
             userId_animalId.clear();
         }
@@ -296,6 +305,7 @@ public class InfoManager extends AbstractManager {
      * @param callbackQuery - запрос обратного вызова
      */
     public void dogsInformation(CallbackQuery callbackQuery){
+        logger.info("The dogsInformation method of the InfoManager class works. Parameter: CallbackQuery -> {}", callbackQuery);
         SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                 "Здесь вы можете посмотреть фотографии собак",
                 keyboardFactory.getInlineKeyboard(
@@ -317,6 +327,7 @@ public class InfoManager extends AbstractManager {
      * @param callbackQuery - запрос обратного вызова
      */
     public void catInformation(CallbackQuery callbackQuery){
+        logger.info("The catInformation method of the InfoManager class works. Parameter: CallbackQuery -> {}", callbackQuery);
         List<Animal> cats = animalService.getAllAnimalsByType(AnimalType.CAT)
                 .stream()
                 .filter(a -> a.getUser() == null)
@@ -344,6 +355,7 @@ public class InfoManager extends AbstractManager {
      * @param callbackQuery - запрос обратного вызова
      */
     public void dogInformation(CallbackQuery callbackQuery){
+        logger.info("The dogInformation method of the InfoManager class works. Parameter: CallbackQuery -> {}", callbackQuery);
         List<Animal> dogs = animalService.getAllAnimalsByType(AnimalType.DOG)
                 .stream()
                 .filter(a -> a.getUser() == null)

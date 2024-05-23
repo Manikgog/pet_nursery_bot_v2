@@ -4,6 +4,8 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.pet.nursery.manager.info.InfoManager;
 import ru.pet.nursery.manager.report.ReportManager;
@@ -15,6 +17,7 @@ import java.io.IOException;
 import static ru.pet.nursery.data.CallbackData.*;
 @Service
 public class CallbackQueryHandler {
+    private final Logger logger = LoggerFactory.getLogger(CallbackQueryHandler.class);
     private final InfoManager infoManager;
     private final ReportManager reportManager;
     private final StartManager startManager;
@@ -34,6 +37,8 @@ public class CallbackQueryHandler {
     }
 
     public void answer(Update update) throws IOException {
+        logger.info("Processing update in method answer of CallbackQueryHandler class: {}", update);
+
         String callbackData = update.callbackQuery().data();
 
         switch (callbackData){
