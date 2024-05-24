@@ -8,13 +8,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.ResponseEntity;
 import ru.pet.nursery.entity.Volunteer;
 import ru.pet.nursery.repository.VolunteerRepo;
 import ru.pet.nursery.web.exception.EntityNotFoundException;
 import ru.pet.nursery.web.exception.IllegalFieldException;
 import ru.pet.nursery.web.exception.IllegalParameterException;
 import ru.pet.nursery.web.validator.VolunteerValidator;
+
 import java.util.Optional;
 import java.util.Random;
 
@@ -53,7 +53,7 @@ public class VolunteerServiceMockTest {
             volunteer.setActive(false);
 
             when(volunteerRepo.save(volunteer)).thenReturn(volunteer);
-            Assertions.assertEquals(ResponseEntity.of(Optional.of(volunteer)), volunteerService.upload(volunteer));
+            Assertions.assertEquals(volunteer, volunteerService.upload(volunteer));
         }
     }
 
@@ -90,7 +90,7 @@ public class VolunteerServiceMockTest {
             when(volunteerRepo.findById(anyInt())).thenReturn(Optional.ofNullable(volunteer));
             String newName = faker.name().name();
             when(volunteerRepo.save(volunteer)).thenReturn(volunteer);
-            Assertions.assertEquals(newName, volunteerService.updateName(newName, id).getBody().getName());
+            Assertions.assertEquals(newName, volunteerService.updateName(newName, id).getName());
         }
     }
 
@@ -145,7 +145,7 @@ public class VolunteerServiceMockTest {
             when(volunteerRepo.findById(anyInt())).thenReturn(Optional.ofNullable(volunteer));
             Boolean newStatus = !volunteer.isActive();
             when(volunteerRepo.save(volunteer)).thenReturn(volunteer);
-            Assertions.assertEquals(newStatus, volunteerService.updateStatus(newStatus, id).getBody().isActive());
+            Assertions.assertEquals(newStatus, volunteerService.updateStatus(newStatus, id).isActive());
         }
     }
 
@@ -180,7 +180,7 @@ public class VolunteerServiceMockTest {
             when(volunteerRepo.findById(anyInt())).thenReturn(Optional.ofNullable(volunteer));
             String newPhone = faker.phoneNumber().cellPhone();
             when(volunteerRepo.save(volunteer)).thenReturn(volunteer);
-            Assertions.assertEquals(newPhone, volunteerService.updateName(newPhone, id).getBody().getName());
+            Assertions.assertEquals(newPhone, volunteerService.updateName(newPhone, id).getName());
         }
     }
 
@@ -242,7 +242,7 @@ public class VolunteerServiceMockTest {
             String newName = faker.name().firstName() + " " + faker.name().lastName();
             volunteer.setName(newName);
 
-            Assertions.assertEquals(ResponseEntity.of(Optional.of(volunteer)), volunteerService.updateVolunteer(id, volunteer));
+            Assertions.assertEquals(volunteer, volunteerService.updateVolunteer(id, volunteer));
         }
     }
 
@@ -281,7 +281,7 @@ public class VolunteerServiceMockTest {
         int id = 1;
         volunteer.setId(id);
         when(volunteerRepo.findById(anyInt())).thenReturn(Optional.ofNullable(volunteer));
-        Assertions.assertEquals(ResponseEntity.of(Optional.of(volunteer)), volunteerService.get(id));
+        Assertions.assertEquals(volunteer, volunteerService.get(id));
     }
 
     /**
@@ -304,7 +304,7 @@ public class VolunteerServiceMockTest {
         int id = 1;
         volunteer.setId(id);
         when(volunteerRepo.findById(id)).thenReturn(Optional.ofNullable(volunteer));
-        Assertions.assertEquals(ResponseEntity.of(Optional.of(volunteer)), volunteerService.delete(id));
+        Assertions.assertEquals(volunteer, volunteerService.delete(id));
     }
 
 

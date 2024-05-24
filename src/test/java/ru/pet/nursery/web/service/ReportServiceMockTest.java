@@ -67,7 +67,7 @@ public class ReportServiceMockTest {
         reportFromDB.setReportDate(report.getReportDate());
         reportFromDB.setUser(report.getUser());
         when(reportRepo.save(any())).thenReturn(reportFromDB);
-        Assertions.assertEquals(ResponseEntity.of(Optional.of(reportFromDB)), reportService.upload(adopterId));
+        Assertions.assertEquals(reportFromDB, reportService.upload(adopterId));
     }
 
 
@@ -83,7 +83,7 @@ public class ReportServiceMockTest {
         int id = 1;
         Report report = new Report();
         when(reportRepo.findById((long) id)).thenReturn(Optional.of(report));
-        Assertions.assertEquals(ResponseEntity.of(Optional.of(report)), reportService.delete(id));
+        Assertions.assertEquals(report, reportService.delete(id));
     }
 
 
@@ -154,7 +154,7 @@ public class ReportServiceMockTest {
         report.setReportDate(LocalDate.now());
         when(reportRepo.findById(report.getId())).thenReturn(Optional.of(report));
         when(reportRepo.save(report)).thenReturn(report);
-        Assertions.assertEquals(ResponseEntity.of(Optional.of(report)), reportService.updateDiet(report.getId(), diet));
+        Assertions.assertEquals(report, reportService.updateDiet(report.getId(), diet));
     }
 
     /**
@@ -182,7 +182,7 @@ public class ReportServiceMockTest {
         report.setReportDate(LocalDate.now());
         when(reportRepo.findById(report.getId())).thenReturn(Optional.of(report));
         when(reportRepo.save(report)).thenReturn(report);
-        Assertions.assertEquals(ResponseEntity.of(Optional.of(report)), reportService.updateHealth(report.getId(), health));
+        Assertions.assertEquals(report, reportService.updateHealth(report.getId(), health));
     }
 
 
@@ -206,7 +206,7 @@ public class ReportServiceMockTest {
         report.setReportDate(LocalDate.now());
         when(reportRepo.findById(report.getId())).thenReturn(Optional.of(report));
         when(reportRepo.save(report)).thenReturn(report);
-        Assertions.assertEquals(ResponseEntity.of(Optional.of(report)), reportService.updateBehaviour(report.getId(), behaviour));
+        Assertions.assertEquals(report, reportService.updateBehaviour(report.getId(), behaviour));
     }
 
     @Test
@@ -228,7 +228,7 @@ public class ReportServiceMockTest {
         report.setReportDate(LocalDate.now());
         when(reportRepo.findById(report.getId())).thenReturn(Optional.of(report));
         when(reportRepo.save(report)).thenReturn(report);
-        Assertions.assertEquals(ResponseEntity.of(Optional.of(report)), reportService.updateIsAllItemsIsAccepted(report.getId(), isAllItemsAccepted));
+        Assertions.assertEquals(report, reportService.updateIsAllItemsIsAccepted(report.getId(), isAllItemsAccepted));
     }
 
     @Test
@@ -250,7 +250,7 @@ public class ReportServiceMockTest {
         report.setReportDate(LocalDate.now());
         when(reportRepo.findById(report.getId())).thenReturn(Optional.of(report));
         when(reportRepo.save(report)).thenReturn(report);
-        Assertions.assertEquals(ResponseEntity.of(Optional.of(report)), reportService.updatePhotoIsAccepted(report.getId(), isPhotoAccepted));
+        Assertions.assertEquals(report, reportService.updatePhotoIsAccepted(report.getId(), isPhotoAccepted));
     }
 
     @Test
@@ -271,7 +271,7 @@ public class ReportServiceMockTest {
         report.setReportDate(LocalDate.now());
         when(reportRepo.findById(report.getId())).thenReturn(Optional.of(report));
         when(reportRepo.save(report)).thenReturn(report);
-        Assertions.assertEquals(ResponseEntity.of(Optional.of(report)), reportService.updateIsDietAccepted(report.getId(), isDietAccepted));
+        Assertions.assertEquals(report, reportService.updateIsDietAccepted(report.getId(), isDietAccepted));
     }
 
     @Test
@@ -294,7 +294,7 @@ public class ReportServiceMockTest {
         report.setReportDate(LocalDate.now());
         when(reportRepo.findById(report.getId())).thenReturn(Optional.of(report));
         when(reportRepo.save(report)).thenReturn(report);
-        Assertions.assertEquals(ResponseEntity.of(Optional.of(report)), reportService.updateIsHealthAccepted(report.getId(), isHealthAccepted));
+        Assertions.assertEquals(report, reportService.updateIsHealthAccepted(report.getId(), isHealthAccepted));
     }
 
     @Test
@@ -316,7 +316,7 @@ public class ReportServiceMockTest {
         report.setReportDate(LocalDate.now());
         when(reportRepo.findById(report.getId())).thenReturn(Optional.of(report));
         when(reportRepo.save(report)).thenReturn(report);
-        Assertions.assertEquals(ResponseEntity.of(Optional.of(report)), reportService.updateIsHealthAccepted(report.getId(), isBehaviourAccepted));
+        Assertions.assertEquals(report, reportService.updateIsHealthAccepted(report.getId(), isBehaviourAccepted));
     }
 
 

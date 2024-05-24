@@ -20,7 +20,6 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
@@ -48,21 +47,19 @@ public class ReportService {
      * @param adopterId - идентификатор усыновителя из таблицы пользователей
      * @return ResponseEntity.of(Optional.of(reportFromDB))
      */
-    public ResponseEntity<Report> upload(long adopterId) {
+    public Report upload(long adopterId) {
         User user = userRepo.findById(adopterId)
                 .orElseThrow(() -> new IllegalFieldException("Идентификатор пользователя " + adopterId + " отсутствует в базе данных"));
         try {
             reportValidator.validate(user);
         }catch (ReportIsExistException e){
-            Report reportFromDB = reportRepo.findByUserAndReportDate(user, LocalDate.now());
-            return ResponseEntity.of(Optional.of(reportFromDB));
+            return reportRepo.findByUserAndReportDate(user, LocalDate.now());
         }
         Report newReport = new Report();
         newReport.setId(0);
         newReport.setUser(user);
         newReport.setReportDate(LocalDate.now());
-        Report reportFromDB = reportRepo.save(newReport);
-        return ResponseEntity.of(Optional.of(reportFromDB));
+        return reportRepo.save(newReport);
     }
 
     /**
@@ -70,10 +67,10 @@ public class ReportService {
      * @param id - идентификатор отчёта
      * @return удалённый из базы данных отчёт
      */
-    public ResponseEntity<Report> delete(long id) {
+    public Report delete(long id) {
         Report reportFromDB = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
         reportRepo.delete(reportFromDB);
-        return ResponseEntity.of(Optional.of(reportFromDB));
+        return reportFromDB;
     }
 
     /**
@@ -118,7 +115,7 @@ public class ReportService {
 
     private void updateFotoPathColumn(String path, long id){
         Report reportOld = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
-        reportOld.setPath_to_foto(path);
+        reportOld.setPathToPhoto(path);
         Report reportNew = reportRepo.save(reportOld);
     }
 
@@ -129,27 +126,26 @@ public class ReportService {
      * @param diet - строка с описанием диеты питомца
      * @return ResponseEntity<Report> - измененный объект отчёта из базы данных
      */
-    public ResponseEntity<Report> updateDiet(long id, String diet) {
+    public Report updateDiet(long id, String diet) {
         Report reportOld = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
         validator.stringValidate(diet);
         reportOld.setDiet(diet);
-        Report reportNew = reportRepo.save(reportOld);
-        return ResponseEntity.of(Optional.of(reportNew));
+        return reportRepo.save(reportOld);
     }
 
 
     /**
      * Метод для обновления поля health в строке с идентификатором id
-     * @param id - идентификатор отчёта в таблице отчётов
+     *
+     * @param id     - идентификатор отчёта в таблице отчётов
      * @param health - строка с описанием здоровья питомца
      * @return ResponseEntity<Report> - измененный объект отчёта из базы данных
      */
-    public ResponseEntity<Report> updateHealth(long id, String health) {
+    public Report updateHealth(long id, String health) {
         Report reportOld = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
         validator.stringValidate(health);
         reportOld.setHealth(health);
-        Report reportNew = reportRepo.save(reportOld);
-        return ResponseEntity.of(Optional.of(reportNew));
+        return reportRepo.save(reportOld);
     }
 
 
@@ -159,13 +155,11 @@ public class ReportService {
      * @param behaviour - строка с описанием поведения питомца
      * @return ResponseEntity<Report> - измененный объект отчёта из базы данных
      */
-    public ResponseEntity<Report> updateBehaviour(long id, String behaviour) {
+    public Report updateBehaviour(long id, String behaviour) {
         Report reportOld = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
         validator.stringValidate(behaviour);
         reportOld.setBehaviour(behaviour);
-        Report reportNew = reportRepo.save(reportOld);
-
-        return ResponseEntity.of(Optional.of(reportNew));
+        return reportRepo.save(reportOld);
     }
 
 
@@ -175,11 +169,10 @@ public class ReportService {
      * @param isAllItemsAccepted - приняты или не приняты (true или false) все пункты отчёта, т.е. присутствуют ли они в базе данных
      * @return ResponseEntity<Report> - измененный объект отчёта из базы данных
      */
-    public ResponseEntity<Report> updateIsAllItemsIsAccepted(long id, boolean isAllItemsAccepted) {
+    public Report updateIsAllItemsIsAccepted(long id, boolean isAllItemsAccepted) {
         Report reportOld = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
         reportOld.setAllItemsIsAccepted(isAllItemsAccepted);
-        Report reportNew = reportRepo.save(reportOld);
-        return ResponseEntity.of(Optional.of(reportNew));
+        return reportRepo.save(reportOld);
     }
 
 
@@ -189,11 +182,10 @@ public class ReportService {
      * @param isPhotoAccepted - принята или не принята (true или false) волонтером фотография питомца
      * @return ResponseEntity<Report> - измененный объект отчёта из базы данных
      */
-    public ResponseEntity<Report> updatePhotoIsAccepted(long id, boolean isPhotoAccepted) {
+    public Report updatePhotoIsAccepted(long id, boolean isPhotoAccepted) {
         Report reportOld = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
         reportOld.setPhotoIsAccepted(isPhotoAccepted);
-        Report reportNew = reportRepo.save(reportOld);
-        return ResponseEntity.of(Optional.of(reportNew));
+        return reportRepo.save(reportOld);
     }
 
 
@@ -203,11 +195,10 @@ public class ReportService {
      * @param isDietAccepted - принята или не принята (true или false) волонтером отчёт о диете питомца
      * @return ResponseEntity<Report> - измененный объект отчёта из базы данных
      */
-    public ResponseEntity<Report> updateIsDietAccepted(long id, boolean isDietAccepted) {
+    public Report updateIsDietAccepted(long id, boolean isDietAccepted) {
         Report reportOld = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
         reportOld.setDietIsAccepted(isDietAccepted);
-        Report reportNew = reportRepo.save(reportOld);
-        return ResponseEntity.of(Optional.of(reportNew));
+        return reportRepo.save(reportOld);
     }
 
 
@@ -217,11 +208,10 @@ public class ReportService {
      * @param isHealthAccepted - принят или не принят (true или false) волонтером отчёт о здоровье питомца
      * @return ResponseEntity<Report> - измененный объект отчёта из базы данных
      */
-    public ResponseEntity<Report> updateIsHealthAccepted(long id, boolean isHealthAccepted) {
+    public Report updateIsHealthAccepted(long id, boolean isHealthAccepted) {
         Report reportOld = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
         reportOld.setHealthIsAccepted(isHealthAccepted);
-        Report reportNew = reportRepo.save(reportOld);
-        return ResponseEntity.of(Optional.of(reportNew));
+        return reportRepo.save(reportOld);
     }
 
 
@@ -232,11 +222,10 @@ public class ReportService {
      * @param isBehaviourAccepted - принят или не принят (true или false) волонтером отчёт о поведении питомца
      * @return ResponseEntity<Report> - измененный объект отчёта из базы данных
      */
-    public ResponseEntity<Report> updateIsBehaviourAccepted(long id, boolean isBehaviourAccepted) {
+    public Report updateIsBehaviourAccepted(long id, boolean isBehaviourAccepted) {
         Report reportOld = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
         reportOld.setBehaviourIsAccepted(isBehaviourAccepted);
-        Report reportNew = reportRepo.save(reportOld);
-        return ResponseEntity.of(Optional.of(reportNew));
+        return reportRepo.save(reportOld);
     }
 
 
@@ -245,8 +234,8 @@ public class ReportService {
      * @param date - дата
      * @return ResponseEntity<List<Report>> - список объектов Report
      */
-    public ResponseEntity<List<Report>> getListOfReportByDate(LocalDate date) {
-        return ResponseEntity.of(Optional.ofNullable(reportRepo.findByReportDate(date)));
+    public List<Report> getListOfReportByDate(LocalDate date) {
+        return reportRepo.findByReportDate(date);
     }
 
     /**
@@ -262,9 +251,8 @@ public class ReportService {
 
     public Report updatePhotoPath(long reportId, String path){
         Report reportOld = reportRepo.findById(reportId).orElseThrow(() -> new EntityNotFoundException(reportId));
-        reportOld.setPath_to_foto(path);
-        Report reportNew = reportRepo.save(reportOld);
-        return reportNew;
+        reportOld.setPathToPhoto(path);
+        return reportRepo.save(reportOld);
     }
 
 

@@ -11,7 +11,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 import ru.pet.nursery.entity.Animal;
@@ -25,6 +24,7 @@ import ru.pet.nursery.repository.UserRepo;
 import ru.pet.nursery.web.dto.AnimalDTO;
 import ru.pet.nursery.web.dto.AnimalDTOForUser;
 import ru.pet.nursery.web.exception.*;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -56,19 +56,19 @@ public class AnimalServiceMockTest {
     public void uploadAnimal_positiveTest(){
         when(animalRepo.save(any())).thenReturn(VASKA);
         when(nurseryRepo.findById(1L)).thenReturn(Optional.ofNullable(NURSERY_1));
-        ResponseEntity<Animal> actualResult = animalService.uploadAnimal(VASKA_DTO);
-        Assertions.assertEquals(VASKA.getAnimalName(), actualResult.getBody().getAnimalName());
-        Assertions.assertEquals(VASKA.getAnimalType(), actualResult.getBody().getAnimalType());
-        Assertions.assertEquals(VASKA.getUser(), actualResult.getBody().getUser());
-        Assertions.assertEquals(VASKA.getDescription(), actualResult.getBody().getDescription());
+        Animal actualResult = animalService.uploadAnimal(VASKA_DTO);
+        Assertions.assertEquals(VASKA.getAnimalName(), actualResult.getAnimalName());
+        Assertions.assertEquals(VASKA.getAnimalType(), actualResult.getAnimalType());
+        Assertions.assertEquals(VASKA.getUser(), actualResult.getUser());
+        Assertions.assertEquals(VASKA.getDescription(), actualResult.getDescription());
 
         when(animalRepo.save(any())).thenReturn(PALKAN_FROM_DB);
         when(nurseryRepo.findById(2L)).thenReturn(Optional.ofNullable(NURSERY_2));
         actualResult = animalService.uploadAnimal(PALKAN_DTO);
-        Assertions.assertEquals(PALKAN.getAnimalName(), actualResult.getBody().getAnimalName());
-        Assertions.assertEquals(PALKAN.getAnimalType(), actualResult.getBody().getAnimalType());
-        Assertions.assertEquals(PALKAN.getUser(), actualResult.getBody().getUser());
-        Assertions.assertEquals(PALKAN.getDescription(), actualResult.getBody().getDescription());
+        Assertions.assertEquals(PALKAN.getAnimalName(), actualResult.getAnimalName());
+        Assertions.assertEquals(PALKAN.getAnimalType(), actualResult.getAnimalType());
+        Assertions.assertEquals(PALKAN.getUser(), actualResult.getUser());
+        Assertions.assertEquals(PALKAN.getDescription(), actualResult.getDescription());
     }
 
 
@@ -287,7 +287,7 @@ public class AnimalServiceMockTest {
 
         when(animalRepo.findById(id)).thenReturn(Optional.of(animal));
 
-        Assertions.assertEquals(ResponseEntity.of(Optional.of(animal)), animalService.delete(id));
+        Assertions.assertEquals(animal, animalService.delete(id));
     }
 
 
@@ -311,7 +311,7 @@ public class AnimalServiceMockTest {
         when(animalRepo.findById(animalId)).thenReturn(Optional.of(animal));
         when(userRepo.findById(adopterId)).thenReturn(Optional.of(user));
         when(animalRepo.save(animal)).thenReturn(animal);
-        Assertions.assertEquals(ResponseEntity.of(Optional.of(animal)), animalService.insertDataOfHuman(animalId, adopterId));
+        Assertions.assertEquals(animal, animalService.insertDataOfHuman(animalId, adopterId));
     }
 
 
@@ -356,7 +356,7 @@ public class AnimalServiceMockTest {
 
         when(animalRepo.findById(animal.getId())).thenReturn(Optional.of(animal));
         when(animalRepo.save(animal)).thenReturn(animal);
-        Assertions.assertEquals(ResponseEntity.of(Optional.of(animal)), animalService.insertDateOfReturn(animalId));
+        Assertions.assertEquals(animal, animalService.insertDateOfReturn(animalId));
     }
 
 
@@ -378,7 +378,7 @@ public class AnimalServiceMockTest {
     public void getAll_Test(){
         List<Animal> animals = new ArrayList<>();
         when(animalRepo.findAll()).thenReturn(animals);
-        Assertions.assertEquals(ResponseEntity.of(Optional.of(animals)), animalService.getAll());
+        Assertions.assertEquals(animals, animalService.getAll());
     }
 
 

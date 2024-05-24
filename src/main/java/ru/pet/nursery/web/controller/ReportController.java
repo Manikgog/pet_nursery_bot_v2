@@ -48,7 +48,7 @@ public class ReportController {
             })
     @PostMapping("/{adopterId}")
     public ResponseEntity<Report> upload(@PathVariable long adopterId){
-        return reportService.upload(adopterId);
+        return ResponseEntity.ok(reportService.upload(adopterId));
     }
 
 
@@ -72,7 +72,7 @@ public class ReportController {
             })
     @DeleteMapping("/{reportId}")
     public ResponseEntity<Report> delete(@PathVariable long reportId){
-        return reportService.delete(reportId);
+        return ResponseEntity.ok(reportService.delete(reportId));
     }
 
 
@@ -113,7 +113,7 @@ public class ReportController {
     )
     @PutMapping("/{reportId}/diet")
     public ResponseEntity<Report> putDiet(@PathVariable long reportId, @RequestParam String diet){
-        return reportService.updateDiet(reportId, diet);
+        return ResponseEntity.ok(reportService.updateDiet(reportId, diet));
     }
 
 
@@ -133,7 +133,7 @@ public class ReportController {
     )
     @PutMapping("/{reportId}/health")
     public ResponseEntity<Report> putHealth(@PathVariable long reportId, @RequestParam String health){
-        return reportService.updateHealth(reportId, health);
+        return ResponseEntity.ok(reportService.updateHealth(reportId, health));
     }
 
 
@@ -152,7 +152,7 @@ public class ReportController {
     )
     @PutMapping("/{reportId}/behaviour")
     public ResponseEntity<Report> putBehaviour(@PathVariable long reportId, @RequestParam String behaviour){
-        return reportService.updateBehaviour(reportId, behaviour);
+        return ResponseEntity.ok(reportService.updateBehaviour(reportId, behaviour));
     }
 
 
@@ -171,7 +171,7 @@ public class ReportController {
     )
     @PutMapping("/{reportId}/acceptAll")
     public ResponseEntity<Report> putIsAllItemsAccepted(@PathVariable long reportId, @RequestParam boolean acceptAll){
-        return reportService.updateIsAllItemsIsAccepted(reportId, acceptAll);
+        return ResponseEntity.ok(reportService.updateIsAllItemsIsAccepted(reportId, acceptAll));
     }
 
 
@@ -190,7 +190,7 @@ public class ReportController {
     )
     @PutMapping("/{reportId}/acceptPhoto")
     public ResponseEntity<Report> putIsFotoAccepted(@PathVariable long reportId, @RequestParam boolean acceptPhoto){
-        return reportService.updatePhotoIsAccepted(reportId, acceptPhoto);
+        return ResponseEntity.ok(reportService.updatePhotoIsAccepted(reportId, acceptPhoto));
     }
 
 
@@ -209,7 +209,7 @@ public class ReportController {
     )
     @PutMapping("/{reportId}/acceptDiet")
     public ResponseEntity<Report> putIsDietAccepted(@PathVariable long reportId, @RequestParam boolean acceptDiet){
-        return reportService.updateIsDietAccepted(reportId, acceptDiet);
+        return ResponseEntity.ok(reportService.updateIsDietAccepted(reportId, acceptDiet));
     }
 
 
@@ -228,7 +228,7 @@ public class ReportController {
     )
     @PutMapping("/{reportId}/acceptHealth")
     public ResponseEntity<Report> putIsHealthAccepted(@PathVariable long reportId, @RequestParam boolean acceptHealth){
-        return reportService.updateIsHealthAccepted(reportId, acceptHealth);
+        return ResponseEntity.ok(reportService.updateIsHealthAccepted(reportId, acceptHealth));
     }
 
 
@@ -247,7 +247,7 @@ public class ReportController {
     )
     @PutMapping("/{reportId}/acceptBehaviour")
     public ResponseEntity<Report> putIsBehaviourAccepted(@PathVariable long reportId, @RequestParam boolean acceptBehaviour){
-        return reportService.updateIsBehaviourAccepted(reportId, acceptBehaviour);
+        return ResponseEntity.ok(reportService.updateIsBehaviourAccepted(reportId, acceptBehaviour));
     }
 
 
@@ -270,7 +270,7 @@ public class ReportController {
     @GetMapping("/{date}")
     public ResponseEntity<List<Report>> getListOfReportByDate(@Parameter(description = "Дата отчёта: ГОД-МЕСЯЦ-ДЕНЬ", example = "2024-05-01")
                                                                   @PathVariable LocalDate date){
-        return reportService.getListOfReportByDate(date);
+        return ResponseEntity.ok(reportService.getListOfReportByDate(date));
     }
 
 }

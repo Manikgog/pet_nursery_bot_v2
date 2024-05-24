@@ -61,7 +61,7 @@ public class AnimalService {
      * @return объект ResponseEntity с объектом Animal, который извлечен из базы данных
      *         после загрузки
      */
-    public ResponseEntity<Animal> uploadAnimal(AnimalDTO animalDTO) {
+    public Animal uploadAnimal(AnimalDTO animalDTO) {
         logger.info("Method uploadAnimal of AnimalService class with parameter AnimalDTO -> {}", animalDTO);
         validator.validateAnimalDTO(animalDTO);
         Nursery nursery = nurseryRepo.findById(animalDTO.getNurseryId())
@@ -74,8 +74,7 @@ public class AnimalService {
         newAnimal.setBirthDate(animalDTO.getBirthDate());
         newAnimal.setNursery(nursery);
         newAnimal.setUser(null);                            // если стоит цифра 1 значит животное никто не взял
-        Animal animalFromDB = animalRepo.save(newAnimal);
-        return ResponseEntity.of(Optional.of(animalFromDB));
+        return animalRepo.save(newAnimal);
     }
 
     /**
@@ -193,15 +192,14 @@ public class AnimalService {
      * @param id - primary key животного в таблице animal_table
      * @return удаленная запись животного
      */
-    public ResponseEntity<Animal> delete(long id) {
+    public Animal delete(long id) {
         logger.info("Method delete of AnimalService class with parameter long -> {}", id);
-        return ResponseEntity.of(Optional.of(
-                animalRepo.findById(id)
+        return animalRepo.findById(id)
                 .map(animalToDel -> {
                     animalRepo.delete(animalToDel);
                     return animalToDel;
                 })
-                .orElseThrow(() -> new EntityNotFoundException(id))));
+                .orElseThrow(() -> new EntityNotFoundException(id));
     }
 
     /**
@@ -210,7 +208,7 @@ public class AnimalService {
      * @param adoptedId - идентификатор усыновителя в таблице
      * @return статус HTTP
      */
-    public ResponseEntity<Animal> insertDataOfHuman(long animalId, Long adoptedId) {
+    public Animal insertDataOfHuman(long animalId, Long adoptedId) {
         logger.info("Method insertDataOfHuman of AnimalService class with parameter long -> {}, Long -> {}", animalId, adoptedId);
         Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(animalId));
         User userAdopted = userRepo.findById(adoptedId).orElseThrow(() -> new EntityNotFoundException(adoptedId));
@@ -220,8 +218,7 @@ public class AnimalService {
         }
         animalFromDB.setUser(userAdopted);
         animalFromDB.setTookDate(LocalDate.now());
-        Animal newAnimal = animalRepo.save(animalFromDB);
-        return ResponseEntity.of(Optional.of(newAnimal));
+        return animalRepo.save(animalFromDB);
     }
 
     /**
@@ -231,14 +228,13 @@ public class AnimalService {
      * @param pageSize - количество объектов в листе
      * @return ResponseEntity листа объектов AnimalDTOForUser c нужной для пользователя информацией
      */
-    public ResponseEntity<List<AnimalDTOForUser>> getPageList(Integer pageNumber, Integer pageSize) {
+    public List<AnimalDTOForUser> getPageList(Integer pageNumber, Integer pageSize) {
         logger.info("Method getPageList of AnimalService class with parameter Integer -> {}, Integer -> {}", pageNumber, pageSize);
         validator.validatePageNumber(pageNumber);
         validator.validatePageSize(pageSize);
         PageRequest pageRequest = PageRequest.of(pageNumber - 1, pageSize);
         List<Animal> animals = animalRepo.findByUserIsNull(pageRequest);
-        List<AnimalDTOForUser> resultAnimals = convertListAnimalToListAnimalDTO(animals);
-        return ResponseEntity.of(Optional.of(resultAnimals));
+        return convertListAnimalToListAnimalDTO(animals);
     }
 
     /**
@@ -260,14 +256,13 @@ public class AnimalService {
      * @param animalId - идентификатор животного в таблице animal_table
      * @return HttpStatus
      */
-    public ResponseEntity<Animal> insertDateOfReturn(long animalId) {
+    public Animal insertDateOfReturn(long animalId) {
         logger.info("Method insertDateOfReturn of AnimalService class with parameter long -> {}", animalId);
         Animal animalOld = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(animalId));
         animalOld.setPetReturnDate(LocalDate.now());
         animalOld.setUser(null);
         animalOld.setTookDate(null);
-        Animal newAnimal = animalRepo.save(animalOld);
-        return ResponseEntity.of(Optional.of(newAnimal));
+        return animalRepo.save(animalOld);
     }
 
     /**
@@ -275,20 +270,20 @@ public class AnimalService {
      * @param animalId - идентификатор животного в таблице animal_table
      * @return HttpStatus
      */
-    public ResponseEntity<AnimalDTOForUser> getById(long animalId) {
+    public AnimalDTOForUser getById(long animalId) {
         logger.info("Method getById of AnimalService class with parameter long -> {}", animalId);
         AnimalDTOForUserMapper animalDTOForUserMapper = new AnimalDTOForUserMapper();
         Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(animalId));
-        return ResponseEntity.of(Optional.of(animalDTOForUserMapper.perform(animalFromDB)));
+        return animalDTOForUserMapper.perform(animalFromDB);
     }
 
     /**
      * Метод для получения всего списка животных
      * @return - ResponseEntity<List<Animal>>
      */
-    public ResponseEntity<List<Animal>> getAll() {
+    public List<Animal> getAll() {
         logger.info("Method getAll of AnimalService class");
-        return ResponseEntity.of(Optional.of(animalRepo.findAll()));
+        return animalRepo.findAll();
     }
 
     /**

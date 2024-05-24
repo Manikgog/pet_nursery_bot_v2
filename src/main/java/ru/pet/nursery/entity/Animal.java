@@ -33,6 +33,7 @@ public class Animal {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(length = 50)
     private String animalName;
 
@@ -67,7 +68,7 @@ public class Animal {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Animal animal = (Animal) o;
-        return id == animal.id && Objects.equals(animalName, animal.animalName) && animalType == animal.animalType && gender == animal.gender && Objects.equals(birthDate, animal.birthDate) && Objects.equals(photoPath, animal.photoPath) && Objects.equals(user, animal.user) && Objects.equals(tookDate, animal.tookDate) && Objects.equals(nursery, animal.nursery) && Objects.equals(description, animal.description) && Objects.equals(petReturnDate, animal.petReturnDate);
+        return Objects.equals(id, animal.id) && Objects.equals(animalName, animal.animalName) && animalType == animal.animalType && gender == animal.gender && Objects.equals(birthDate, animal.birthDate) && Objects.equals(photoPath, animal.photoPath) && Objects.equals(user, animal.user) && Objects.equals(tookDate, animal.tookDate) && Objects.equals(nursery, animal.nursery) && Objects.equals(description, animal.description) && Objects.equals(petReturnDate, animal.petReturnDate);
     }
 
     @Override

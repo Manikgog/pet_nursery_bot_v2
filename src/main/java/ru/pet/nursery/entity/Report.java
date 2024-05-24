@@ -23,8 +23,8 @@ public class Report {
     @JoinColumn(name = "telegramUserId")
     private User user;
 
-    @Column(columnDefinition="TEXT", name="path_to_foto")
-    private String path_to_foto;
+    @Column(columnDefinition="TEXT", name="path_to_photo")
+    private String pathToPhoto;
 
     @Column(columnDefinition="TEXT", name="diet")
     private String diet;

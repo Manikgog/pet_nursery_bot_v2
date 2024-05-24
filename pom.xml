@@ -30,10 +30,10 @@
 			<artifactId>java-telegram-bot-api</artifactId>
 			<version>5.7.0</version>
 		</dependency>
-		<!--<dependency>
+		<dependency>
 			<groupId>org.liquibase</groupId>
 			<artifactId>liquibase-core</artifactId>
-		</dependency>-->
+		</dependency>
 
 		<dependency>
 			<groupId>org.postgresql</groupId>

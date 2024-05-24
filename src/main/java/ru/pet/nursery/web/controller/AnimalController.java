@@ -48,7 +48,7 @@ public class AnimalController {
     })
     @PostMapping
     public ResponseEntity<Animal> putAnimal(@RequestBody AnimalDTO animalDTO){
-        return animalService.uploadAnimal(animalDTO);
+        return ResponseEntity.ok(animalService.uploadAnimal(animalDTO));
     }
 
 
@@ -85,8 +85,8 @@ public class AnimalController {
             }
     )
     @PostMapping("/{animalId}/{adoptedId}")
-    public ResponseEntity insertHumanWhoTookAnimal(@PathVariable Integer animalId, @PathVariable Long adoptedId){
-        return animalService.insertDataOfHuman(animalId, adoptedId);
+    public ResponseEntity<Animal> insertHumanWhoTookAnimal(@PathVariable Integer animalId, @PathVariable Long adoptedId){
+        return ResponseEntity.ok(animalService.insertDataOfHuman(animalId, adoptedId));
     }
 
 
@@ -105,7 +105,7 @@ public class AnimalController {
     )
     @PostMapping("/{animalId}/return")
     public ResponseEntity<Animal> insertDateOfReturningAnimal(@PathVariable Integer animalId){
-        return animalService.insertDateOfReturn(animalId);
+        return ResponseEntity.ok(animalService.insertDateOfReturn(animalId));
     }
 
 
@@ -146,7 +146,7 @@ public class AnimalController {
             })
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<Animal> deleteAnimal(@PathVariable Integer id){
-        return animalService.delete(id);
+        return ResponseEntity.ok(animalService.delete(id));
     }
 
 
@@ -167,7 +167,7 @@ public class AnimalController {
             })
     @GetMapping
     public ResponseEntity<List<AnimalDTOForUser>> getListByPage(@RequestParam("page") Integer pageNumber, @RequestParam("size") Integer pageSize){
-        return animalService.getPageList(pageNumber, pageSize);
+        return ResponseEntity.ok(animalService.getPageList(pageNumber, pageSize));
     }
 
 
@@ -189,7 +189,7 @@ public class AnimalController {
             })
     @GetMapping("/{id}")
     public ResponseEntity<AnimalDTOForUser> getById(@PathVariable Integer id){
-        return animalService.getById(id);
+        return ResponseEntity.ok(animalService.getById(id));
     }
 
 
@@ -210,7 +210,7 @@ public class AnimalController {
             })
     @GetMapping("/all")
     public ResponseEntity<List<Animal>> getAnimals(){
-        return animalService.getAll();
+        return ResponseEntity.ok(animalService.getAll());
     }
 
 }

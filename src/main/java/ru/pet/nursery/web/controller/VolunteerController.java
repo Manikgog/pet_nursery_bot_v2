@@ -43,7 +43,7 @@ public class VolunteerController {
             })
     @PostMapping
     public ResponseEntity<Volunteer> upload(@RequestBody Volunteer volunteer){
-        return volunteerService.upload(volunteer);
+        return ResponseEntity.ok(volunteerService.upload(volunteer));
     }
 
 
@@ -65,7 +65,7 @@ public class VolunteerController {
             })
     @PutMapping(value = "/{id}/name")
     public ResponseEntity<Volunteer> putName(@PathVariable Integer id, @RequestParam String name){
-        return volunteerService.updateName(name, id);
+        return ResponseEntity.ok(volunteerService.updateName(name, id));
     }
 
     @Operation(summary = "Изменение статуса активности волонтера в базе данных",
@@ -86,7 +86,7 @@ public class VolunteerController {
             })
     @PutMapping(value = "/{id}/{status}")
     public ResponseEntity<Volunteer> putStatus(@PathVariable Integer id, @PathVariable Boolean status){
-        return volunteerService.updateStatus(status, id);
+        return ResponseEntity.ok(volunteerService.updateStatus(status, id));
     }
 
 
@@ -110,7 +110,7 @@ public class VolunteerController {
             })
     @PutMapping(value = "/{id}/phone")
     public ResponseEntity<Volunteer> putPhone(@PathVariable Integer id, @RequestParam String phone){
-        return volunteerService.updatePhone(phone, id);
+        return ResponseEntity.ok(volunteerService.updatePhone(phone, id));
     }
 
     @Operation(summary = "Изменение нескольких полей сущности волонтера в базе данных",
@@ -131,7 +131,7 @@ public class VolunteerController {
             })
     @PutMapping(value = "/{id}")
     public ResponseEntity<Volunteer> put(@PathVariable Integer id, @RequestBody Volunteer volunteer){
-        return volunteerService.updateVolunteer(id, volunteer);
+        return ResponseEntity.ok(volunteerService.updateVolunteer(id, volunteer));
     }
 
 
@@ -152,7 +152,7 @@ public class VolunteerController {
             })
     @GetMapping(value = "/{id}")
     public ResponseEntity<Volunteer> get(@PathVariable Integer id){
-        return volunteerService.get(id);
+        return ResponseEntity.ok(volunteerService.get(id));
     }
 
 
@@ -174,7 +174,7 @@ public class VolunteerController {
             })
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Volunteer> delete(@PathVariable Integer id){
-        return volunteerService.delete(id);
+        return ResponseEntity.ok(volunteerService.delete(id));
     }
 
 
@@ -195,6 +195,6 @@ public class VolunteerController {
             })
     @GetMapping
     public ResponseEntity<List<Volunteer>> getAll(){
-        return volunteerService.getAll();
+        return ResponseEntity.ok(volunteerService.getAll());
     }
 }

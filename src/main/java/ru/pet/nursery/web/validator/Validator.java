@@ -144,8 +144,9 @@ public class Validator {
      * @param pageNumber - целое число
      */
     public void validatePageNumber(Integer pageNumber) {
-        if(pageNumber <= 0)
+        if(pageNumber <= 0) {
             throw new PageNumberException("Номер страницы должен быть больше нуля");
+        }
     }
 
     /**
@@ -153,7 +154,8 @@ public class Validator {
      * @param pageSize - целое число
      */
     public void validatePageSize(Integer pageSize) {
-        if(pageSize <= 0)
+        if(pageSize <= 0) {
             throw new PageSizeException("Количество страниц должно быть больше нуля");
+        }
     }
 }

@@ -1,13 +1,11 @@
 package ru.pet.nursery.web.service;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.pet.nursery.entity.Volunteer;
 import ru.pet.nursery.repository.VolunteerRepo;
+import ru.pet.nursery.web.exception.EntityNotFoundException;
 import ru.pet.nursery.web.validator.VolunteerValidator;
-
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class VolunteerService {
@@ -26,11 +24,9 @@ public class VolunteerService {
      * @param volunteer - объект класса Volunteer
      * @return ResponseEntity.of(Optional.of(volunteerFromDB))
      */
-    public ResponseEntity<Volunteer> upload(Volunteer volunteer) {
-        volunteer.setId(0);
+    public Volunteer upload(Volunteer volunteer) {
         validator.validate(volunteer);
-        Volunteer volunteerFromDB = volunteerRepo.save(volunteer);
-        return ResponseEntity.of(Optional.of(volunteerFromDB));
+        return volunteerRepo.save(volunteer);
     }
 
     /**
@@ -39,16 +35,15 @@ public class VolunteerService {
      * @param id - идентификатор
      * @return ResponseEntity<Volunteer>
      */
-    public ResponseEntity<Volunteer> updateName(String name, int id) {
+    public Volunteer updateName(String name, int id) {
         validator.stringValidate(name);
         validator.validateId(id);
         Volunteer volunteerOld = volunteerRepo.findById(id).get();
         if(volunteerOld.getName().equals(name)){
-            return ResponseEntity.of(Optional.of(volunteerOld));
+            return volunteerOld;
         }
         volunteerOld.setName(name);
-        Volunteer volunteer = volunteerRepo.save(volunteerOld);
-        return ResponseEntity.of(Optional.of(volunteer));
+        return volunteerRepo.save(volunteerOld);
     }
 
     /**
@@ -58,15 +53,14 @@ public class VolunteerService {
      * @param id - идентификатор волонтера в таблице волонтеров
      * @return ResponseEntity.of(volunteer) - объект класса Volunteer
      */
-    public ResponseEntity<Volunteer> updateStatus(Boolean status, Integer id) {
+    public Volunteer updateStatus(Boolean status, Integer id) {
         validator.validateId(id);
         Volunteer volunteerOld = volunteerRepo.findById(id).get();
         if(volunteerOld.isActive() == status){
-            return ResponseEntity.of(Optional.of(volunteerOld));
+            return volunteerOld;
         }
         volunteerOld.setActive(status);
-        Volunteer volunteer = volunteerRepo.save(volunteerOld);
-        return ResponseEntity.of(Optional.of(volunteer));
+        return volunteerRepo.save(volunteerOld);
     }
 
 
@@ -76,17 +70,16 @@ public class VolunteerService {
      * @param id - идентификатор волонтера в таблице волонтеров
      * @return ResponseEntity.of(volunteer) - объект класса Volunteer
      */
-    public ResponseEntity<Volunteer> updatePhone(String phone, Integer id) {
+    public Volunteer updatePhone(String phone, Integer id) {
         validator.stringValidate(phone);
         validator.phoneValidate(phone);
         validator.validateId(id);
         Volunteer volunteerOld = volunteerRepo.findById(id).get();
         if(volunteerOld.getName().equals(phone)){
-            return ResponseEntity.of(Optional.of(volunteerOld));
+            return volunteerOld;
         }
         volunteerOld.setPhoneNumber(phone);
-        Volunteer volunteer = volunteerRepo.save(volunteerOld);
-        return ResponseEntity.of(Optional.of(volunteer));
+        return volunteerRepo.save(volunteerOld);
     }
 
     /**
@@ -95,19 +88,18 @@ public class VolunteerService {
      * @param volunteer - объект Volunteer с новыми полями
      * @return ResponseEntity.of(Optional.of(volunteer))
      */
-    public ResponseEntity<Volunteer> updateVolunteer(Integer id, Volunteer volunteer) {
+    public Volunteer updateVolunteer(Integer id, Volunteer volunteer) {
         validator.validateId(id);
         validator.validate(volunteer);
         Volunteer volunteerOld = volunteerRepo.findById(volunteer.getId()).get();
         if(volunteerOld.equals(volunteer)){
-            return ResponseEntity.of(Optional.of(volunteerOld));
+            return volunteerOld;
         }
         volunteerOld.setTelegramUserId(volunteer.getTelegramUserId());
         volunteerOld.setActive(volunteer.isActive());
         volunteerOld.setName(volunteer.getName());
         volunteerOld.setPhoneNumber(volunteer.getPhoneNumber());
-        Volunteer volunteerNew = volunteerRepo.save(volunteerOld);
-        return ResponseEntity.of(Optional.of(volunteerNew));
+        return volunteerRepo.save(volunteerOld);
     }
 
     /**
@@ -115,9 +107,9 @@ public class VolunteerService {
      * @param id - идентификатор (первичный ключ) таблицы волонтеров
      * @return ResponseEntity.of(Optional.of(volunteer))
      */
-    public ResponseEntity<Volunteer> get(Integer id) {
+    public Volunteer get(Integer id) {
         validator.validateId(id);
-        return ResponseEntity.of(volunteerRepo.findById(id));
+        return volunteerRepo.findById(id).orElseThrow(() -> new EntityNotFoundException((long)id));
     }
 
     /**
@@ -125,11 +117,11 @@ public class VolunteerService {
      * @param id - идентификатор (первичный ключ) таблицы волонтеров
      * @return ResponseEntity.of(Optional.of(volunteer))
      */
-    public ResponseEntity<Volunteer> delete(Integer id) {
+    public Volunteer delete(Integer id) {
         validator.validateId(id);
-        Optional<Volunteer> volunteer = volunteerRepo.findById(id);
-        volunteerRepo.delete(volunteer.get());
-        return ResponseEntity.of(volunteer);
+        Volunteer volunteer = volunteerRepo.findById(id).orElseThrow(() -> new EntityNotFoundException((long)id));
+        volunteerRepo.delete(volunteer);
+        return volunteer;
     }
 
 
@@ -137,8 +129,7 @@ public class VolunteerService {
      * Метод для получения из базы данных всего списка волонтёров
      * @return ResponseEntity.of(Optional.of(volunteers))
      */
-    public ResponseEntity<List<Volunteer>> getAll() {
-        List<Volunteer> volunteers = volunteerRepo.findAll();
-        return ResponseEntity.of(Optional.of(volunteers));
+    public List<Volunteer> getAll() {
+        return volunteerRepo.findAll();
     }
 }
