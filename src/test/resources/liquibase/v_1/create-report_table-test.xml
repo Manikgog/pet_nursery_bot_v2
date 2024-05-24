@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+
+    <changeSet id="create-report_table" author="M.Gogolin">
+        <preConditions>
+            <and>
+                <not>
+                    <tableExists tableName="report_table"/>
+                </not>
+                <tableExists tableName="users_table"/>
+            </and>
+        </preConditions>
+
+        <createTable tableName="report_table">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="report_date" type="DATE"/>
+            <column name="telegram_user_id" type="BIGINT"/>
+            <column name="path_to_photo" type="TEXT"/>
+            <column name="diet" type="TEXT"/>
+            <column name="health" type="TEXT"/>
+            <column name="behaviour" type="TEXT"/>
+            <column name="photo_is_accepted" type="BOOLEAN"/>
+            <column name="diet_is_accepted" type="BOOLEAN"/>
+            <column name="health_is_accepted" type="BOOLEAN"/>
+            <column name="behaviour_is_accepted" type="BOOLEAN"/>
+            <column name="all_items_is_accepted" type="BOOLEAN"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="report_table"
+                                 baseColumnNames="telegram_user_id"
+                                 constraintName="FK REPORT_TABLE WHO_TOOK_PET -> USERS_TABLE TELEGRAM_USER_ID"
+                                 referencedTableName="users_table"
+                                 referencedColumnNames="telegram_user_id"/>
+
+    </changeSet>
+
+</databaseChangeLog>

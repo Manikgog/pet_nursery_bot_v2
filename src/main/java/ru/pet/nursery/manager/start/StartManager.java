@@ -1,10 +1,12 @@
 package ru.pet.nursery.manager.start;
 
+import com.google.gson.Gson;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.SendMessage;
+import com.pengrad.telegrambot.response.SendResponse;
 import org.springframework.stereotype.Component;
 import ru.pet.nursery.factory.AnswerMethodFactory;
 import ru.pet.nursery.factory.KeyboardFactory;
@@ -46,7 +48,11 @@ public class StartManager extends AbstractManager {
         );
         var chatId = update.message().chat().id();
         SendMessage sendMessage = answerMethodFactory.getSendMessage(chatId, answerMessage, inlineKeyboardMarkup);
-        telegramBot.execute(sendMessage);
+
+        SendResponse response = telegramBot.execute(sendMessage);
+        String gson = new Gson().toJson(response);
+        System.out.println(gson);
+        String str = response.toString();
     }
 
     @Override

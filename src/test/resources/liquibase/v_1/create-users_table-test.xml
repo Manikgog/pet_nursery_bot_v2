@@ -6,22 +6,24 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
 
-    <changeSet id="create-nursery_table" author="M.Gogolin">
+    <changeSet id="create-users_table" author="M.Gogolin">
         <preConditions>
             <not>
-                <tableExists tableName="nursery_table"/>
+                <tableExists tableName="users_table"/>
             </not>
         </preConditions>
 
-        <createTable tableName="nursery_table">
-            <column name="id" type="INT" autoIncrement="true">
+        <createTable tableName="users_table">
+            <column name="telegram_user_id" type="BIGINT">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
-            <column name="address" type="VARCHAR(255)"/>
-            <column name="phone_number" type="VARCHAR(255)"/>
+            <column name="first_name" type="VARCHAR(50)"/>
+            <column name="last_name" type="VARCHAR(50)"/>
+            <column name="user_name" type="VARCHAR(50)"/>
+            <column name="phone_number" type="VARCHAR(20)"/>
+            <column name="address" type="TEXT"/>
         </createTable>
 
     </changeSet>
-
 
 </databaseChangeLog>

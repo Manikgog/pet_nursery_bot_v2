@@ -73,7 +73,7 @@ public class AnswerMethodFactoryTest {
         );
     }
     private List<Update> getUpdates(String content) throws URISyntaxException, IOException {
-        String json = readJsonFromResource( "text_update.json");
+        String json = readJsonFromResource("text_update.json");
 
         return Collections.singletonList(BotUtils.fromJson(
                         json.replace("%command%", content),
