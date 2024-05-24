@@ -17,13 +17,13 @@
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
-            <column name="name_shelter" type="VARCHAR(255)">
+            <column name="name_shelter" type="VARCHAR(50)">
                 <constraints nullable="false"/>
             </column>
-            <column name="address" type="VARCHAR(255)">
+            <column name="address" type="TEXT">
                 <constraints nullable="false"/>
             </column>
-            <column name="phone_number" type="VARCHAR(255)">
+            <column name="phone_number" type="VARCHAR(20)">
                 <constraints nullable="false"/>
             </column>
             <column name="kind_of_animal" type="BOOLEAN">
@@ -33,11 +33,5 @@
 
     </changeSet>
 
-    <changeSet id="fill-nursery_table" author="M.Gogolin">
-        <preConditions>
-            <tableIsEmpty tableName="nursery_table"/>
-        </preConditions>
-        <loadData tableName="nursery_table" file="liquibase/v_1/nursery_table-data.csv"/>
-    </changeSet>
 
 </databaseChangeLog>

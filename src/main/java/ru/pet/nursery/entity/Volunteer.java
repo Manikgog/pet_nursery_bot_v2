@@ -14,9 +14,13 @@ public class Volunteer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @Column(name = "telegram_user_id")
     private long telegramUserId;
+    @Column(name = "name", columnDefinition="VARCHAR(50)")
     private String name;
+    @Column(name = "phone_number", columnDefinition="VARCHAR(20)")
     private String phoneNumber;
+    @Column(name = "is_active")
     private boolean isActive;
 
     @Override

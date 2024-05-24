@@ -17,18 +17,12 @@
             <column name="id" type="INT" autoIncrement="true">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
-            <column name="name" type="VARCHAR(255)"/>
-            <column name="phone_number" type="VARCHAR(50)"/>
+            <column name="telegram_user_id" type="BIGINT"/>
+            <column name="name" type="VARCHAR(50)"/>
+            <column name="phone_number" type="VARCHAR(20)"/>
             <column name="is_active" type="BOOLEAN"/>
         </createTable>
 
-    </changeSet>
-
-    <changeSet id="fill-volunteer_table" author="M.Gogolin">
-        <preConditions>
-            <tableIsEmpty tableName="volunteer_table"/>
-        </preConditions>
-        <loadData tableName="volunteer_table" file="liquibase/v_1/volunteers_table-data.csv"/>
     </changeSet>
 
 </databaseChangeLog>

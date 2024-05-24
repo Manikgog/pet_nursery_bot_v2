@@ -28,7 +28,6 @@ public class InfoManager extends AbstractManager {
     private final KeyboardFactory keyboardFactory;
     private final ShelterService shelterService;
     private final AnimalService animalService;
-
     private final Map<Long, Integer> userId_animalId = new HashMap<>(); // словарь соответствия chatId идентификатору животного, чтобы передавать новую фотографию
 
     public InfoManager(AnswerMethodFactory answerMethodFactory,
@@ -103,7 +102,18 @@ public class InfoManager extends AbstractManager {
      */
     public void addressAndPhoneNursery(CallbackQuery callbackQuery) {
         logger.info("The addressAndPhoneNursery method of the InfoManager class works. Parameter: CallbackQuery -> {}", callbackQuery);
-        List<Nursery> listOfNursery = shelterService.getAllShelter(1, 1000);
+        long chatId = callbackQuery.message().chat().id();
+        List<Nursery> listOfNursery = shelterService.getAll();
+        if(listOfNursery.isEmpty()){
+            telegramBot.execute(answerMethodFactory.getSendMessage(
+                            chatId,
+                            """
+                                    Ни одного приюта не найдено""",
+                            null
+                    )
+            );
+            return;
+        }
         StringBuilder nurseryInfo = new StringBuilder();
         for (Nursery nursery : listOfNursery) {
             nurseryInfo.append(nursery.isForDog() ? "Приют для собак\n" : "Приют для кошек\n")
@@ -193,20 +203,34 @@ public class InfoManager extends AbstractManager {
      */
     public void catPhoto(CallbackQuery callbackQuery) throws IOException {
         logger.info("The catPhoto method of the InfoManager class works. Parameter: CallbackQuery -> {}", callbackQuery);
+        long chatId = callbackQuery.message().chat().id();
         List<Animal> cats = animalService.getAllAnimalsByType(AnimalType.CAT)
                 .stream()
                 .filter(a -> a.getUser() == null)
                 .toList();
-        int id = Math.toIntExact(cats.get(getNextId(callbackQuery.message().chat().id(), cats)).getId());
+        // если список пуст, то отправляем сообщение пользователю
+        if(cats.isEmpty()){
+            telegramBot.execute(answerMethodFactory.getSendMessage(
+                    chatId,
+                    """
+                            В приютах нет кошек""",
+                    null
+                 )
+            );
+            return;
+        }
+        int id = Math.toIntExact(cats.get(getNextId(chatId, cats)).getId());
         String name = animalService.get(id).getAnimalName();
         if(animalService.get(id).getPhotoPath() == null){
-            SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
+            SendMessage sendMessage = answerMethodFactory.getSendMessage(chatId,
                     "Фотография отсуствует",
                     keyboardFactory.getInlineKeyboard(
-                            List.of("Следующее фото",
+                            List.of(name,
+                                    "Следующее фото",
                                     "Назад"),
-                            List.of(1, 1),
-                            List.of(CAT_PHOTO,
+                            List.of(1, 1, 1),
+                            List.of(CAT_INFORMATION,
+                                    CAT_PHOTO,
                                     INFO)
                     ));
             telegramBot.execute(sendMessage);
@@ -239,20 +263,33 @@ public class InfoManager extends AbstractManager {
      */
     public void dogPhoto(CallbackQuery callbackQuery) throws IOException {
         logger.info("The dogPhoto method of the InfoManager class works. Parameter: CallbackQuery -> {}", callbackQuery);
+        long chatId = callbackQuery.message().chat().id();
         List<Animal> dogs = animalService.getAllAnimalsByType(AnimalType.DOG)
                 .stream()
                 .filter(a -> a.getUser() == null)
                 .toList();
-        int id = Math.toIntExact(dogs.get(getNextId(callbackQuery.message().chat().id(), dogs)).getId());
+        if(dogs.isEmpty()){
+            telegramBot.execute(answerMethodFactory.getSendMessage(
+                    chatId,
+                    """
+                            В приютах нет собак""",
+                    null
+                )
+            );
+            return;
+        }
+        int id = Math.toIntExact(dogs.get(getNextId(chatId, dogs)).getId());
         String name = animalService.get(id).getAnimalName();
         if(animalService.get(id).getPhotoPath() == null){
-            SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
+            SendMessage sendMessage = answerMethodFactory.getSendMessage(chatId,
                     "Фотография отсуствует",
                     keyboardFactory.getInlineKeyboard(
-                            List.of("Следующее фото",
+                            List.of(name,
+                                    "Следующее фото",
                                     "Назад"),
-                            List.of(1, 1),
-                            List.of(DOG_PHOTO,
+                            List.of(1, 1, 1),
+                            List.of(DOG_INFORMATION,
+                                    DOG_PHOTO,
                                     INFO)
                     ));
             telegramBot.execute(sendMessage);

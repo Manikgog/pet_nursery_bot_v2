@@ -20,7 +20,7 @@ public class Report {
     private LocalDate reportDate;
 
     @ManyToOne()
-    @JoinColumn(name = "telegramUserId")
+    @JoinColumn(name = "telegram_user_id")
     private User user;
 
     @Column(columnDefinition="TEXT", name="path_to_photo")

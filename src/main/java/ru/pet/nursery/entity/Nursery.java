@@ -3,9 +3,6 @@ package ru.pet.nursery.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import ru.pet.nursery.web.exception.ShelterNullException;
-
-import java.beans.ConstructorProperties;
 import java.util.Objects;
 
 @Entity
@@ -16,11 +13,11 @@ public class Nursery {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "name_shelter")
+    @Column(name = "name_shelter", columnDefinition="VARCHAR(50)")
     private String nameShelter;
-    @Column(name = "address")
+    @Column(name = "address", columnDefinition="TEXT")
     private String address;
-    @Column(name = "phone_number")
+    @Column(name = "phone_number", columnDefinition="VARCHAR(20)")
     private String phoneNumber;
     /**
      * Это поле необходимо для поиска приютов по видам животных. Если true - для собак, false - для кошек.

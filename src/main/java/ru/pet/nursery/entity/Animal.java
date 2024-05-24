@@ -49,9 +49,10 @@ public class Animal {
     private String photoPath;
 
     @ManyToOne
-    @JoinColumn(name = "telegramUserId")
+    @JoinColumn(name = "telegram_user_id")
     private User user;
 
+    @Column(name = "took_date")
     private LocalDate tookDate;
 
     @ManyToOne
@@ -61,6 +62,7 @@ public class Animal {
     @Column(columnDefinition="TEXT")
     private String description;
 
+    @Column(name = "pet_return_date")
     private LocalDate petReturnDate;
 
     @Override
