@@ -13,6 +13,7 @@ import ru.pet.nursery.repository.VolunteerRepo;
 import ru.pet.nursery.web.exception.EntityNotFoundException;
 import ru.pet.nursery.web.exception.IllegalFieldException;
 import ru.pet.nursery.web.exception.IllegalParameterException;
+import ru.pet.nursery.web.service.VolunteerService;
 import ru.pet.nursery.web.validator.VolunteerValidator;
 
 import java.util.ArrayList;

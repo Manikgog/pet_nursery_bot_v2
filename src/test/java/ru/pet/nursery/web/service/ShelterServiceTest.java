@@ -12,6 +12,7 @@ import ru.pet.nursery.repository.ShelterRepo;
 
 import ru.pet.nursery.web.exception.ShelterNotFoundException;
 import ru.pet.nursery.web.exception.ShelterNullException;
+import ru.pet.nursery.web.service.ShelterService;
 
 import java.util.ArrayList;
 import java.util.List;

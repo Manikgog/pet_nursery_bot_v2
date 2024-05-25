@@ -9,6 +9,8 @@ import com.pengrad.telegrambot.request.SendPhoto;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import ru.pet.nursery.factory.AnswerMethodFactory;
+import ru.pet.nursery.factory.KeyboardFactory;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

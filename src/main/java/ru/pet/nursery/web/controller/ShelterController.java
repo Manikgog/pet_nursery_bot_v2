@@ -52,7 +52,6 @@ public class ShelterController {
 
     /**
      * Эндпоинт для поиска приюта по id, может вернуть ShelterNotFoundException если такого приюта нет
-     *
      * @param id передается в строке запроса
      * @return ResponseEntity в котором содержится найденный объект Nursery
      */

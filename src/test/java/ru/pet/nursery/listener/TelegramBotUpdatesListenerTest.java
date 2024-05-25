@@ -1,100 +1,60 @@
 package ru.pet.nursery.listener;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pengrad.telegrambot.BotUtils;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
+import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
-import com.pengrad.telegrambot.response.SendResponse;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import java.io.File;
-import java.io.FileReader;
+import org.mockito.junit.jupiter.MockitoExtension;
+import ru.pet.nursery.handler.Handler;
+
 import java.io.IOException;
-import java.io.Reader;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
-import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Collections;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
-
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class TelegramBotUpdatesListenerTest {
     final private Long CHAT_ID = 1874598997L;
-    @MockBean
+    @Mock
     private TelegramBot telegramBot;
-    @Autowired
+    @Mock
+    private Handler handler;
+    @InjectMocks
     private TelegramBotUpdatesListener telegramBotListener;
-
-
-
     @Test
-    void process() throws URISyntaxException, IOException {
-        String fileName = "update.json";
-        Update start_update = getUpdateFromFile(fileName);
-        fileName = "response_by_start.json";
-        SendResponse response_by_start = getSendResponseFromFile(fileName);
-        when(telegramBot.execute(any())).thenReturn(response_by_start, SendResponse.class);
+    public void handleStartTest() throws URISyntaxException, IOException {
+        /*String json = Files.readString(
+                Paths.get(TelegramBotUpdatesListenerTest.class.getResource("text_update.json").toURI()));*/
 
-        telegramBotListener.process(List.of(start_update));
+        String json = Files.readString(
+                Paths.get("E:\\JavaProjects\\pet nursery\\nursery\\src\\test\\resources\\ru.pet.nursery\\listener\\text_update.json")
+                , Charset.forName("WINDOWS-1251"));
+        Update update = getUpdate(json, "/start");
+        telegramBotListener.process(Collections.singletonList(update));
 
         ArgumentCaptor<SendMessage> argumentCaptor = ArgumentCaptor.forClass(SendMessage.class);
-        //Verify SendMessage-s:
-        //  1) Greet User
-        //  2) Next Level Menu
-        Mockito.verify(telegramBot, times(1)).execute(argumentCaptor.capture());
+        Mockito.verify(telegramBot).execute(argumentCaptor.capture());
         SendMessage actual = argumentCaptor.getValue();
-        // Check Menu Message:
-        Assertions.assertThat(actual.getParameters().get("chat_id")).isEqualTo(CHAT_ID);
-        /*Assertions.assertThat(actual.getParameters().size()).isEqualTo(4);
+
+        Assertions.assertThat(actual.getParameters().get("chat_id")).isEqualTo(123L);
         Assertions.assertThat(actual.getParameters().get("text")).isEqualTo(
-                "Выберите приют:");
-        Assertions.assertThat(actual.getParameters().get("reply_markup")).isNotNull();
+                "Для планирования задачи отправьте её в формате:\n*01.01.2022 20:00 Сделать домашнюю работу*");
         Assertions.assertThat(actual.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.Markdown.name());*/
+                .isEqualTo(ParseMode.Markdown.name());
     }
 
-    @Test
-    public void process_Test() throws IOException {
-        String fileName = "update.json";
-        Update update = getUpdateFromFile(fileName);
-    }
-
-
-    public Update getUpdateFromFile(String fileName) throws IOException {
-        String strPath = System.getProperty("user.dir");
-        if(strPath.contains("\\")){
-            strPath += "\\src\\test\\resources\\ru.pet.nursery\\listener\\";
-        }else{
-            strPath += "/src/test/resources/ru.pet.nursery/listener/";
-        }
-        strPath += fileName;
-        File file = new File(strPath);
-        Reader reader = new FileReader(file, Charset.forName("WINDOWS-1251"));
-        Update update = BotUtils.parseUpdate(reader);
-        return update;
-    }
-
-    public SendResponse getSendResponseFromFile(String fileName) throws IOException {
-        String strPath = System.getProperty("user.dir");
-        if(strPath.contains("\\")){
-            strPath += "\\src\\test\\resources\\ru.pet.nursery\\listener\\";
-        }else{
-            strPath += "/src/test/resources/ru.pet.nursery/listener/";
-        }
-        strPath += fileName;
-        File file = new File(strPath);
-        Reader reader = new FileReader(file, Charset.forName("WINDOWS-1251"));
-        ObjectMapper objectMapper = new ObjectMapper();
-        SendResponse sendResponse = objectMapper.readValue(reader, SendResponse.class);
-        return sendResponse;
+    private Update getUpdate(String json, String replaced) {
+        return BotUtils.fromJson(json.replace("%command%", replaced), Update.class);
     }
 
 }

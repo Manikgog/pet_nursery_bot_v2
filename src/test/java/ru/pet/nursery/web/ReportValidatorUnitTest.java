@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Random;
 
 import static org.mockito.Mockito.when;
-import static ru.pet.nursery.web.Constants.NURSERY_1;
 
 @ExtendWith(MockitoExtension.class)
 public class ReportValidatorUnitTest {
@@ -56,7 +55,7 @@ public class ReportValidatorUnitTest {
         animal.setAnimalType(AnimalType.CAT);
         boolean isMale = rnd.nextBoolean();
         animal.setGender(isMale ? Gender.MALE : Gender.FEMALE);
-        animal.setNursery(NURSERY_1);
+        animal.setNursery(Constants.NURSERY_1);
         animal.setBirthDate(faker.date().birthdayLocalDate());
         animal.setPhotoPath(null);
         List<Animal> animals = new ArrayList<>();
@@ -112,7 +111,7 @@ public class ReportValidatorUnitTest {
         animal.setAnimalType(AnimalType.CAT);
         boolean isMale = rnd.nextBoolean();
         animal.setGender(isMale ? Gender.MALE : Gender.FEMALE);
-        animal.setNursery(NURSERY_1);
+        animal.setNursery(Constants.NURSERY_1);
         animal.setBirthDate(faker.date().birthdayLocalDate());
         animal.setPhotoPath(null);
         List<Animal> animals = new ArrayList<>();
