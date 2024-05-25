@@ -16,14 +16,12 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.pet.nursery.entity.Animal;
 import ru.pet.nursery.entity.Report;
 import ru.pet.nursery.entity.User;
-import ru.pet.nursery.repository.AnimalRepo;
 import ru.pet.nursery.repository.ReportRepo;
 import ru.pet.nursery.repository.UserRepo;
 import ru.pet.nursery.web.exception.EntityNotFoundException;
 import ru.pet.nursery.web.exception.IllegalFieldException;
 import ru.pet.nursery.web.validator.ReportValidator;
 import ru.pet.nursery.web.validator.VolunteerValidator;
-
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -40,8 +38,6 @@ public class ReportServiceMockTest {
     ReportRepo reportRepo;
     @Mock
     UserRepo userRepo;
-    @Mock
-    AnimalRepo animalRepo;
     @Mock
     ReportValidator reportValidator;
     @Mock
@@ -102,8 +98,6 @@ public class ReportServiceMockTest {
         Report report = new Report();
         report.setUser(user);
         report.setReportDate(LocalDate.now());
-        List<Report> listOfReports = new ArrayList<>();
-        listOfReports.add(report);
         String fileName = "animalPhoto";
         byte[] array = new byte[]{1, 2, 3, 4, 5, 6, 7, 8};
         MultipartFile multipartFile = new MockMultipartFile(fileName, array);
@@ -324,6 +318,35 @@ public class ReportServiceMockTest {
     public void updateIsBehaviourAccepted_negativeTest(){
         // проверка при невалидном id отчёта
         Assertions.assertThrows(EntityNotFoundException.class, () -> reportService.updateIsBehaviourAccepted(-1, true));
+    }
+
+    @Test
+    public void getListOfReportByDate_Test(){
+        List<Report> reports = new ArrayList<>();
+        when(reportRepo.findByReportDate(any())).thenReturn(reports);
+        Assertions.assertEquals(reports, reportService.getListOfReportByDate(LocalDate.now()));
+    }
+
+
+
+    @Test
+    public void findByUserAndDate_Test(){
+        User user = new User();
+        Report report = new Report();
+        when(reportRepo.findByUserAndReportDate(user, LocalDate.now())).thenReturn(report);
+        Assertions.assertEquals(report, reportService.findByUserAndDate(user, LocalDate.now()));
+    }
+
+
+    @Test
+    public void updatePhotoPath_Test(){
+        String path = "/path";
+        Report report = new Report();
+        report.setId(1);
+        when(reportRepo.findById(report.getId())).thenReturn(Optional.of(report));
+        report.setPathToPhoto(path);
+        when(reportRepo.save(report)).thenReturn(report);
+        Assertions.assertEquals(report, reportService.updatePhotoPath(report.getId(), path));
     }
 
 }

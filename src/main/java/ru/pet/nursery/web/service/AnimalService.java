@@ -58,8 +58,7 @@ public class AnimalService {
     /**
      * Метод для загрузки данных о животном в таблицу animal_table базы данных
      * @param animalDTO - объект для передачи нужных полей
-     * @return объект ResponseEntity с объектом Animal, который извлечен из базы данных
-     *         после загрузки
+     * @return объект Animal
      */
     public Animal uploadAnimal(AnimalDTO animalDTO) {
         logger.info("Method uploadAnimal of AnimalService class with parameter AnimalDTO -> {}", animalDTO);
@@ -120,7 +119,7 @@ public class AnimalService {
     /**
      * Метод для поиска и возвращения строки, содержащей расширения файла
      * @param fileName - имя файла
-     * @return строка, содержащая расширения файла
+     * @return строка, содержащая расширение файла
      */
     public String getExtension(String fileName){
         logger.info("Method getExtension of AnimalService class with parameters String -> {}", fileName);
@@ -131,9 +130,8 @@ public class AnimalService {
      * Метод для получения изображения животного по его идентификатору
      * @param id - идентификатор в таблице animal_table базы данных
      * @param response - объект в котором возвращается изображение животного
-     * @throws IOException - исключение ввода-вывода при работе с файлами
      */
-    public void getAnimalPhoto(long id, HttpServletResponse response) throws IOException {
+    public void getAnimalPhoto(long id, HttpServletResponse response) {
         logger.info("Method getAnimalPhoto of AnimalService class with parameters long -> {}, HttpServletResponse -> {}", id, response);
         Animal animal = animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
         if(animal.getPhotoPath() == null){
@@ -144,14 +142,12 @@ public class AnimalService {
             throw new ImageNotFoundException("Файл с изображением не найден!");
         }
         int size;
-        SeekableByteChannel seekableByteChannel = null;
-        try{
-            seekableByteChannel = Files.newByteChannel(path, EnumSet.of(READ));
+        SeekableByteChannel seekableByteChannel;
+        try(SeekableByteChannel sbc = Files.newByteChannel(path, EnumSet.of(READ))){
+            seekableByteChannel = sbc;
             size = (int)seekableByteChannel.size();
         } catch (IOException e) {
             throw new ImageNotFoundException(e.getMessage());
-        } finally {
-            seekableByteChannel.close();
         }
         try(InputStream is = Files.newInputStream(path);
             OutputStream os = response.getOutputStream()){
@@ -206,7 +202,7 @@ public class AnimalService {
      * Метод для изменения столбца с датой усыновления и столбца об том кто усыновил в таблице питомца
      * @param animalId - идентификатор питомца в таблице
      * @param adoptedId - идентификатор усыновителя в таблице
-     * @return статус HTTP
+     * @return Animal - объект питомца
      */
     public Animal insertDataOfHuman(long animalId, Long adoptedId) {
         logger.info("Method insertDataOfHuman of AnimalService class with parameter long -> {}, Long -> {}", animalId, adoptedId);
@@ -226,7 +222,7 @@ public class AnimalService {
      * находятся в питомниках постранично
      * @param pageNumber - номер страницы получается
      * @param pageSize - количество объектов в листе
-     * @return ResponseEntity листа объектов AnimalDTOForUser c нужной для пользователя информацией
+     * @return список объектов AnimalDTOForUser
      */
     public List<AnimalDTOForUser> getPageList(Integer pageNumber, Integer pageSize) {
         logger.info("Method getPageList of AnimalService class with parameter Integer -> {}, Integer -> {}", pageNumber, pageSize);
@@ -240,7 +236,7 @@ public class AnimalService {
     /**
      * Метод для преобразования списка объектов Animal в список объектов AnimalDTOForUser
      * @param animals - список объектов Animal
-     * @return список объектов AnimalDTOForUser
+     * @return AnimalDTOForUser
      */
     public List<AnimalDTOForUser> convertListAnimalToListAnimalDTO(List<Animal> animals){
         logger.info("Method convertListAnimalToListAnimalDTO of AnimalService class with parameters List<Animal> -> {}", animals);
@@ -254,7 +250,7 @@ public class AnimalService {
     /**
      * Метод для изменения строки возвращенного животного
      * @param animalId - идентификатор животного в таблице animal_table
-     * @return HttpStatus
+     * @return Animal - объект питомца
      */
     public Animal insertDateOfReturn(long animalId) {
         logger.info("Method insertDateOfReturn of AnimalService class with parameter long -> {}", animalId);
@@ -268,7 +264,7 @@ public class AnimalService {
     /**
      * Метод для возвращения объекта AnimalDTOForUser по идентификатору животного
      * @param animalId - идентификатор животного в таблице animal_table
-     * @return HttpStatus
+     * @return AnimalDTOForUser - объект животного с полями, которые нужны пользователю
      */
     public AnimalDTOForUser getById(long animalId) {
         logger.info("Method getById of AnimalService class with parameter long -> {}", animalId);
@@ -279,7 +275,7 @@ public class AnimalService {
 
     /**
      * Метод для получения всего списка животных
-     * @return - ResponseEntity<List<Animal>>
+     * @return - List<Animal> - список животных во всех приютах
      */
     public List<Animal> getAll() {
         logger.info("Method getAll of AnimalService class");

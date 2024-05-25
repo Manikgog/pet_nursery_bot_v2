@@ -121,7 +121,7 @@ public class AnimalControllerTestRestTemplateTest {
         List<User> userWhoAdopt = animalRepo.findAll()
                 .stream()
                 .map(Animal::getUser)
-                .filter(user -> user != null)
+                .filter(Objects::nonNull)
                 .toList();
         Optional<User> userWhoNotAdopt = userRepo.findAll()
                 .stream()
@@ -538,7 +538,7 @@ public class AnimalControllerTestRestTemplateTest {
                                     AnimalDTOForUser.class
                             );
             Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-            Assertions.assertThat(responseEntity.getBody())
+            Assertions.assertThat(responseEntity.getBody()).usingRecursiveComparison()
                     .isEqualTo(animalDTOForUser);
         }
     }
@@ -563,4 +563,21 @@ public class AnimalControllerTestRestTemplateTest {
         }
     }
 
+
+    @Test
+    public void getAnimals_Test(){
+        List<Animal> animals = animalRepo.findAll();
+        ResponseEntity<List<Animal>> responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/animal/all",
+                HttpMethod.GET,
+                HttpEntity.EMPTY,
+                new ParameterizedTypeReference<>() {}
+                );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(responseEntity.getBody()).isNotNull();
+        Assertions.assertThat(responseEntity.getBody()).usingRecursiveComparison().ignoringCollectionOrder()
+                .isEqualTo(animals);
+
+    }
 }

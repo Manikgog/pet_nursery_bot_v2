@@ -22,7 +22,7 @@ public class VolunteerService {
      * Метод для сохранения в базе данных объекта Volunteer,
      * переданного из контроллера VolunteerController
      * @param volunteer - объект класса Volunteer
-     * @return ResponseEntity.of(Optional.of(volunteerFromDB))
+     * @return объект класса Volunteer
      */
     public Volunteer upload(Volunteer volunteer) {
         validator.validate(volunteer);
@@ -33,12 +33,12 @@ public class VolunteerService {
      * Метод служит для изменения имени в строке с идентификатором id
      * @param name - новое имя
      * @param id - идентификатор
-     * @return ResponseEntity<Volunteer>
+     * @return объект класса Volunteer
      */
     public Volunteer updateName(String name, int id) {
         validator.stringValidate(name);
         validator.validateId(id);
-        Volunteer volunteerOld = volunteerRepo.findById(id).get();
+        Volunteer volunteerOld = volunteerRepo.findById(id).orElseThrow(() -> new EntityNotFoundException((long)id));
         if(volunteerOld.getName().equals(name)){
             return volunteerOld;
         }
@@ -51,11 +51,11 @@ public class VolunteerService {
      * то волонтер принимает обращения пользователей бота
      * @param status - булева переменная
      * @param id - идентификатор волонтера в таблице волонтеров
-     * @return ResponseEntity.of(volunteer) - объект класса Volunteer
+     * @return объект класса Volunteer
      */
     public Volunteer updateStatus(Boolean status, Integer id) {
         validator.validateId(id);
-        Volunteer volunteerOld = volunteerRepo.findById(id).get();
+        Volunteer volunteerOld = volunteerRepo.findById(id).orElseThrow(() -> new EntityNotFoundException((long)id));
         if(volunteerOld.isActive() == status){
             return volunteerOld;
         }
@@ -68,13 +68,13 @@ public class VolunteerService {
      * Метод для изменения номера телефона волонтера
      * @param phone - новое значение номера телефона
      * @param id - идентификатор волонтера в таблице волонтеров
-     * @return ResponseEntity.of(volunteer) - объект класса Volunteer
+     * @return объект класса Volunteer
      */
     public Volunteer updatePhone(String phone, Integer id) {
         validator.stringValidate(phone);
         validator.phoneValidate(phone);
         validator.validateId(id);
-        Volunteer volunteerOld = volunteerRepo.findById(id).get();
+        Volunteer volunteerOld = volunteerRepo.findById(id).orElseThrow(() -> new EntityNotFoundException((long)id));
         if(volunteerOld.getName().equals(phone)){
             return volunteerOld;
         }
@@ -86,12 +86,12 @@ public class VolunteerService {
      * Метод для внесения изменений в строку базы таблицы волонтеров с идентификатором id
      * @param id - идентификатор (первичный ключ) таблицы волонтеров
      * @param volunteer - объект Volunteer с новыми полями
-     * @return ResponseEntity.of(Optional.of(volunteer))
+     * @return объект класса Volunteer
      */
     public Volunteer updateVolunteer(Integer id, Volunteer volunteer) {
         validator.validateId(id);
         validator.validate(volunteer);
-        Volunteer volunteerOld = volunteerRepo.findById(volunteer.getId()).get();
+        Volunteer volunteerOld = volunteerRepo.findById(volunteer.getId()).orElseThrow(() -> new EntityNotFoundException((long)id));
         if(volunteerOld.equals(volunteer)){
             return volunteerOld;
         }
@@ -105,7 +105,7 @@ public class VolunteerService {
     /**
      * Метод для получения объекта Volunteer из базы данных по id
      * @param id - идентификатор (первичный ключ) таблицы волонтеров
-     * @return ResponseEntity.of(Optional.of(volunteer))
+     * @return объект класса Volunteer
      */
     public Volunteer get(Integer id) {
         validator.validateId(id);
@@ -115,7 +115,7 @@ public class VolunteerService {
     /**
      * Метод для удаления объекта Volunteer из базы данных по id
      * @param id - идентификатор (первичный ключ) таблицы волонтеров
-     * @return ResponseEntity.of(Optional.of(volunteer))
+     * @return объект класса Volunteer
      */
     public Volunteer delete(Integer id) {
         validator.validateId(id);
@@ -127,7 +127,7 @@ public class VolunteerService {
 
     /**
      * Метод для получения из базы данных всего списка волонтёров
-     * @return ResponseEntity.of(Optional.of(volunteers))
+     * @return список объектов Volunteer
      */
     public List<Volunteer> getAll() {
         return volunteerRepo.findAll();
