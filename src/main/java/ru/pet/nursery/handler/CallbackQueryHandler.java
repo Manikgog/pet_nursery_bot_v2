@@ -48,7 +48,7 @@ public class CallbackQueryHandler {
             case INSTRUCTION -> reportManager.answerInstruction(update.callbackQuery());
             case HEALTH -> reportManager.answerHealth(update.callbackQuery());
             case BEHAVIOUR -> reportManager.answerBehaviour(update.callbackQuery());
-            case FOTO -> reportManager.answerFoto(update.callbackQuery());
+            case FOTO -> reportManager.answerPhoto(update.callbackQuery());
             case DIET -> reportManager.answerDiet(update.callbackQuery());
             case BACK_TO_REPORT_MENU -> reportManager.answerCallbackQuery(update.callbackQuery());
             case ADDRESS_AND_PHONE -> infoManager.addressAndPhoneNursery(update.callbackQuery());

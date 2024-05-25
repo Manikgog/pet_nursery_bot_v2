@@ -127,11 +127,11 @@ public class ReportManager extends AbstractManager {
     }
 
     /**
-     * Метод для отправки сообщения пользователю кнопки и действий по
+     * Метод для отправки сообщения пользователю действий по
      * отправке фотографии для отчёта
-     * @param callbackQuery - запрос обратного вызова пользователю
+     * @param callbackQuery - запрос обратного вызова пользователя
      */
-    public void answerFoto(CallbackQuery callbackQuery){
+    public void answerPhoto(CallbackQuery callbackQuery){
         logger.info("Processing callbackQuery in method answerFoto ReportManager class: {}", callbackQuery);
         // проверить есть ли в базе данных пользователь с таким chatId, который усыновил животное
         long adopterId = callbackQuery.message().chat().id();
@@ -166,6 +166,11 @@ public class ReportManager extends AbstractManager {
         telegramBot.execute(sendMessage);
     }
 
+    /**
+     * Метод для отправки сообщения пользователю действий по
+     * отправке описания здоровья питомца для отчёта
+     * @param callbackQuery - запрос обратного вызова пользователя
+     */
     public void answerHealth(CallbackQuery callbackQuery){
         logger.info("Processing callbackQuery in method answerHealth ReportManager class: {}", callbackQuery);
         // проверить есть ли в базе данных пользователь с таким chatId, который усыновил животное
@@ -200,6 +205,12 @@ public class ReportManager extends AbstractManager {
         telegramBot.execute(sendMessage);
     }
 
+
+    /**
+     * Метод для отправки сообщения пользователю действий по
+     * отправке описания диеты питомца для отчёта
+     * @param callbackQuery - запрос обратного вызова пользователя
+     */
     public void answerDiet(CallbackQuery callbackQuery){
         logger.info("Processing callbackQuery in method answerDiet ReportManager class: {}", callbackQuery);
         // проверить есть ли в базе данных пользователь с таким chatId, который усыновил животное
@@ -234,6 +245,12 @@ public class ReportManager extends AbstractManager {
         telegramBot.execute(sendMessage);
     }
 
+
+    /**
+     * Метод для отправки сообщения пользователю действий по
+     * отправке описания поведения питомца для отчёта
+     * @param callbackQuery - запрос обратного вызова пользователя
+     */
     public void answerBehaviour(CallbackQuery callbackQuery){
         logger.info("Processing callbackQuery in method answerBehaviour ReportManager class: {}", callbackQuery);
         // проверить есть ли в базе данных пользователь с таким chatId, который усыновил животное
@@ -268,6 +285,11 @@ public class ReportManager extends AbstractManager {
         telegramBot.execute(sendMessage);
     }
 
+    /**
+     * Метод для отправки сообщения пользователю,
+     * который не является усыновителем питомца
+     * @param callbackQuery - запрос обратного вызова пользователя
+     */
     public void answerUserIsNotAdopter(CallbackQuery callbackQuery){
         logger.warn("Method answerUserIsNotAdopter. User with id = {} is not adopter", callbackQuery.message().chat().id());
         String answerMessage = """
@@ -279,6 +301,12 @@ public class ReportManager extends AbstractManager {
         telegramBot.execute(sendMessage);
     }
 
+
+    /**
+     * Метод для загрузки фотографии питомца для отчёта
+     * @param update - обновление от пользователя
+     * @throws IOException - исключение ввода-вывода
+     */
     public void uploadPhotoToReport(Update update) throws IOException {
         logger.info("Processing update in method uploadPhotoToReport ReportManager class: {}", update);
         long adopterId = update.message().chat().id();
@@ -350,6 +378,11 @@ public class ReportManager extends AbstractManager {
         sendMessage(user.getTelegramUserId(), "Мы ожидали от вас фото питомца");
     }
 
+
+    /**
+     * Метод для добавления описания диеты питомца в отчёт
+     * @param update - обновление от пользователя
+     */
     public void uploadDietToReport(Update update){
         logger.info("Processing update in method uploadDietToReport ReportManager class: {}", update);
         long adopterId = update.message().chat().id();
@@ -374,7 +407,10 @@ public class ReportManager extends AbstractManager {
     }
 
 
-
+    /**
+     * Метод для добавления описания здоровья питомца в отчёт
+     * @param update - обновление от пользователя
+     */
     public void uploadHealthToReport(Update update){
         logger.info("Processing update in method uploadHealthToReport ReportManager class: {}", update);
         long adopterId = update.message().chat().id();
@@ -400,6 +436,11 @@ public class ReportManager extends AbstractManager {
     }
 
 
+
+    /**
+     * Метод для добавления описания поведения питомца в отчёт
+     * @param update - обновление от пользователя
+     */
     public void uploadBehaviourToReport(Update update){
         logger.info("Processing update in method uploadBehaviourToReport ReportManager class: {}", update);
         long adopterId = update.message().chat().id();
@@ -423,6 +464,12 @@ public class ReportManager extends AbstractManager {
         sendMessage(user.getTelegramUserId(), "Описание поведения вашего питомца добавлено к отчёту");
     }
 
+
+    /**
+     * Метод для отправки сообщения пользователю
+     * @param chatId - идентификатор чата
+     * @param text - текст сообщения
+     */
     public void sendMessage(long chatId, String text){
         logger.info("Processing method sendMessage ReportManager class: chatId: {}, text: {}", chatId, text);
         SendMessage sendMessage = answerMethodFactory.getSendMessage(chatId,
