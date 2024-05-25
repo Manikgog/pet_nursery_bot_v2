@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
@@ -59,7 +60,8 @@ public class ReportService {
         newReport.setId(0);
         newReport.setUser(user);
         newReport.setReportDate(LocalDate.now());
-        return reportRepo.save(newReport);
+        Report reportFromDB = reportRepo.save(newReport);
+        return ResponseEntity.of(Optional.of(reportFromDB));
     }
 
     /**

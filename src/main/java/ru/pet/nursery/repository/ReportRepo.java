@@ -5,10 +5,12 @@ import ru.pet.nursery.entity.Report;
 import ru.pet.nursery.entity.User;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ReportRepo extends JpaRepository<Report, Long> {
     List<Report> findByUser(User user);
     Report findByUserAndReportDate(User user, LocalDate reportDate);
     List<Report> findByReportDate(LocalDate reportDate);
+    List<Report> findByNextReportDate(LocalDateTime localDateTime);
 }

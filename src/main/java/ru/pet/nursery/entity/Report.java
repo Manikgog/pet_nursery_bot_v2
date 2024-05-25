@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -17,7 +17,10 @@ public class Report {
     private long id;
 
     @Column(name = "report_date")
-    private LocalDate reportDate;
+    private LocalDateTime reportDate;
+
+    @Column(name = "next_report_date")
+    private LocalDateTime nextReportDate;
 
     @ManyToOne()
     @JoinColumn(name = "telegram_user_id")

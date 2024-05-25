@@ -63,12 +63,17 @@ public class NurseryExceptionHandler {
 
 
     @ExceptionHandler(IllegalParameterException.class)
-    public ResponseEntity<String> handleIllegalParameterException(IllegalParameterException e){
+    public ResponseEntity<String> handleIllegalParameterException(IllegalParameterException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 
     @ExceptionHandler(ReportIsExistException.class)
-    public ResponseEntity<String> handleReportIsExistException(ReportIsExistException e){
+    public ResponseEntity<String> handleReportIsExistException(ReportIsExistException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
+    @ExceptionHandler(AnimalNotFoundException.class)
+    public ResponseEntity<String> handleAnimalNotFoundException(AnimalNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
 }

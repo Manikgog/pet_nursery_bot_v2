@@ -150,7 +150,7 @@ public class ShelterController {
             )
     })
     @GetMapping(name = "/getNursery", params = {"page","size"})
-    public ResponseEntity<List<Nursery>> getNursery(@RequestParam @Min(1) int page, @RequestParam @Min(1) int size) {
+    public ResponseEntity<List<Nursery>> getNursery(@RequestParam("page") int page, @RequestParam("size") int size) {
         return ResponseEntity.ok(shelterService.getAllShelter(page, size));
     }
 

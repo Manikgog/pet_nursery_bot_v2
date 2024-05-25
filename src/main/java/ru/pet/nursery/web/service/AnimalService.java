@@ -23,12 +23,14 @@ import ru.pet.nursery.web.exception.EntityNotFoundException;
 import ru.pet.nursery.web.exception.ImageNotFoundException;
 import ru.pet.nursery.web.exception.UserNotValidException;
 import ru.pet.nursery.web.validator.Validator;
+
 import java.io.*;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
@@ -84,12 +86,13 @@ public class AnimalService {
      * @return ResponseEntity<Animal> - объект ResponseEntity содержащий объект Animal взятый из базы данных с
      *                                  измененным полем photo_path
      * @throws IOException - исключение ввода-вывода при работе с файлами
+     * @throws InterruptedException - исключение добавлено из-за наличия метода sleep
      */
     public ResponseEntity uploadPhoto(long animalId, MultipartFile animalPhoto) throws IOException {
         logger.info("Method uploadPhoto of AnimalService class with parameters long -> {}, MultipartFile -> {}", animalId, animalPhoto);
         Optional<Animal> animalFromDB = animalRepo.findById(animalId);
         if(animalFromDB.isEmpty()){
-            throw new EntityNotFoundException(animalId);
+            throw new EntityNotFoundException((long)animalId);
         }
         String strPath = System.getProperty("user.dir");
         if(strPath.contains("\\")){
@@ -167,6 +170,7 @@ public class AnimalService {
      * Метод для получения байтового массива для передачи через телеграм
      * @param id - идентификатор животного
      * @return байтовый массив фотографии
+     * @throws IOException - исключение ввода-вывода
      */
     public byte[] getPhotoByteArray(long id) {
         logger.info("Method getPhotoByteArray of AnimalService class with parameter long -> {}", id);
@@ -270,11 +274,10 @@ public class AnimalService {
      * @param animalId - идентификатор животного в таблице animal_table
      * @return HttpStatus
      */
-    public AnimalDTOForUser getById(long animalId) {
-        logger.info("Method getById of AnimalService class with parameter long -> {}", animalId);
+    public ResponseEntity<AnimalDTOForUser> getById(Integer animalId) {
         AnimalDTOForUserMapper animalDTOForUserMapper = new AnimalDTOForUserMapper();
-        Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(animalId));
-        return animalDTOForUserMapper.perform(animalFromDB);
+        Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(Long.valueOf(animalId)));
+        return ResponseEntity.of(Optional.of(animalDTOForUserMapper.perform(animalFromDB)));
     }
 
     /**
@@ -290,7 +293,6 @@ public class AnimalService {
      * Метод для получения из базы данных только котов или только собак
      */
     public List<Animal> getAllAnimalsByType(AnimalType animalType){
-        logger.info("Method getAllAnimalsByType of AnimalService class with parameter AnimalType -> {}", animalType);
         return animalRepo.findByAnimalType(animalType);
     }
 
