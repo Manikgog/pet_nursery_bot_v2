@@ -31,7 +31,6 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     @Override
     public int process(List<Update> updates) {
         updates.forEach(update -> {
-            //String jsonUpdate = BotUtils.toJson(update);
             logger.info("Processing update: {}", update);
             if(update != null) {
                 try {
