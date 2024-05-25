@@ -1,6 +1,8 @@
 package ru.pet.nursery.web.validator;
 
 import org.springframework.stereotype.Component;
+import ru.pet.nursery.entity.Nursery;
+import ru.pet.nursery.enumerations.AnimalType;
 import ru.pet.nursery.repository.NurseryRepo;
 import ru.pet.nursery.web.dto.AnimalDTO;
 import ru.pet.nursery.web.exception.IllegalFieldException;

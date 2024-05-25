@@ -67,7 +67,7 @@ public class AnimalController {
     )
     @PostMapping(value = "/{id}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity uploadPhotoAnimal(@PathVariable("id") Integer id, @RequestParam MultipartFile animalPhoto) throws IOException, InterruptedException {
-        return animalService.uploadPhoto(id, animalPhoto);
+        return animalService.uploadPhoto(Long.valueOf(id), animalPhoto);
     }
 
 
@@ -86,7 +86,7 @@ public class AnimalController {
     )
     @PostMapping("/{animalId}/{adoptedId}")
     public ResponseEntity insertHumanWhoTookAnimal(@PathVariable Integer animalId, @PathVariable Long adoptedId){
-        return animalService.insertDataOfHuman(animalId, adoptedId);
+        return animalService.insertDataOfHuman(Long.valueOf(animalId), adoptedId);
     }
 
 
@@ -105,7 +105,7 @@ public class AnimalController {
     )
     @PostMapping("/{animalId}/return")
     public ResponseEntity<Animal> insertDateOfReturningAnimal(@PathVariable Integer animalId){
-        return animalService.insertDateOfReturn(animalId);
+        return animalService.insertDateOfReturn(Long.valueOf(animalId));
     }
 
 
@@ -123,7 +123,7 @@ public class AnimalController {
     )
     @GetMapping("/{id}/photo")
     public void getAnimalPhoto(@PathVariable("id") int id, HttpServletResponse response) throws IOException {
-        animalService.getAnimalPhoto(id, response);
+        animalService.getAnimalPhoto((long) id, response);
     }
 
 
@@ -146,7 +146,7 @@ public class AnimalController {
             })
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<Animal> deleteAnimal(@PathVariable Integer id){
-        return animalService.delete(id);
+        return animalService.delete(Long.valueOf(id));
     }
 
 
@@ -189,7 +189,7 @@ public class AnimalController {
             })
     @GetMapping("/{id}")
     public ResponseEntity<AnimalDTOForUser> getById(@PathVariable Integer id){
-        return animalService.getById(id);
+        return animalService.getById(Long.valueOf(id));
     }
 
 

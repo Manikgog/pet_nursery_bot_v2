@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import ru.pet.nursery.entity.Animal;
 import ru.pet.nursery.entity.Nursery;
 import ru.pet.nursery.enumerations.AnimalType;
+
 import ru.pet.nursery.factory.AnswerMethodFactory;
 import ru.pet.nursery.factory.KeyboardFactory;
 import ru.pet.nursery.manager.AbstractManager;
@@ -188,8 +189,8 @@ public class InfoManager extends AbstractManager {
     public void catPhoto(CallbackQuery callbackQuery) throws IOException {
         List<Animal> cats = animalService.getAllAnimalsByType(AnimalType.CAT);
         Long id = cats.get(getNextId(callbackQuery.message().chat().id(), cats)).getId();
-        String name = animalService.get(Math.toIntExact(id)).getAnimalName();
-        if(animalService.get(Math.toIntExact(id)).getPhotoPath().isEmpty()){
+        String name = animalService.get(id).getAnimalName();
+        if(animalService.get(id).getPhotoPath().isEmpty()){
             SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                     "Фотография отсуствует",
                     keyboardFactory.getInlineKeyboard(
@@ -202,7 +203,7 @@ public class InfoManager extends AbstractManager {
             telegramBot.execute(sendMessage);
             return;
         }
-        byte[] photoArray = animalService.getPhotoByteArray(Math.toIntExact(id));
+        byte[] photoArray = animalService.getPhotoByteArray(id);
         SendPhoto sendPhoto = answerMethodFactory.getSendFoto(callbackQuery.message().chat().id(),
                 photoArray,
                 keyboardFactory.getInlineKeyboard(
@@ -230,8 +231,8 @@ public class InfoManager extends AbstractManager {
     public void dogPhoto(CallbackQuery callbackQuery) throws IOException {
         List<Animal> dogs = animalService.getAllAnimalsByType(AnimalType.DOG);
         Long id = dogs.get(getNextId(callbackQuery.message().chat().id(), dogs)).getId();
-        String name = animalService.get(Math.toIntExact(id)).getAnimalName();
-        if(animalService.get(Math.toIntExact(id)).getPhotoPath().isEmpty()){
+        String name = animalService.get(id).getAnimalName();
+        if(animalService.get(id).getPhotoPath().isEmpty()){
             SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                     "Фотография отсуствует",
                     keyboardFactory.getInlineKeyboard(
@@ -244,7 +245,7 @@ public class InfoManager extends AbstractManager {
             telegramBot.execute(sendMessage);
             return;
         }
-        byte[] photoArray = animalService.getPhotoByteArray(Math.toIntExact(id));
+        byte[] photoArray = animalService.getPhotoByteArray(id);
         SendPhoto sendPhoto = answerMethodFactory.getSendFoto(callbackQuery.message().chat().id(),
                 photoArray,
                 keyboardFactory.getInlineKeyboard(
