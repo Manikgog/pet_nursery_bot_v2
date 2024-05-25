@@ -27,10 +27,10 @@
             <column name="birth_date" type="DATE"/>
             <column name="photo_path" type="TEXT"/>
             <column name="telegram_user_id" type="BIGINT"/>
-            <column name="took_date" type="DATE"/>
+            <column name="took_date" type="TIMESTAMP"/>
             <column name="nursery_id" type="BIGINT"/>
             <column name="description" type="TEXT"/>
-            <column name="pet_return_date" type="DATE"/>
+            <column name="pet_return_date" type="TIMESTAMP"/>
         </createTable>
 
         <addForeignKeyConstraint baseTableName="animal_table"

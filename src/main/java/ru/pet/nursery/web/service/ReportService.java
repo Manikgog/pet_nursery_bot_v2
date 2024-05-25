@@ -18,10 +18,10 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
-
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 @Service
@@ -59,9 +59,8 @@ public class ReportService {
         Report newReport = new Report();
         newReport.setId(0);
         newReport.setUser(user);
-        newReport.setReportDate(LocalDate.now());
-        Report reportFromDB = reportRepo.save(newReport);
-        return ResponseEntity.of(Optional.of(reportFromDB));
+        newReport.setReportDate(LocalDateTime.now());
+        return reportRepo.save(newReport);
     }
 
     /**
@@ -258,4 +257,7 @@ public class ReportService {
     }
 
 
+    public List<Report> findByPetReturnDate() {
+        return reportRepo.findByNextReportDate(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS));
+    }
 }

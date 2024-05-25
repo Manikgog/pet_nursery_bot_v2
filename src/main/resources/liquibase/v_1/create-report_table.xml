@@ -20,7 +20,8 @@
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
-            <column name="report_date" type="DATE"/>
+            <column name="report_date" type="TIMESTAMP"/>
+            <column name="next_report_date" type="TIMESTAMP"/>
             <column name="telegram_user_id" type="BIGINT"/>
             <column name="path_to_photo" type="TEXT"/>
             <column name="diet" type="TEXT"/>

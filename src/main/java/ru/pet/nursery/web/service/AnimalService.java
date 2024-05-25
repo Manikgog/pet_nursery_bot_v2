@@ -29,7 +29,6 @@ import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.EnumSet;
 import java.util.List;
@@ -86,13 +85,12 @@ public class AnimalService {
      * @return ResponseEntity<Animal> - объект ResponseEntity содержащий объект Animal взятый из базы данных с
      *                                  измененным полем photo_path
      * @throws IOException - исключение ввода-вывода при работе с файлами
-     * @throws InterruptedException - исключение добавлено из-за наличия метода sleep
      */
     public ResponseEntity uploadPhoto(long animalId, MultipartFile animalPhoto) throws IOException {
         logger.info("Method uploadPhoto of AnimalService class with parameters long -> {}, MultipartFile -> {}", animalId, animalPhoto);
         Optional<Animal> animalFromDB = animalRepo.findById(animalId);
         if(animalFromDB.isEmpty()){
-            throw new EntityNotFoundException((long)animalId);
+            throw new EntityNotFoundException(animalId);
         }
         String strPath = System.getProperty("user.dir");
         if(strPath.contains("\\")){
@@ -147,14 +145,12 @@ public class AnimalService {
             throw new ImageNotFoundException("Файл с изображением не найден!");
         }
         int size;
-        SeekableByteChannel seekableByteChannel = null;
-        try{
-            seekableByteChannel = Files.newByteChannel(path, EnumSet.of(READ));
+        SeekableByteChannel seekableByteChannel;
+        try(SeekableByteChannel sbc = Files.newByteChannel(path, EnumSet.of(READ))){
+            seekableByteChannel = sbc;
             size = (int)seekableByteChannel.size();
         } catch (IOException e) {
             throw new ImageNotFoundException(e.getMessage());
-        } finally {
-            seekableByteChannel.close();
         }
         try(InputStream is = Files.newInputStream(path);
             OutputStream os = response.getOutputStream()){
@@ -170,7 +166,6 @@ public class AnimalService {
      * Метод для получения байтового массива для передачи через телеграм
      * @param id - идентификатор животного
      * @return байтовый массив фотографии
-     * @throws IOException - исключение ввода-вывода
      */
     public byte[] getPhotoByteArray(long id) {
         logger.info("Method getPhotoByteArray of AnimalService class with parameter long -> {}", id);
@@ -221,7 +216,7 @@ public class AnimalService {
             throw new UserNotValidException(userAdopted.getFirstName() + " " + userAdopted.getLastName() + " уже взял животное на испытательный срок.");
         }
         animalFromDB.setUser(userAdopted);
-        animalFromDB.setTookDate(LocalDate.now());
+        animalFromDB.setTookDate(LocalDateTime.now());
         return animalRepo.save(animalFromDB);
     }
 
@@ -263,7 +258,7 @@ public class AnimalService {
     public Animal insertDateOfReturn(long animalId) {
         logger.info("Method insertDateOfReturn of AnimalService class with parameter long -> {}", animalId);
         Animal animalOld = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(animalId));
-        animalOld.setPetReturnDate(LocalDate.now());
+        animalOld.setPetReturnDate(LocalDateTime.now());
         animalOld.setUser(null);
         animalOld.setTookDate(null);
         return animalRepo.save(animalOld);
@@ -274,10 +269,10 @@ public class AnimalService {
      * @param animalId - идентификатор животного в таблице animal_table
      * @return HttpStatus
      */
-    public ResponseEntity<AnimalDTOForUser> getById(Integer animalId) {
+    public AnimalDTOForUser getById(Long animalId) {
         AnimalDTOForUserMapper animalDTOForUserMapper = new AnimalDTOForUserMapper();
-        Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(Long.valueOf(animalId)));
-        return ResponseEntity.of(Optional.of(animalDTOForUserMapper.perform(animalFromDB)));
+        Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(animalId));
+        return animalDTOForUserMapper.perform(animalFromDB);
     }
 
     /**

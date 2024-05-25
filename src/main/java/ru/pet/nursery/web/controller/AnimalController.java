@@ -188,7 +188,7 @@ public class AnimalController {
                     )
             })
     @GetMapping("/{id}")
-    public ResponseEntity<AnimalDTOForUser> getById(@PathVariable Integer id){
+    public ResponseEntity<AnimalDTOForUser> getById(@PathVariable Long id){
         return ResponseEntity.ok(animalService.getById(id));
     }
 

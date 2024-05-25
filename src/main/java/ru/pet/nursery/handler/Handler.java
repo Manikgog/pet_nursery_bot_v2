@@ -2,7 +2,6 @@ package ru.pet.nursery.handler;
 
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -11,7 +10,6 @@ import ru.pet.nursery.data.MessageData;
 import java.io.IOException;
 
 @Service
-@Slf4j
 public class Handler {
     private final Logger logger = LoggerFactory.getLogger(Handler.class);
     private final CallbackQueryHandler callbackQueryHandler;
@@ -59,7 +57,7 @@ public class Handler {
            }
            messageHandler.answer(update);
        }
-       log.info("Неподдерживаемый update: " + update);
+       logger.info("Неподдерживаемый update: " + update);
     }
 
 }
