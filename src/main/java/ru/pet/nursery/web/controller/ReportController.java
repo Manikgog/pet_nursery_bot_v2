@@ -92,8 +92,8 @@ public class ReportController {
             }
     )
     @PutMapping(value = "/{reportId}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity putFoto(@PathVariable long reportId, @RequestParam MultipartFile animalPhoto) throws IOException {
-        return reportService.updateFoto(reportId, animalPhoto);
+    public ResponseEntity<Report> putFoto(@PathVariable long reportId, @RequestParam MultipartFile animalPhoto) throws IOException {
+        return ResponseEntity.ok(reportService.updateFoto(reportId, animalPhoto));
     }
 
 
