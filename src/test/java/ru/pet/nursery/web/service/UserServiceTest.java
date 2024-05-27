@@ -8,17 +8,20 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import ru.pet.nursery.entity.User;
 import ru.pet.nursery.repository.UserRepo;
 import ru.pet.nursery.web.exception.UserNotFoundException;
 import ru.pet.nursery.web.exception.UserNotValidException;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
@@ -76,7 +79,7 @@ class UserServiceTest {
         expected.setLastName(null);
         expected.setAddress(faker.harryPotter().location());
         expected.setPhoneNumber(String.valueOf(faker.random().nextInt(12312331)));
-        when(userRepo.save(expected)).thenThrow(UserNotValidException.class);
+        lenient().when(userRepo.save(expected)).thenThrow(UserNotValidException.class);
         assertThatThrownBy(() -> userService.addUser(expected)).isInstanceOf(UserNotValidException.class);
     }
     @Test
@@ -88,7 +91,7 @@ class UserServiceTest {
         expected.setLastName(faker.harryPotter().character());
         expected.setAddress(faker.harryPotter().location());
         expected.setPhoneNumber(String.valueOf(faker.random().nextInt(12312331)));
-        when(userRepo.save(expected)).thenThrow(UserNotValidException.class);
+        lenient().when(userRepo.save(expected)).thenThrow(UserNotValidException.class);
         assertThatThrownBy(() -> userService.addUser(expected)).isInstanceOf(UserNotValidException.class);
     }
 
@@ -171,7 +174,21 @@ class UserServiceTest {
     }
 
     @Test
-    void getAllShelter() {
+    void getAllUsersPagination() {
+        int limit = 2;
+        int finalPage = 1;
+        int finalSize = 2;
+        List<User> list = userList.stream().limit(limit).toList();
+        Page<User> page = new PageImpl<>(list);
+        when(userRepo.findAll(any(Pageable.class))).thenReturn(page);
+        Collection<User> actual = userService.getAllUsersPagination(finalPage, finalSize);
+        assertThat(actual).isNotNull().containsExactlyInAnyOrderElementsOf(list);
+        assertThat(actual.size()).isEqualTo(limit);
+    }
 
+    @Test
+    void getAll() {
+        when(userRepo.findAll()).thenReturn(userList);
+        assertThat(userService.getAll()).isEqualTo(userList);
     }
 }

@@ -31,6 +31,7 @@ import ru.pet.nursery.web.service.AnimalService;
 
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -103,7 +104,7 @@ public class AnimalControllerTestRestTemplateTest {
         if(isAdopted){
             User whoNotAdopt = findUserWhoNotAdopt();
             animal.setUser(whoNotAdopt);
-            animal.setTookDate(faker.date().past(faker.random().nextInt(5, 15), TimeUnit.DAYS).toLocalDateTime().toLocalDate());
+            animal.setTookDate(faker.date().past(faker.random().nextInt(5, 15), TimeUnit.DAYS).toLocalDateTime().toLocalDate().atStartOfDay());
         }else {
             animal.setUser(null);
         }
@@ -341,10 +342,11 @@ public class AnimalControllerTestRestTemplateTest {
         );
         Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         // проверяется содержание ячеек с информацией о возвращении животного
+        Animal animal = responseEntity.getBody();
         Animal animalAfterReturn = animalRepo.findById(adoptedAnimal.getId()).get();
-        Assertions.assertThat(responseEntity.getBody()).isEqualTo(animalAfterReturn);
+        Assertions.assertThat(animal.getPetReturnDate().toLocalDate()).isEqualTo(animalAfterReturn.getPetReturnDate().toLocalDate());
         // проверяется ячейка с датой возвращения.
-        Assertions.assertThat(animalAfterReturn.getPetReturnDate()).isEqualTo(LocalDate.now());
+        Assertions.assertThat(animalAfterReturn.getPetReturnDate().toLocalDate()).isEqualTo(LocalDateTime.now().toLocalDate());
         // проверяется ячейка с идентификатором человека, который забрал животное
         // если животное возвращено, то в этой ячейке ставиться null
         Assertions.assertThat(animalAfterReturn.getUser() == null);

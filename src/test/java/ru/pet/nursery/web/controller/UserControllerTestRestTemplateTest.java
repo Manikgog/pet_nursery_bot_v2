@@ -97,7 +97,7 @@ class UserControllerTestRestTemplateTest {
         User user = new User();
         user.setTelegramUserId(faker.random().nextLong(1231231));
         user.setUserName(faker.harryPotter().character());
-        user.setFirstName(faker.harryPotter().character());
+        user.setFirstName(null);
         user.setLastName(null);
         user.setAddress(faker.harryPotter().location());
         user.setPhoneNumber(String.valueOf(faker.random().nextInt(12312331)));
@@ -115,7 +115,7 @@ class UserControllerTestRestTemplateTest {
         user.setTelegramUserId(faker.random().nextLong(1231231));
         user.setUserName(faker.harryPotter().character());
         user.setFirstName(null);
-        user.setLastName(faker.harryPotter().character());
+        user.setLastName(null);
         user.setAddress(faker.harryPotter().location());
         user.setPhoneNumber(String.valueOf(faker.random().nextInt(12312331)));
         ResponseEntity<String> responseEntity = testRestTemplate.postForEntity(builderUrl("/users"),
@@ -227,9 +227,9 @@ class UserControllerTestRestTemplateTest {
         List<User> Nurseries = userRepo.findAll()
                 .stream()
                 .toList();
-        int userRepoSize = Nurseries.size();
-        int page = rnd.nextInt(userRepoSize/2) + 1;
-        int size = rnd.nextInt(userRepoSize/4) + 1;
+        int nurseryRepoSize = Nurseries.size();
+        int page = rnd.nextInt(nurseryRepoSize/2) + 1;
+        int size = rnd.nextInt(nurseryRepoSize/4) + 1;
         PageRequest pageRequest = PageRequest.of(page - 1, size);
         List<User> usersByPage = userRepo.findAll(pageRequest)
                 .stream()

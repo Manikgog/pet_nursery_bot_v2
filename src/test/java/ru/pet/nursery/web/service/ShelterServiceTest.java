@@ -7,13 +7,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import ru.pet.nursery.entity.Nursery;
+import ru.pet.nursery.entity.User;
 import ru.pet.nursery.repository.ShelterRepo;
 
 import ru.pet.nursery.web.exception.ShelterNotFoundException;
 import ru.pet.nursery.web.exception.ShelterNullException;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,8 +56,20 @@ class ShelterServiceTest {
     }
 
     @Test
-    void addShelterNegativeTest() {
+    void addShelterNegative_ifNullPhoneNumberTest() {
         Nursery expected = new Nursery(7L, "чтото", "что то", null, true);
+        lenient().when(shelterRepo.save(expected)).thenThrow(ShelterNullException.class);
+        assertThatThrownBy(() -> shelterService.addShelter(expected)).isInstanceOf(ShelterNullException.class);
+    }
+    @Test
+    void addShelterNegative_ifNullAddressTest() {
+        Nursery expected = new Nursery(7L, "чтото", null, "4654465456", true);
+        lenient().when(shelterRepo.save(expected)).thenThrow(ShelterNullException.class);
+        assertThatThrownBy(() -> shelterService.addShelter(expected)).isInstanceOf(ShelterNullException.class);
+    }
+    @Test
+    void addShelterNegative_ifNullNameShelterTest() {
+        Nursery expected = new Nursery(7L, null, "что то", "4654465456", true);
         lenient().when(shelterRepo.save(expected)).thenThrow(ShelterNullException.class);
         assertThatThrownBy(() -> shelterService.addShelter(expected)).isInstanceOf(ShelterNullException.class);
     }
@@ -110,9 +127,28 @@ class ShelterServiceTest {
 
     @Test
     void getAllShelter() {
+        int limit = 2;
+        int finalPage = 1;
+        int finalSize = 2;
+        List<Nursery> list = nurseryList.stream().limit(limit).toList();
+        Page<Nursery> page = new PageImpl<>(list);
+        when(shelterRepo.findAll(any(Pageable.class))).thenReturn(page);
+        Collection<Nursery> actual = shelterService.getAllShelter(finalPage, finalSize);
+        assertThat(actual).isNotNull().containsExactlyInAnyOrderElementsOf(list);
+        assertThat(actual.size()).isEqualTo(limit);
     }
 
     @Test
     void getShelterForDog() {
+        int limit = 2;
+        int finalPage = 1;
+        int finalSize = 2;
+        boolean forDog = faker.random().nextBoolean();
+        List<Nursery> list = nurseryList.stream().filter(kindOfAnimal -> kindOfAnimal.isForDog()==forDog).limit(limit).toList();
+        Page<Nursery> page = new PageImpl<>(list);
+        when(shelterRepo.findAll(any(Pageable.class))).thenReturn(page);
+        Collection<Nursery> actual = shelterService.getAllShelter(finalPage, finalSize);
+        assertThat(actual).isNotNull().containsExactlyInAnyOrderElementsOf(list);
+        assertThat(actual.size()).isEqualTo(limit);
     }
 }

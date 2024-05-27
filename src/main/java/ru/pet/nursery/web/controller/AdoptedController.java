@@ -16,17 +16,17 @@ public class AdoptedController {
         this.adoptedService = adoptedService;
     }
 
-    @PostMapping
-    public ResponseEntity<Animal> setAdopterForAnimal(@PathVariable Long animalId, @PathVariable Long adopterId) {
+    @PutMapping(params = {"animalId","adopterId"})
+    public ResponseEntity<Animal> setAdopterForAnimal(@RequestParam Long animalId, @RequestParam Long adopterId) {
         return ResponseEntity.ok(adoptedService.setAdopterForAnimal(animalId, adopterId));
     }
-    @PutMapping
+    @PutMapping("/{animalId}/{days}")
     public ResponseEntity<Animal> prolongTrialForNDays(@PathVariable Long animalId, @PathVariable Integer days) {
         return ResponseEntity.ok(adoptedService.prolongTrialForNDays(animalId,days));
     }
 
-    @PutMapping("/cancelTrial")
-    public ResponseEntity<Animal> cancelTrial(Long animalId) {
+    @PutMapping("/cancelTrial/{animalId}")
+    public ResponseEntity<Animal> cancelTrial(@PathVariable Long animalId) {
         return ResponseEntity.ok(adoptedService.cancelTrial(animalId));
     }
 }
