@@ -45,7 +45,7 @@ public class InfoManagerTest {
         this.keyboardFactory = new KeyboardFactory();
         this.shelterService = new ShelterService(shelterRepo);
         this.animalService = new AnimalService(animalRepo, userRepo, shelterRepo);
-        this.infoManager = new InfoManager(answerMethodFactory, keyboardFactory, telegramBot, shelterRepo, animalRepo, animalService);
+        this.infoManager = new InfoManager(answerMethodFactory, keyboardFactory, telegramBot, shelterService, animalRepo, animalService);
     }
 
     @Test

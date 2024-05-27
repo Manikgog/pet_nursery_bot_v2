@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.pet.nursery.entity.Animal;
@@ -23,6 +22,7 @@ import ru.pet.nursery.web.exception.EntityNotFoundException;
 import ru.pet.nursery.web.exception.ImageNotFoundException;
 import ru.pet.nursery.web.exception.UserNotValidException;
 import ru.pet.nursery.web.validator.Validator;
+
 import java.io.*;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
@@ -38,7 +38,7 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 import static java.nio.file.StandardOpenOption.READ;
 
 @Service
-public class AnimalService {
+public class AnimalService implements IAnimalService {
     private final Logger logger = LoggerFactory.getLogger(AbstractManager.class);
     @Value("${path.to.animals.folder}")
     private String animals_images;
@@ -84,7 +84,7 @@ public class AnimalService {
      *                                  измененным полем photo_path
      * @throws IOException - исключение ввода-вывода при работе с файлами
      */
-    public ResponseEntity uploadPhoto(long animalId, MultipartFile animalPhoto) throws IOException {
+    public Animal uploadPhoto(long animalId, MultipartFile animalPhoto) throws IOException {
         logger.info("Method uploadPhoto of AnimalService class with parameters long -> {}, MultipartFile -> {}", animalId, animalPhoto);
         Optional<Animal> animalFromDB = animalRepo.findById(animalId);
         if(animalFromDB.isEmpty()){
@@ -111,9 +111,7 @@ public class AnimalService {
         }
 
         animalFromDB.get().setPhotoPath(filePath.toString());
-        animalRepo.save(animalFromDB.get());
-
-        return ResponseEntity.ok().build();
+        return animalRepo.save(animalFromDB.get());
     }
 
     /**

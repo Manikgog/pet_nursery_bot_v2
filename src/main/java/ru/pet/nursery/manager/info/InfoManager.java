@@ -1,9 +1,5 @@
 package ru.pet.nursery.manager.info;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.google.gson.Gson;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Update;
@@ -17,11 +13,9 @@ import ru.pet.nursery.factory.AnswerMethodFactory;
 import ru.pet.nursery.factory.KeyboardFactory;
 import ru.pet.nursery.manager.AbstractManager;
 import ru.pet.nursery.repository.AnimalRepo;
-import ru.pet.nursery.repository.ShelterRepo;
 import ru.pet.nursery.web.exception.EntityNotFoundException;
-import ru.pet.nursery.web.service.AnimalService;
-import ru.pet.nursery.web.service.ShelterService;
-
+import ru.pet.nursery.web.service.IAnimalService;
+import ru.pet.nursery.web.service.IShelterService;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -33,21 +27,21 @@ import static ru.pet.nursery.data.CallbackData.*;
 public class InfoManager extends AbstractManager {
     private final AnswerMethodFactory answerMethodFactory;
     private final KeyboardFactory keyboardFactory;
-    private final ShelterRepo shelterRepo;
+    private final IShelterService shelterService;
     private final AnimalRepo animalRepo;
-    private final AnimalService animalService;
+    private final IAnimalService animalService;
     private final Map<Long, Integer> userId_animalId = new HashMap<>(); // словарь соответствия chatId идентификатору животного, чтобы передавать новую фотографию
 
     public InfoManager(AnswerMethodFactory answerMethodFactory,
                        KeyboardFactory keyboardFactory,
                        TelegramBot telegramBot,
-                       ShelterRepo shelterRepo,
+                       IShelterService shelterService,
                        AnimalRepo animalRepo,
-                       AnimalService animalService) {
+                       IAnimalService animalService) {
         super(telegramBot);
         this.answerMethodFactory = answerMethodFactory;
         this.keyboardFactory = keyboardFactory;
-        this.shelterRepo = shelterRepo;
+        this.shelterService = shelterService;
         this.animalRepo = animalRepo;
         this.animalService = animalService;
     }
@@ -114,7 +108,7 @@ public class InfoManager extends AbstractManager {
     public void addressAndPhoneNursery(CallbackQuery callbackQuery) {
         logger.info("The addressAndPhoneNursery method of the InfoManager class works. Parameter: CallbackQuery -> {}", callbackQuery);
         long chatId = callbackQuery.message().chat().id();
-        List<Nursery> listOfNursery = shelterRepo.findAll();
+        List<Nursery> listOfNursery = shelterService.getAll();
         if(listOfNursery.isEmpty()){
             telegramBot.execute(answerMethodFactory.getSendMessage(
                             chatId,

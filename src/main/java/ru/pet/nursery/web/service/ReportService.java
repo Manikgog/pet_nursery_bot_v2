@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import ru.pet.nursery.entity.Animal;
 import ru.pet.nursery.entity.Report;
 import ru.pet.nursery.entity.User;
 import ru.pet.nursery.repository.ReportRepo;
@@ -24,7 +25,7 @@ import java.util.Objects;
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 @Service
-public class ReportService {
+public class ReportService implements IReportService {
     @Value("${path.to.report_foto.folder}")
     private String REPORT_FOTO;
     private final ReportRepo reportRepo;
@@ -82,7 +83,7 @@ public class ReportService {
      * @return ResponseEntity.ok()
      * @throws IOException - исключение ввода-вывода
      */
-    public ResponseEntity updateFoto(long id, MultipartFile reportFoto) throws IOException {
+    public Report updateFoto(long id, MultipartFile reportFoto) throws IOException {
         Report reportFromDB = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
         String strPath = System.getProperty("user.dir");
         strPath += REPORT_FOTO;
@@ -99,9 +100,7 @@ public class ReportService {
             bis.transferTo(bos);
         }
 
-        updateFotoPathColumn(filePath.toString(), reportFromDB.getId());
-
-        return ResponseEntity.ok().build();
+        return updateFotoPathColumn(filePath.toString(), reportFromDB.getId());
     }
 
     /**
@@ -113,10 +112,10 @@ public class ReportService {
         return fileName.substring(fileName.lastIndexOf('.') + 1);
     }
 
-    private void updateFotoPathColumn(String path, long id){
+    private Report updateFotoPathColumn(String path, long id){
         Report reportOld = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
         reportOld.setPathToPhoto(path);
-        reportRepo.save(reportOld);
+        return reportRepo.save(reportOld);
     }
 
 

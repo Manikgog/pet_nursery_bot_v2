@@ -17,8 +17,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ru.pet.nursery.entity.Nursery;
 import ru.pet.nursery.factory.AnswerMethodFactory;
 import ru.pet.nursery.factory.KeyboardFactory;
-import ru.pet.nursery.repository.ShelterRepo;
-import ru.pet.nursery.web.service.AnimalService;
+import ru.pet.nursery.web.service.IAnimalService;
+import ru.pet.nursery.web.service.IShelterService;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -33,17 +34,17 @@ import static ru.pet.nursery.data.CallbackData.*;
 @ExtendWith(MockitoExtension.class)
 public class InfoManagerMockTest {
     @Mock
-    private TelegramBot telegramBot;
+    TelegramBot telegramBot;
     @Mock
-    private AnswerMethodFactory answerMethodFactory;
+    AnswerMethodFactory answerMethodFactory;
     @Mock
-    private KeyboardFactory keyboardFactory;
+    KeyboardFactory keyboardFactory;
     @Mock
-    private ShelterRepo shelterRepo;
+    IShelterService shelterService;
     @Mock
-    private AnimalService animalService;
+    IAnimalService animalService;
     @InjectMocks
-    private InfoManager infoManager;
+    InfoManager infoManager;
 
     private final Faker faker = new Faker();
 
@@ -211,7 +212,7 @@ public class InfoManagerMockTest {
     public void addressAndPhoneNursery_Test() throws IOException {
         CallbackQuery callbackQuery_info = readJsonFromResource("callbackquery_nurseries.json");
         List<Nursery> nurseries = createNurseries(2);
-        when(shelterRepo.findAll()).thenReturn(nurseries);
+        when(shelterService.getAll()).thenReturn(nurseries);
         StringBuilder nurseryInfo = new StringBuilder();
         for (Nursery nursery : nurseries) {
             nurseryInfo.append(nursery.isForDog() ? "Приют для собак\n" : "Приют для кошек\n")
