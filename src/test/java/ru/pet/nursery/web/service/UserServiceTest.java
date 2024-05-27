@@ -23,8 +23,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -75,7 +74,7 @@ class UserServiceTest {
         User expected = new User();
         expected.setTelegramUserId(faker.random().nextLong(1231231));
         expected.setUserName(faker.harryPotter().character());
-        expected.setFirstName(faker.harryPotter().character());
+        expected.setFirstName(null);
         expected.setLastName(null);
         expected.setAddress(faker.harryPotter().location());
         expected.setPhoneNumber(String.valueOf(faker.random().nextInt(12312331)));
@@ -91,7 +90,7 @@ class UserServiceTest {
         expected.setLastName(faker.harryPotter().character());
         expected.setAddress(faker.harryPotter().location());
         expected.setPhoneNumber(String.valueOf(faker.random().nextInt(12312331)));
-        lenient().when(userRepo.save(expected)).thenThrow(UserNotValidException.class);
+        when(userRepo.save(expected)).thenThrow(UserNotValidException.class);
         assertThatThrownBy(() -> userService.addUser(expected)).isInstanceOf(UserNotValidException.class);
     }
 
@@ -105,16 +104,11 @@ class UserServiceTest {
     }
 
     @Test
-    void getUserByIdNegativeTest() {
-        User expected = new User();
-        expected.setTelegramUserId(faker.random().nextLong(1231231));
-        expected.setUserName(faker.harryPotter().character());
-        expected.setFirstName(faker.harryPotter().character());
-        expected.setLastName(faker.harryPotter().character());
-        expected.setAddress(faker.harryPotter().location());
-        expected.setPhoneNumber(String.valueOf(faker.random().nextInt(12312331)));
-        lenient().when(userRepo.save(expected)).thenThrow(UserNotFoundException.class);
-        assertThatThrownBy(() -> userService.getUserById(expected.getTelegramUserId())).isInstanceOf(UserNotFoundException.class);
+    void getUserByIdNegativeTest_ifNotFoundUser() {
+        User expected = userList.get(faker.random().nextInt(userList.size()));
+        when(userRepo.findById(expected.getTelegramUserId())).thenThrow(UserNotFoundException.class);
+        assertThatThrownBy(() -> userService.getUserById(expected.getTelegramUserId()))
+                .isInstanceOf(UserNotFoundException.class);
     }
 
     @Test
@@ -138,28 +132,16 @@ class UserServiceTest {
 
     @Test
     void updateUserNegativeTest() {
-        User expected = new User();
-        expected.setTelegramUserId(faker.random().nextLong(1231231));
-        expected.setUserName(faker.harryPotter().character());
-        expected.setFirstName(faker.harryPotter().character());
-        expected.setLastName(faker.harryPotter().character());
-        expected.setAddress(faker.harryPotter().location());
-        expected.setPhoneNumber(String.valueOf(faker.random().nextInt(12312331)));
-        lenient().when(userRepo.findById(expected.getTelegramUserId())).thenThrow(UserNotFoundException.class);
+        User expected = userList.get(faker.random().nextInt(userList.size()));
+        Long userId = -1L;
+        when(userRepo.findById(userId)).thenThrow(UserNotFoundException.class);
         assertThatThrownBy(() -> userService.updateUser(-1L, expected)).isInstanceOf(UserNotFoundException.class);
     }
 
 
     @Test
     void removeUserPositiveTest() {
-        User expected = new User();
-        expected.setTelegramUserId(faker.random().nextLong(1231231));
-        expected.setUserName(faker.harryPotter().character());
-        expected.setFirstName(faker.harryPotter().character());
-        expected.setLastName(faker.harryPotter().character());
-        expected.setAddress(faker.harryPotter().location());
-        expected.setPhoneNumber(String.valueOf(faker.random().nextInt(12312331)));
-        userList.add(expected);
+        User expected = userList.get(faker.random().nextInt(userList.size()));
         when(userRepo.save(expected)).thenReturn(expected);
         userService.addUser(expected);
         when(userRepo.findById(expected.getTelegramUserId())).thenReturn(Optional.of(expected));

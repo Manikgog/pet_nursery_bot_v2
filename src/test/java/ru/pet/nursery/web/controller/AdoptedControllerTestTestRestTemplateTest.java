@@ -149,6 +149,27 @@ class AdoptedControllerTestTestRestTemplateTest {
     }
 
     @Test
+    void prolongTrialForNDaysPositiveTest_ifPetReturnDateIsNull() {
+        Animal animal = animalList.get(faker.random().nextInt(animalList.size()));
+        animal.setPetReturnDate(null);
+        User user = userList.get(faker.random().nextInt(animalList.size()));
+        ResponseEntity<Animal> responseEntity = testRestTemplate.
+                exchange(builderUrl("/adopters?animalId=" + animal.getId() + "&adopterId=" + user.getTelegramUserId()),
+                        HttpMethod.PUT, null, Animal.class);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        int prolongDays = 5;
+        ResponseEntity<Animal> prolongDaysResponseEntity = testRestTemplate.exchange(builderUrl("/adopters/" + animal.getId() + "/" + prolongDays),
+                HttpMethod.PUT,
+                null,
+                Animal.class);
+        assertThat(prolongDaysResponseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(prolongDaysResponseEntity.getBody()).isNotNull();
+        Optional<Animal> animalFromDb = animalRepo.findById(animal.getId());
+        assertThat(animalFromDb.get().getTookDate()).isEqualTo(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS));
+        assertThat(animalFromDb.get().getPetReturnDate()).isEqualTo(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).plusDays(14+prolongDays));
+    }
+
+    @Test
     void prolongTrialForNDaysNegativeTest_ifAnimalNotFound() {
         long animalId = -1;
         User user = userList.get(faker.random().nextInt(animalList.size()));

@@ -54,29 +54,21 @@ class AdoptedServiceTest {
         }
         for (int i = 0; i < 5; i++) {
             Animal animal = new Animal();
-            animal.setUser(userList.get(faker.random().nextInt(userList.size())));
+            animal.setUser(null);
             animal.setAnimalName(faker.harryPotter().character());
             animalList.add(animal);
-            animalRepo.save(animal);
         }
     }
 
     @AfterEach
     void AfterEach() {
-        animalRepo.deleteAll();
         animalList.clear();
         userList.clear();
     }
 
     @Test
     void setAdopterForAnimalPositiveTest() {
-        User user = new User();
-        user.setTelegramUserId(faker.random().nextLong());
-        user.setUserName(faker.harryPotter().character());
-        user.setFirstName(faker.name().firstName());
-        user.setLastName(faker.name().lastName());
-        user.setAddress(faker.harryPotter().location());
-
+        User user = userList.get(faker.random().nextInt(userList.size()));
         Animal animal = new Animal();
         animal.setUser(user);
         when(animalRepo.findById(animal.getId())).thenReturn(Optional.of(animal));
@@ -92,13 +84,7 @@ class AdoptedServiceTest {
 
     @Test
     void setAdopterForAnimalNegativeTest_ifAnimalNotDb() {
-        User user = new User();
-        user.setTelegramUserId(faker.random().nextLong());
-        user.setUserName(faker.harryPotter().character());
-        user.setFirstName(faker.name().firstName());
-        user.setLastName(faker.name().lastName());
-        user.setAddress(faker.harryPotter().location());
-
+        User user = userList.get(faker.random().nextInt(userList.size()));
         Animal animal = new Animal();
         animal.setUser(user);
         when(animalRepo.findById(animal.getId())).thenThrow(AnimalNotFoundException.class);
@@ -107,13 +93,7 @@ class AdoptedServiceTest {
 
     @Test
     void setAdopterForAnimalNegativeTest_ifUserNotDb() {
-        User user = new User();
-        user.setTelegramUserId(faker.random().nextLong());
-        user.setUserName(faker.harryPotter().character());
-        user.setFirstName(faker.name().firstName());
-        user.setLastName(faker.name().lastName());
-        user.setAddress(faker.harryPotter().location());
-
+        User user = userList.get(faker.random().nextInt(userList.size()));
         Animal animal = new Animal();
         animal.setUser(user);
         when(animalRepo.findById(animal.getId())).thenReturn(Optional.of(animal));
@@ -123,26 +103,39 @@ class AdoptedServiceTest {
 
 
     @Test
-    void prolongTrialForNDaysTest() {
+    void prolongTrialForNDaysTestPositive() {
         Animal animal = animalList.get(faker.random().nextInt(animalList.size()));
-        Integer days = faker.random().nextInt(1, 30);
+        User user = userList.get(faker.random().nextInt(userList.size()));
+        animal.setUser(user);
+        when(animalRepo.findById(animal.getId())).thenReturn(Optional.of(animal));
+        when(animalRepo.save(animal)).thenReturn(animal);
+        when(userService.getUserById(user.getTelegramUserId())).thenReturn(user);
+        adoptedService.setAdopterForAnimal(animal.getId(), user.getTelegramUserId());
+        int days = faker.random().nextInt(1,30);
         when(animalRepo.findById(animal.getId())).thenReturn(Optional.of(animal));
         when(animalRepo.save(animal)).thenReturn(animal);
         Animal actual = adoptedService.prolongTrialForNDays(animal.getId(), days);
         assertThat(actual).isNotNull().isEqualTo(animal);
-        assertThat(actual.getPetReturnDate()).isEqualTo(LocalDateTime.now().plusDays(days).truncatedTo(ChronoUnit.DAYS));
+        assertThat(actual.getTookDate()).isEqualTo(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS));
+        assertThat(actual.getPetReturnDate()).isEqualTo(LocalDateTime.now().plusDays(14+days).truncatedTo(ChronoUnit.DAYS));
     }
 
     @Test
     void prolongTrialForNDaysTest_ifAdoptedDaysNull() {
         Animal animal = animalList.get(faker.random().nextInt(animalList.size()));
+        User user = userList.get(faker.random().nextInt(userList.size()));
+        animal.setUser(user);
         animal.setPetReturnDate(null);
+        when(animalRepo.findById(animal.getId())).thenReturn(Optional.of(animal));
+        when(animalRepo.save(animal)).thenReturn(animal);
+        when(userService.getUserById(user.getTelegramUserId())).thenReturn(user);
+        adoptedService.setAdopterForAnimal(animal.getId(), user.getTelegramUserId());
         Integer days = faker.random().nextInt(1, 30);
         when(animalRepo.findById(animal.getId())).thenReturn(Optional.of(animal));
         when(animalRepo.save(animal)).thenReturn(animal);
         Animal actual = adoptedService.prolongTrialForNDays(animal.getId(), days);
         assertThat(actual).isNotNull().isEqualTo(animal);
-        assertThat(actual.getPetReturnDate()).isEqualTo(LocalDateTime.now().plusDays(days).truncatedTo(ChronoUnit.DAYS));
+        assertThat(actual.getPetReturnDate()).isEqualTo(LocalDateTime.now().plusDays(14+days).truncatedTo(ChronoUnit.DAYS));
     }
 
     @Test
