@@ -26,6 +26,7 @@ public class Notifier {
             SendMessage message = new SendMessage(report.getUser()
                     .getTelegramUserId(), "У вас есть пропуск по отчётам. Пожалуйста, отправьте отчёт по животному за просроченный период.");
             telegramBot.execute(message);
+            report.setNextReportDate(report.getReportDate().plusDays(1));
         });
     }
 }
