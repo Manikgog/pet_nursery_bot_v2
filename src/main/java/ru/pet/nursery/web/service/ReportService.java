@@ -25,7 +25,7 @@ import java.util.Objects;
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 @Service
-public class ReportService {
+public class ReportService implements IReportService {
     @Value("${path.to.report_foto.folder}")
     private String REPORT_FOTO;
     private final ReportRepo reportRepo;

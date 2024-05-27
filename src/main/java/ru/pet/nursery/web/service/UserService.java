@@ -10,7 +10,7 @@ import ru.pet.nursery.web.exception.UserNotValidException;
 import java.util.List;
 
 @Service
-public class UserService {
+public class UserService implements IUserService {
     private final UserRepo userRepo;
 
     public UserService(UserRepo userRepo) {

@@ -39,7 +39,7 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 import static java.nio.file.StandardOpenOption.READ;
 
 @Service
-public class AnimalService {
+public class AnimalService implements IAnimalService {
     private final Logger logger = LoggerFactory.getLogger(AbstractManager.class);
     @Value("${path.to.animals.folder}")
     private String animals_images;
