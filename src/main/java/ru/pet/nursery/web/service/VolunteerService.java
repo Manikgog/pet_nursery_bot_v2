@@ -8,7 +8,7 @@ import ru.pet.nursery.web.validator.VolunteerValidator;
 import java.util.List;
 
 @Service
-public class VolunteerService {
+public class VolunteerService implements IVolunteerService {
     private final VolunteerRepo volunteerRepo;
     private final VolunteerValidator validator;
 
