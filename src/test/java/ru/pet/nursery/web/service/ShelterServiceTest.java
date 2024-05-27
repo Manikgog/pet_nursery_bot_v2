@@ -139,15 +139,28 @@ class ShelterServiceTest {
     }
 
     @Test
-    void getShelterForDog() {
+    void getShelterForDog_ifForDog() {
         int limit = 2;
         int finalPage = 1;
         int finalSize = 2;
-        boolean forDog = faker.random().nextBoolean();
+        boolean forDog = true;
         List<Nursery> list = nurseryList.stream().filter(kindOfAnimal -> kindOfAnimal.isForDog()==forDog).limit(limit).toList();
         Page<Nursery> page = new PageImpl<>(list);
         when(shelterRepo.findAll(any(Pageable.class))).thenReturn(page);
-        Collection<Nursery> actual = shelterService.getAllShelter(finalPage, finalSize);
+        Collection<Nursery> actual = shelterService.getShelterForDog(forDog,finalPage, finalSize);
+        assertThat(actual).isNotNull().containsExactlyInAnyOrderElementsOf(list);
+        assertThat(actual.size()).isEqualTo(limit);
+    }
+    @Test
+    void getShelterForDog_ifForCat() {
+        int limit = 2;
+        int finalPage = 1;
+        int finalSize = 2;
+        boolean forDog = false;
+        List<Nursery> list = nurseryList.stream().filter(kindOfAnimal -> kindOfAnimal.isForDog()==forDog).limit(limit).toList();
+        Page<Nursery> page = new PageImpl<>(list);
+        when(shelterRepo.findAll(any(Pageable.class))).thenReturn(page);
+        Collection<Nursery> actual = shelterService.getShelterForDog(forDog,finalPage, finalSize);
         assertThat(actual).isNotNull().containsExactlyInAnyOrderElementsOf(list);
         assertThat(actual.size()).isEqualTo(limit);
     }

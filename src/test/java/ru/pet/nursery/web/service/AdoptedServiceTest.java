@@ -125,17 +125,17 @@ class AdoptedServiceTest {
         Animal animal = animalList.get(faker.random().nextInt(animalList.size()));
         User user = userList.get(faker.random().nextInt(userList.size()));
         animal.setUser(user);
-        animal.setPetReturnDate(null);
         when(animalRepo.findById(animal.getId())).thenReturn(Optional.of(animal));
         when(animalRepo.save(animal)).thenReturn(animal);
         when(userService.getUserById(user.getTelegramUserId())).thenReturn(user);
         adoptedService.setAdopterForAnimal(animal.getId(), user.getTelegramUserId());
-        Integer days = faker.random().nextInt(1, 30);
+        animal.setPetReturnDate(null);
+        int days = faker.random().nextInt(1,30);
         when(animalRepo.findById(animal.getId())).thenReturn(Optional.of(animal));
         when(animalRepo.save(animal)).thenReturn(animal);
         Animal actual = adoptedService.prolongTrialForNDays(animal.getId(), days);
         assertThat(actual).isNotNull().isEqualTo(animal);
-        assertThat(actual.getPetReturnDate()).isEqualTo(LocalDateTime.now().plusDays(14+days).truncatedTo(ChronoUnit.DAYS));
+        assertThat(actual.getPetReturnDate()).isEqualTo(LocalDateTime.now().plusDays(days+days).truncatedTo(ChronoUnit.DAYS));
     }
 
     @Test
