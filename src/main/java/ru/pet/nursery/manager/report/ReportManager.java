@@ -285,6 +285,8 @@ public class ReportManager extends AbstractManager {
         telegramBot.execute(sendMessage);
     }
 
+
+
     /**
      * Метод для отправки сообщения пользователю,
      * который не является усыновителем питомца

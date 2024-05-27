@@ -1,5 +1,6 @@
 package ru.pet.nursery.manager;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Update;
@@ -14,7 +15,7 @@ public abstract class AbstractManager {
         this.telegramBot = telegramBot;
     }
 
-    public abstract void answerCommand(Update update);
+    public abstract void answerCommand(Update update) throws JsonProcessingException;
     public abstract void answerMessage(Update update);
     public abstract void answerCallbackQuery(CallbackQuery callbackQuery);
 }

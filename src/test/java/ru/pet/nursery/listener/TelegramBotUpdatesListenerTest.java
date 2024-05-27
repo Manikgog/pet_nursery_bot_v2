@@ -13,6 +13,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import ru.pet.nursery.handler.Handler;
 
 import java.io.IOException;
@@ -22,10 +24,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collections;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
 public class TelegramBotUpdatesListenerTest {
     final private Long CHAT_ID = 1874598997L;
-    @Mock
+    @MockBean
     private TelegramBot telegramBot;
     @Mock
     private Handler handler;

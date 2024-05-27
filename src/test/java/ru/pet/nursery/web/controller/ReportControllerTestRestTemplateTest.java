@@ -22,8 +22,8 @@ import ru.pet.nursery.entity.User;
 import ru.pet.nursery.enumerations.AnimalType;
 import ru.pet.nursery.enumerations.Gender;
 import ru.pet.nursery.repository.AnimalRepo;
-import ru.pet.nursery.repository.NurseryRepo;
 import ru.pet.nursery.repository.ReportRepo;
+import ru.pet.nursery.repository.ShelterRepo;
 import ru.pet.nursery.repository.UserRepo;
 import ru.pet.nursery.web.service.ReportService;
 import ru.pet.nursery.web.validator.ReportValidator;
@@ -48,7 +48,7 @@ public class ReportControllerTestRestTemplateTest {
     @Autowired
     UserRepo userRepo;
     @Autowired
-    NurseryRepo nurseryRepo;
+    ShelterRepo shelterRepo;
     @Autowired
     AnimalRepo animalRepo;
     @Autowired
@@ -72,8 +72,8 @@ public class ReportControllerTestRestTemplateTest {
         nurseries.add(createNursery(false));
         nurseries.add(createNursery(true));
 
-        nurseryRepo.saveAll(nurseries);
-        List<Nursery> nurseriesFromDB = nurseryRepo.findAll();
+        shelterRepo.saveAll(nurseries);
+        List<Nursery> nurseriesFromDB = shelterRepo.findAll();
         for(Nursery n : nurseriesFromDB){
             boolean isAdopted = false;
             for(int j = 0; j < NUMBER_OF_ANIMALS; j++){
@@ -91,7 +91,7 @@ public class ReportControllerTestRestTemplateTest {
         animalRepo.deleteAll();
         reportRepo.deleteAll();
         userRepo.deleteAll();
-        nurseryRepo.deleteAll();
+        shelterRepo.deleteAll();
     }
 
     private Animal createAnimal(Nursery nursery, boolean isAdopted){

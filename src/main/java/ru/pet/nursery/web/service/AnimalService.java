@@ -15,7 +15,7 @@ import ru.pet.nursery.enumerations.AnimalType;
 import ru.pet.nursery.manager.AbstractManager;
 import ru.pet.nursery.mapper.AnimalDTOForUserMapper;
 import ru.pet.nursery.repository.AnimalRepo;
-import ru.pet.nursery.repository.NurseryRepo;
+import ru.pet.nursery.repository.ShelterRepo;
 import ru.pet.nursery.repository.UserRepo;
 import ru.pet.nursery.web.dto.AnimalDTO;
 import ru.pet.nursery.web.dto.AnimalDTOForUser;
@@ -44,15 +44,15 @@ public class AnimalService {
     private String animals_images;
     private final AnimalRepo animalRepo;
     private final UserRepo userRepo;
-    private final NurseryRepo nurseryRepo;
+    private final ShelterRepo shelterRepo;
     private final Validator validator;
     public AnimalService(AnimalRepo animalRepo,
                          UserRepo userRepo,
-                         NurseryRepo nurseryRepo){
+                         ShelterRepo shelterRepo){
         this.animalRepo = animalRepo;
         this.userRepo = userRepo;
-        this.nurseryRepo = nurseryRepo;
-        this.validator = new Validator(nurseryRepo);
+        this.shelterRepo = shelterRepo;
+        this.validator = new Validator(shelterRepo);
     }
 
     /**
@@ -63,7 +63,7 @@ public class AnimalService {
     public Animal uploadAnimal(AnimalDTO animalDTO) {
         logger.info("Method uploadAnimal of AnimalService class with parameter AnimalDTO -> {}", animalDTO);
         validator.validateAnimalDTO(animalDTO);
-        Nursery nursery = nurseryRepo.findById(animalDTO.getNurseryId())
+        Nursery nursery = shelterRepo.findById(animalDTO.getNurseryId())
                 .orElseThrow(() -> new EntityNotFoundException(animalDTO.getNurseryId()));
         Animal newAnimal = new Animal();
         newAnimal.setAnimalName(animalDTO.getAnimalName());

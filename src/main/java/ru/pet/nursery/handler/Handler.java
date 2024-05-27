@@ -1,5 +1,6 @@
 package ru.pet.nursery.handler;
 
+import com.google.gson.Gson;
 import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
@@ -14,7 +15,6 @@ import ru.pet.nursery.repository.UserRepo;
 import java.io.IOException;
 
 @Service
-@Slf4j
 public class Handler {
     private final Logger logger = LoggerFactory.getLogger(Handler.class);
     private final CallbackQueryHandler callbackQueryHandler;
@@ -36,7 +36,8 @@ public class Handler {
     }
     public void answer(Update update) throws IOException {
         logger.info("Processing update in method answer of Handler class: {}", update);
-
+        String updateStr = new Gson().toJson(update);
+        System.out.println(updateStr);
         if(update.callbackQuery() != null){
             addUserByCallbackQuery(update.callbackQuery());
             if(MessageData.chatId_reportStatus.containsKey(update.callbackQuery().message().chat().id())){

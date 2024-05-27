@@ -1,5 +1,9 @@
 package ru.pet.nursery.manager.info;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.google.gson.Gson;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Update;
@@ -12,6 +16,9 @@ import ru.pet.nursery.enumerations.AnimalType;
 import ru.pet.nursery.factory.AnswerMethodFactory;
 import ru.pet.nursery.factory.KeyboardFactory;
 import ru.pet.nursery.manager.AbstractManager;
+import ru.pet.nursery.repository.AnimalRepo;
+import ru.pet.nursery.repository.ShelterRepo;
+import ru.pet.nursery.web.exception.EntityNotFoundException;
 import ru.pet.nursery.web.service.AnimalService;
 import ru.pet.nursery.web.service.ShelterService;
 
@@ -26,19 +33,22 @@ import static ru.pet.nursery.data.CallbackData.*;
 public class InfoManager extends AbstractManager {
     private final AnswerMethodFactory answerMethodFactory;
     private final KeyboardFactory keyboardFactory;
-    private final ShelterService shelterService;
+    private final ShelterRepo shelterRepo;
+    private final AnimalRepo animalRepo;
     private final AnimalService animalService;
     private final Map<Long, Integer> userId_animalId = new HashMap<>(); // словарь соответствия chatId идентификатору животного, чтобы передавать новую фотографию
 
     public InfoManager(AnswerMethodFactory answerMethodFactory,
                        KeyboardFactory keyboardFactory,
                        TelegramBot telegramBot,
-                       ShelterService shelterService,
+                       ShelterRepo shelterRepo,
+                       AnimalRepo animalRepo,
                        AnimalService animalService) {
         super(telegramBot);
         this.answerMethodFactory = answerMethodFactory;
         this.keyboardFactory = keyboardFactory;
-        this.shelterService = shelterService;
+        this.shelterRepo = shelterRepo;
+        this.animalRepo = animalRepo;
         this.animalService = animalService;
     }
 
@@ -48,7 +58,7 @@ public class InfoManager extends AbstractManager {
      * @param update - объект класса Update
      */
     @Override
-    public void answerCommand(Update update){
+    public void answerCommand(Update update) {
         logger.info("the answerCommand method of the InfoManager class works. Parameter: Update -> {}", update);
         SendMessage sendMessage = answerMethodFactory.getSendMessage(update.message().chat().id(),
                 "Здесь вы можете посмотреть информацию о приютах, питомцах и требованиях к усыновителю",
@@ -63,6 +73,7 @@ public class InfoManager extends AbstractManager {
                                 WHAT_NEED_FOR_ADOPTION,
                                 START)
                 ));
+
         telegramBot.execute(sendMessage);
     }
 
@@ -103,7 +114,7 @@ public class InfoManager extends AbstractManager {
     public void addressAndPhoneNursery(CallbackQuery callbackQuery) {
         logger.info("The addressAndPhoneNursery method of the InfoManager class works. Parameter: CallbackQuery -> {}", callbackQuery);
         long chatId = callbackQuery.message().chat().id();
-        List<Nursery> listOfNursery = shelterService.getAll();
+        List<Nursery> listOfNursery = shelterRepo.findAll();
         if(listOfNursery.isEmpty()){
             telegramBot.execute(answerMethodFactory.getSendMessage(
                             chatId,
@@ -204,7 +215,7 @@ public class InfoManager extends AbstractManager {
     public void catPhoto(CallbackQuery callbackQuery) throws IOException {
         logger.info("The catPhoto method of the InfoManager class works. Parameter: CallbackQuery -> {}", callbackQuery);
         long chatId = callbackQuery.message().chat().id();
-        List<Animal> cats = animalService.getAllAnimalsByType(AnimalType.CAT)
+        List<Animal> cats = animalRepo.findByAnimalType(AnimalType.CAT)
                 .stream()
                 .filter(a -> a.getUser() == null)
                 .toList();
@@ -219,11 +230,12 @@ public class InfoManager extends AbstractManager {
             );
             return;
         }
-        int id = Math.toIntExact(cats.get(getNextId(chatId, cats)).getId());
-        String name = animalService.get(id).getAnimalName();
-        if(animalService.get(id).getPhotoPath() == null){
+        long id = cats.get(getNextId(chatId, cats)).getId();
+        Animal animal = animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+        String name = animal.getAnimalName();
+        if(animal.getPhotoPath() == null){
             SendMessage sendMessage = answerMethodFactory.getSendMessage(chatId,
-                    "Фотография отсуствует",
+                    "Фотография отсутствует",
                     keyboardFactory.getInlineKeyboard(
                             List.of(name,
                                     "Следующее фото",

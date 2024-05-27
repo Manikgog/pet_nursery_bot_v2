@@ -1,9 +1,0 @@
-{
-  "message": {
-    "chat" : {
-      "id": 123,
-      "first_name": "Test-user"
-    },
-    "text": "%command%"
-  }
-}

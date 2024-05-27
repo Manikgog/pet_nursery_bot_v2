@@ -23,7 +23,7 @@ import ru.pet.nursery.entity.User;
 import ru.pet.nursery.enumerations.AnimalType;
 import ru.pet.nursery.enumerations.Gender;
 import ru.pet.nursery.repository.AnimalRepo;
-import ru.pet.nursery.repository.NurseryRepo;
+import ru.pet.nursery.repository.ShelterRepo;
 import ru.pet.nursery.repository.UserRepo;
 import ru.pet.nursery.web.dto.AnimalDTO;
 import ru.pet.nursery.web.dto.AnimalDTOForUser;
@@ -49,7 +49,7 @@ public class AnimalControllerTestRestTemplateTest {
     @Autowired
     private UserRepo userRepo;
     @Autowired
-    private NurseryRepo nurseryRepo;
+    private ShelterRepo shelterRepo;
     @Autowired
     private AnimalService animalService;
 
@@ -72,8 +72,8 @@ public class AnimalControllerTestRestTemplateTest {
         forDog = true;
         nurseries.add(createNursery(forDog));
 
-        nurseryRepo.saveAll(nurseries);
-        List<Nursery> nurseriesFromDB = nurseryRepo.findAll();
+        shelterRepo.saveAll(nurseries);
+        List<Nursery> nurseriesFromDB = shelterRepo.findAll();
         for(Nursery n : nurseriesFromDB){
             for(int j = 0; j < NUMBER_OF_ANIMALS; j++){
                 animalRepo.save(createAnimal(n.getId()));
@@ -84,7 +84,7 @@ public class AnimalControllerTestRestTemplateTest {
     @AfterEach
     public void afterEach(){
         animalRepo.deleteAll();
-        nurseryRepo.deleteAll();
+        shelterRepo.deleteAll();
         userRepo.deleteAll();
     }
 
@@ -96,7 +96,7 @@ public class AnimalControllerTestRestTemplateTest {
         animal.setAnimalType(isCat ? AnimalType.CAT : AnimalType.DOG);
         boolean isMale = rnd.nextBoolean();
         animal.setGender(isMale ? Gender.MALE : Gender.FEMALE);
-        animal.setNursery(nurseryRepo.findById(nurseryId).get());
+        animal.setNursery(shelterRepo.findById(nurseryId).get());
         animal.setBirthDate(faker.date().birthdayLocalDate(MIN_AGE, MAX_AGE));
         animal.setPhotoPath(null);
         boolean isAdopted = rnd.nextInt(10) <= 2;
@@ -159,7 +159,7 @@ public class AnimalControllerTestRestTemplateTest {
         animalDTO.setAnimalType(AnimalType.CAT);
         boolean isMale = rnd.nextBoolean();
         animalDTO.setGender(isMale ? Gender.MALE : Gender.FEMALE);
-        Nursery nursery = nurseryRepo.findAll().stream().filter(n -> !n.isForDog()).findFirst().get();
+        Nursery nursery = shelterRepo.findAll().stream().filter(n -> !n.isForDog()).findFirst().get();
         animalDTO.setNurseryId(nursery.getId());
         animalDTO.setBirthDate(faker.date().birthdayLocalDate(MIN_AGE, MAX_AGE));
         animalDTO.setDescription(faker.examplify(animalDTO.getAnimalName()));
@@ -528,7 +528,7 @@ public class AnimalControllerTestRestTemplateTest {
             animalDTOForUser.setAnimalName(animal.getAnimalName());
             animalDTOForUser.setAnimalType(animal.getAnimalType());
             animalDTOForUser.setGender(animal.getGender());
-            animalDTOForUser.setNursery(nurseryRepo.findById(animal.getNursery().getId()).get());
+            animalDTOForUser.setNursery(shelterRepo.findById(animal.getNursery().getId()).get());
             animalDTOForUser.setBirthDate(animal.getBirthDate());
             animalDTOForUser.setDescription(animal.getDescription());
             ResponseEntity<AnimalDTOForUser> responseEntity =

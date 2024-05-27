@@ -1,5 +1,6 @@
 package ru.pet.nursery.handler;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
@@ -32,7 +33,7 @@ public class CommandHandler {
         this.telegramBot = telegramBot;
     }
 
-    public void answer(Update update){
+    public void answer(Update update) throws JsonProcessingException {
         String command = update.message().text();
         switch (command){
             case START_COMMAND -> startManager.answerCommand(update);

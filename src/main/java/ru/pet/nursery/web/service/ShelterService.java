@@ -110,7 +110,7 @@ public class ShelterService {
     }
 
     public List<Nursery> getAll() {
-        return shelterRepo.findAll().stream().toList();
+        return shelterRepo.findAll();
     }
 
 }
