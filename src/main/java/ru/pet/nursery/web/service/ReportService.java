@@ -62,12 +62,12 @@ public class ReportService implements IReportService {
         try {
             reportValidator.validate(user);
         }catch (ReportIsExistException e){
-            return reportRepo.findByUserAndReportDate(user, LocalDateTime.now());
+            return reportRepo.findByUserAndReportDate(user, LocalDateTime.now().truncatedTo(ChronoUnit.DAYS));
         }
         Report newReport = new Report();
         newReport.setId(0);
         newReport.setUser(user);
-        newReport.setReportDate(LocalDateTime.now());
+        newReport.setReportDate(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS));
         return reportRepo.save(newReport);
     }
 

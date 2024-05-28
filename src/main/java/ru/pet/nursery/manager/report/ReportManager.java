@@ -314,8 +314,9 @@ public class ReportManager extends AbstractManager {
     public void uploadPhotoToReport(Update update) throws IOException {
         logger.info("Processing update in method uploadPhotoToReport ReportManager class: {}", update);
         long adopterId = update.message().chat().id();
-        User user = userRepo.findById(adopterId).orElseThrow(() -> new IllegalFieldException("Идентификатор пользователя " + adopterId + " отсутствует в базе данных"));
-        Report report = reportService.findByUserAndDate(user, LocalDateTime.now());
+        User user = userRepo.findById(adopterId)
+                .orElseThrow(() -> new IllegalFieldException("Идентификатор пользователя " + adopterId + " отсутствует в базе данных"));
+        Report report = reportService.findByUserAndDate(user, LocalDateTime.now().truncatedTo(ChronoUnit.DAYS));
         List<Animal> animals = animalRepo.findByUser(user);
         if(animals.isEmpty()){
             logger.warn("Method uploadPhotoToReport. User with id = {} is not adopter", adopterId);

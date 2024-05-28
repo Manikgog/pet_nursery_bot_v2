@@ -18,6 +18,7 @@ public class ReportHandler {
     public ReportHandler(ReportManager reportManager){
         this.reportManager = reportManager;
     }
+
     public void answer(Update update) {
         long chatId = update.message().chat().id();
         String reportStatus = MessageData.chatId_reportStatus.get(chatId);

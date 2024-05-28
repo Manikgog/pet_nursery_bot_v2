@@ -31,7 +31,7 @@ public class UserController {
      * @return ResponseEntity в котором содержится сущность User из БД
      */
 
-    @Operation (summary = "Добавление пользователя в БЛ" , responses = {
+    @Operation (summary = "Добавление пользователя в БД" , responses = {
             @ApiResponse(responseCode = "200",
             description = "Добавление пользователя прошло успешно",
             content = @Content(

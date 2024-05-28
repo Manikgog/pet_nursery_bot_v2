@@ -33,7 +33,10 @@ public class User {
     private String address;
 
     public String getUserFullName() {
-            return this.firstName + this.lastName;
+        if(this.lastName == null || this.lastName.isEmpty() || this.lastName.isBlank()){
+            return this.firstName;
+        }
+        return this.firstName + " " + this.lastName;
     }
 
     @Override

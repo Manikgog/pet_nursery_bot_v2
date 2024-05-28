@@ -268,7 +268,7 @@ public class ReportController {
                             )
                     )
             })
-    @GetMapping
+    @GetMapping("/date")
     public ResponseEntity<List<Report>> getListOfReportByDate(@Parameter(description = "Дата отчёта: ГОД-МЕСЯЦ-ДЕНЬ", example = "2024-05-01")
                                                                   @RequestParam LocalDate date){
         return ResponseEntity.ok(reportService.getListOfReportByDate(date));
