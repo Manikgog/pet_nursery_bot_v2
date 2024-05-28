@@ -190,7 +190,7 @@ public class ReportController {
             }
     )
     @PutMapping("/{reportId}/acceptPhoto")
-    public ResponseEntity<Report> putIsFotoAccepted(@PathVariable long reportId, @RequestParam boolean acceptPhoto){
+    public ResponseEntity<Report> putIsPhotoAccepted(@PathVariable long reportId, @RequestParam boolean acceptPhoto){
         return ResponseEntity.ok(reportService.updatePhotoIsAccepted(reportId, acceptPhoto));
     }
 
@@ -268,9 +268,9 @@ public class ReportController {
                             )
                     )
             })
-    @GetMapping("/{date}")
+    @GetMapping
     public ResponseEntity<List<Report>> getListOfReportByDate(@Parameter(description = "Дата отчёта: ГОД-МЕСЯЦ-ДЕНЬ", example = "2024-05-01")
-                                                                  @PathVariable LocalDate date){
+                                                                  @RequestParam LocalDate date){
         return ResponseEntity.ok(reportService.getListOfReportByDate(date));
     }
 

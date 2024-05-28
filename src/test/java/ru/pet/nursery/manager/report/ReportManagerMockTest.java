@@ -698,7 +698,7 @@ class ReportManagerMockTest {
         Report report = createReport(user);
         when(userRepo.findById(user.getTelegramUserId())).thenReturn(Optional.of(user));
         when(animalRepo.findByUser(user)).thenReturn(List.of(animal));
-        when(reportService.findByUserAndDate(user, LocalDate.now())).thenReturn(report);
+        when(reportService.findByUserAndDate(user, LocalDate.now().atStartOfDay())).thenReturn(report);
 
         when(answerMethodFactory.getSendMessage(user.getTelegramUserId(),
                 "Описание диеты вашего питомца добавлено к отчёту",
@@ -740,7 +740,7 @@ class ReportManagerMockTest {
         Report report = createReport(user);
         when(userRepo.findById(user.getTelegramUserId())).thenReturn(Optional.of(user));
         when(animalRepo.findByUser(user)).thenReturn(List.of(animal));
-        when(reportService.findByUserAndDate(user, LocalDate.now())).thenReturn(report);
+        when(reportService.findByUserAndDate(user, LocalDate.now().atStartOfDay())).thenReturn(report);
 
         when(answerMethodFactory.getSendMessage(user.getTelegramUserId(),
                 "Описание здоровья вашего питомца добавлено к отчёту",
@@ -780,7 +780,7 @@ class ReportManagerMockTest {
         Report report = createReport(user);
         when(userRepo.findById(user.getTelegramUserId())).thenReturn(Optional.of(user));
         when(animalRepo.findByUser(user)).thenReturn(List.of(animal));
-        when(reportService.findByUserAndDate(user, LocalDate.now())).thenReturn(report);
+        when(reportService.findByUserAndDate(user, LocalDate.now().atStartOfDay())).thenReturn(report);
 
         when(answerMethodFactory.getSendMessage(user.getTelegramUserId(),
                 "Описание поведения вашего питомца добавлено к отчёту",
@@ -882,7 +882,7 @@ class ReportManagerMockTest {
     private Report createReport(User user){
         Report report = new Report();
         report.setUser(user);
-        report.setReportDate(LocalDate.now());
+        report.setReportDate(LocalDate.now().atStartOfDay());
         return report;
     }
 }

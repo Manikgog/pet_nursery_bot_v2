@@ -5,9 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import ru.pet.nursery.enumerations.AnimalType;
 import ru.pet.nursery.enumerations.Gender;
-
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
@@ -54,7 +52,7 @@ public class Animal {
     private User user;
 
     @Column(name = "took_date")
-    private LocalDateTime tookDate;
+    private LocalDate tookDate;
 
     @ManyToOne
     @JoinColumn(name = "nursery_id")
@@ -64,7 +62,7 @@ public class Animal {
     private String description;
 
     @Column(name = "pet_return_date")
-    private LocalDateTime petReturnDate;
+    private LocalDate petReturnDate;
 
     @Override
     public boolean equals(Object o) {

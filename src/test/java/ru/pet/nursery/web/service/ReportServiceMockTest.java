@@ -97,12 +97,9 @@ public class ReportServiceMockTest {
         user.setTelegramUserId(userId);
         Report report = new Report();
         report.setUser(user);
-        report.setReportDate(LocalDate.now());
+        report.setReportDate(LocalDateTime.now());
         String fileName = "animalImage";
         report.setReportDate(LocalDateTime.now());
-        List<Report> listOfReports = new ArrayList<>();
-        listOfReports.add(report);
-        String fileName = "animalPhoto";
         byte[] array = new byte[]{1, 2, 3, 4, 5, 6, 7, 8};
         MultipartFile multipartFile = new MockMultipartFile(fileName, fileName + ".jpg", "image.jpg", array);
         when(reportRepo.findById(report.getId())).thenReturn(Optional.of(report));
@@ -338,8 +335,8 @@ public class ReportServiceMockTest {
     public void findByUserAndDate_Test(){
         User user = new User();
         Report report = new Report();
-        when(reportRepo.findByUserAndReportDate(user, LocalDate.now())).thenReturn(report);
-        Assertions.assertEquals(report, reportService.findByUserAndDate(user, LocalDate.now()));
+        when(reportRepo.findByUserAndReportDate(user, LocalDate.now().atStartOfDay())).thenReturn(report);
+        Assertions.assertEquals(report, reportService.findByUserAndDate(user, LocalDate.now().atStartOfDay()));
     }
 
 

@@ -6,9 +6,8 @@ import ru.pet.nursery.entity.Animal;
 import ru.pet.nursery.entity.User;
 import ru.pet.nursery.repository.AnimalRepo;
 import ru.pet.nursery.web.exception.AnimalNotFoundException;
-
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 
 @Service
 public class AdoptedService {
@@ -33,8 +32,8 @@ public class AdoptedService {
         Animal animal = getById(animalId);
         User adopter = userService.getUserById(adopterId);
         animal.setUser(adopter);
-        animal.setTookDate(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS));
-        animal.setPetReturnDate(LocalDateTime.now().plusDays(BASIC_TRIAL_DAYS));
+        animal.setTookDate(LocalDate.from(LocalDateTime.now()));
+        animal.setPetReturnDate(LocalDate.from(LocalDateTime.now()));
         return animalRepo.save(animal);
     }
 
@@ -46,12 +45,12 @@ public class AdoptedService {
      */
     public Animal prolongTrialForNDays(Long animalId, Integer days) {
         Animal animal = getById(animalId);
-        LocalDateTime adoptionDate = animal.getPetReturnDate();
+        LocalDateTime adoptionDate = animal.getPetReturnDate().atStartOfDay();
         if (adoptionDate == null) {
             adoptionDate = LocalDateTime.now();
         }
         adoptionDate = adoptionDate.plusDays(days);
-        animal.setPetReturnDate(adoptionDate);
+        animal.setPetReturnDate(LocalDate.from(adoptionDate));
         return animalRepo.save(animal);
     }
 

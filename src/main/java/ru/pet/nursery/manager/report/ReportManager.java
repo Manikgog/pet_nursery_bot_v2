@@ -30,6 +30,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static ru.pet.nursery.data.CallbackData.*;
@@ -313,7 +315,7 @@ public class ReportManager extends AbstractManager {
         logger.info("Processing update in method uploadPhotoToReport ReportManager class: {}", update);
         long adopterId = update.message().chat().id();
         User user = userRepo.findById(adopterId).orElseThrow(() -> new IllegalFieldException("Идентификатор пользователя " + adopterId + " отсутствует в базе данных"));
-        Report report = reportService.findByUserAndDate(user, LocalDate.now());
+        Report report = reportService.findByUserAndDate(user, LocalDateTime.now());
         List<Animal> animals = animalRepo.findByUser(user);
         if(animals.isEmpty()){
             logger.warn("Method uploadPhotoToReport. User with id = {} is not adopter", adopterId);
@@ -398,7 +400,7 @@ public class ReportManager extends AbstractManager {
             sendMessage(user.getTelegramUserId(), "Описание диеты не должно быть пустой строкой");
             return;
         }
-        Report report = reportService.findByUserAndDate(user, LocalDate.now());
+        Report report = reportService.findByUserAndDate(user, LocalDateTime.now().truncatedTo(ChronoUnit.DAYS));
         if(report == null) {
             return;
         }
@@ -427,7 +429,7 @@ public class ReportManager extends AbstractManager {
             sendMessage(user.getTelegramUserId(), "Описание здоровья не должно быть пустой строкой");
             return;
         }
-        Report report = reportService.findByUserAndDate(user, LocalDate.now());
+        Report report = reportService.findByUserAndDate(user, LocalDateTime.now().truncatedTo(ChronoUnit.DAYS));
         if(report == null) {
             return;
         }
@@ -457,7 +459,7 @@ public class ReportManager extends AbstractManager {
             sendMessage(user.getTelegramUserId(), "Описание поведения не должно быть пустой строкой");
             return;
         }
-        Report report = reportService.findByUserAndDate(user, LocalDate.now());
+        Report report = reportService.findByUserAndDate(user, LocalDateTime.now().truncatedTo(ChronoUnit.DAYS));
         if(report == null) {
            return;
         }

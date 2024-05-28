@@ -250,17 +250,19 @@ public class AnimalService implements IAnimalService {
     public Animal insertDateOfReturn(long animalId) {
         logger.info("Method insertDateOfReturn of AnimalService class with parameter long -> {}", animalId);
         Animal animalOld = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(animalId));
-        animalOld.setPetReturnDate(LocalDateTime.now());
+        animalOld.setPetReturnDate(LocalDate.now());
         animalOld.setUser(null);
         animalOld.setTookDate(null);
         return animalRepo.save(animalOld);
     }
+
 
     /**
      * Метод для возвращения объекта AnimalDTOForUser по идентификатору животного
      * @param animalId - идентификатор животного в таблице animal_table
      * @return AnimalDTOForUser - объект животного с полями, которые нужны пользователю
      */
+    @Override
     public AnimalDTOForUser getById(Long animalId) {
         AnimalDTOForUserMapper animalDTOForUserMapper = new AnimalDTOForUserMapper();
         Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(animalId));

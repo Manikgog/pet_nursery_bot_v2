@@ -29,7 +29,7 @@ public interface IAnimalService {
 
     Animal insertDateOfReturn(long animalId);
 
-    AnimalDTOForUser getById(long animalId);
+    AnimalDTOForUser getById(Long animalId);
 
     List<Animal> getAll();
 

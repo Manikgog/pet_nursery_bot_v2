@@ -11,6 +11,7 @@ import ru.pet.nursery.web.exception.IllegalParameterException;
 import ru.pet.nursery.web.exception.ReportIsExistException;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
@@ -44,7 +45,7 @@ public class ReportValidator {
      * @return true - отчёт на сегодня уже составлен, false - отчёта на сегодня ещё нет
      */
     public boolean isReportInDataBase(User user){
-        return reportRepo.findByUserAndReportDate(user, LocalDate.now()) != null;
+        return reportRepo.findByUserAndReportDate(user, LocalDateTime.now()) != null;
     }
 
     /**

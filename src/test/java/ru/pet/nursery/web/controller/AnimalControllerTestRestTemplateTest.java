@@ -28,11 +28,9 @@ import ru.pet.nursery.repository.UserRepo;
 import ru.pet.nursery.web.dto.AnimalDTO;
 import ru.pet.nursery.web.dto.AnimalDTOForUser;
 import ru.pet.nursery.web.service.AnimalService;
-
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class AnimalControllerTestRestTemplateTest {
@@ -103,7 +101,7 @@ public class AnimalControllerTestRestTemplateTest {
         if(isAdopted){
             User whoNotAdopt = findUserWhoNotAdopt();
             animal.setUser(whoNotAdopt);
-            animal.setTookDate(faker.date().past(faker.random().nextInt(5, 15), TimeUnit.DAYS).toLocalDateTime().toLocalDate());
+            animal.setTookDate(faker.date().birthdayLocalDate(1, 10));
         }else {
             animal.setUser(null);
         }

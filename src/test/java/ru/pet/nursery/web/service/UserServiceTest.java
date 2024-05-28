@@ -12,8 +12,6 @@ import ru.pet.nursery.entity.User;
 import ru.pet.nursery.repository.UserRepo;
 import ru.pet.nursery.web.exception.UserNotFoundException;
 import ru.pet.nursery.web.exception.UserNotValidException;
-import ru.pet.nursery.web.service.UserService;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -77,7 +75,6 @@ class UserServiceTest {
         expected.setLastName(null);
         expected.setAddress(faker.harryPotter().location());
         expected.setPhoneNumber(String.valueOf(faker.random().nextInt(12312331)));
-        when(userRepo.save(expected)).thenThrow(UserNotValidException.class);
         assertThatThrownBy(() -> userService.addUser(expected)).isInstanceOf(UserNotValidException.class);
     }
     @Test
@@ -89,7 +86,6 @@ class UserServiceTest {
         expected.setLastName(faker.harryPotter().character());
         expected.setAddress(faker.harryPotter().location());
         expected.setPhoneNumber(String.valueOf(faker.random().nextInt(12312331)));
-        when(userRepo.save(expected)).thenThrow(UserNotValidException.class);
         assertThatThrownBy(() -> userService.addUser(expected)).isInstanceOf(UserNotValidException.class);
     }
 

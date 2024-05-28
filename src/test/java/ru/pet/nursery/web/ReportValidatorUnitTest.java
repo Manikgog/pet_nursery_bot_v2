@@ -119,7 +119,7 @@ public class ReportValidatorUnitTest {
         Report report = new Report();
 
         when(animalRepo.findByUser(user)).thenReturn(animals);
-        when(reportRepo.findByUserAndReportDate(user, LocalDate.now())).thenReturn(report);
+        when(reportRepo.findByUserAndReportDate(user, LocalDate.now().atStartOfDay())).thenReturn(report);
         Assertions.assertThrows(ReportIsExistException.class, () -> reportValidator.validate(user));
     }
 
@@ -148,14 +148,12 @@ public class ReportValidatorUnitTest {
     @Test
     public void isReportInDataBase_Test(){
         User user = new User();
-        when(reportRepo.findByUserAndReportDate(user, LocalDate.now())).thenReturn(null);
+        when(reportRepo.findByUserAndReportDate(user, LocalDate.now().atStartOfDay())).thenReturn(null);
         Assertions.assertFalse(reportValidator.isReportInDataBase(user));
 
         Report report = new Report();
-        when(reportRepo.findByUserAndReportDate(user, LocalDate.now())).thenReturn(report);
+        when(reportRepo.findByUserAndReportDate(user, LocalDate.now().atStartOfDay())).thenReturn(report);
         Assertions.assertTrue(reportValidator.isReportInDataBase(user));
     }
-
-
 
 }

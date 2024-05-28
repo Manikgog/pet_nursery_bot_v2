@@ -16,16 +16,18 @@ import ru.pet.nursery.web.exception.ImageNotFoundException;
 import ru.pet.nursery.web.exception.ReportIsExistException;
 import ru.pet.nursery.web.validator.ReportValidator;
 import ru.pet.nursery.web.validator.VolunteerValidator;
+
 import java.io.*;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Objects;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 import static java.nio.file.StandardOpenOption.READ;
@@ -60,7 +62,7 @@ public class ReportService implements IReportService {
         try {
             reportValidator.validate(user);
         }catch (ReportIsExistException e){
-            return reportRepo.findByUserAndReportDate(user, LocalDate.now());
+            return reportRepo.findByUserAndReportDate(user, LocalDateTime.now());
         }
         Report newReport = new Report();
         newReport.setId(0);
@@ -246,7 +248,7 @@ public class ReportService implements IReportService {
      * @return List<Report> - список объектов Report
      */
     public List<Report> getListOfReportByDate(LocalDate date) {
-        return reportRepo.findByReportDate(date);
+        return reportRepo.findByReportDate(date.atStartOfDay());
     }
 
     /**
@@ -255,7 +257,7 @@ public class ReportService implements IReportService {
      * @param date - дата отчёта
      * @return объект отчёта
      */
-    public Report findByUserAndDate(User user, LocalDate date){
+    public Report findByUserAndDate(User user, LocalDateTime date){
         return reportRepo.findByUserAndReportDate(user, date);
     }
 

@@ -32,8 +32,9 @@ import ru.pet.nursery.web.validator.VolunteerValidator;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ReportControllerTestRestTemplateTest {
@@ -111,7 +112,7 @@ public class ReportControllerTestRestTemplateTest {
         if(isAdopted){
             User whoNotAdopt = findUserWhoNotAdopt();
             animal.setUser(whoNotAdopt);
-            animal.setTookDate(faker.date().past(faker.random().nextInt(5, 15), TimeUnit.DAYS).toLocalDateTime().toLocalDate());
+            animal.setTookDate(faker.date().birthdayLocalDate(1, 10));
         }else {
             animal.setUser(null);
         }
@@ -260,7 +261,7 @@ public class ReportControllerTestRestTemplateTest {
         User adopter = adopters.get(faker.random().nextInt(0, adopters.size() - 1));
         Report newReport = new Report();
         newReport.setId(0);
-        newReport.setReportDate(LocalDate.now());
+        newReport.setReportDate(LocalDate.now().atStartOfDay());
         newReport.setUser(adopter);
         Report reportFromDB = reportRepo.save(newReport);
         long reportId = reportFromDB.getId();
@@ -301,7 +302,7 @@ public class ReportControllerTestRestTemplateTest {
         User adopter = adopters.get(faker.random().nextInt(0, adopters.size() - 1));
         Report newReport = new Report();
         newReport.setId(0);
-        newReport.setReportDate(LocalDate.now());
+        newReport.setReportDate(LocalDate.now().atStartOfDay());
         newReport.setUser(adopter);
         Report report = reportRepo.save(newReport);
         // создаётся сущность запроса с фотографией
@@ -368,7 +369,7 @@ public class ReportControllerTestRestTemplateTest {
         User user = findUsersWhoAdopt().stream().findFirst().get();
         // создание отчёта
         Report newReport = new Report();
-        newReport.setReportDate(LocalDate.now());
+        newReport.setReportDate(LocalDate.now().atStartOfDay());
         newReport.setUser(user);
         Report reportFromDB = reportRepo.save(newReport);
         long correctReportId = reportFromDB.getId();
@@ -440,7 +441,7 @@ public class ReportControllerTestRestTemplateTest {
         User user = findUsersWhoAdopt().stream().findFirst().get();
         Report newReport = new Report();
         newReport.setId(0);
-        newReport.setReportDate(LocalDate.now());
+        newReport.setReportDate(LocalDate.now().atStartOfDay());
         newReport.setUser(user);
         Report reportFromDB = reportRepo.save(newReport);
         String diet = "Диета";
@@ -453,7 +454,7 @@ public class ReportControllerTestRestTemplateTest {
 
         Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         Assertions.assertThat(responseEntity.getBody()).isNotNull();
-        reportFromDB = reportRepo.findByUserAndReportDate(user, LocalDate.now());
+        reportFromDB = reportRepo.findByUserAndReportDate(user, LocalDateTime.now().truncatedTo(ChronoUnit.DAYS));
         Assertions.assertThat(responseEntity.getBody()).usingRecursiveComparison().isEqualTo(reportFromDB);
     }
 
@@ -481,7 +482,7 @@ public class ReportControllerTestRestTemplateTest {
         User user = findUserWhoNotAdopt();
         Report newReport = new Report();
         newReport.setId(0);
-        newReport.setReportDate(LocalDate.now());
+        newReport.setReportDate(LocalDate.now().atStartOfDay());
         newReport.setUser(user);
         Report reportFromDB = reportRepo.save(newReport);
         String diet = "";
@@ -504,7 +505,7 @@ public class ReportControllerTestRestTemplateTest {
         User user = findUsersWhoAdopt().stream().findFirst().get();
         Report newReport = new Report();
         newReport.setId(0);
-        newReport.setReportDate(LocalDate.now());
+        newReport.setReportDate(LocalDate.now().atStartOfDay());
         newReport.setUser(user);
         Report reportFromDB = reportRepo.save(newReport);
         String health = "Здоровье";
@@ -517,7 +518,7 @@ public class ReportControllerTestRestTemplateTest {
 
         Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         Assertions.assertThat(responseEntity.getBody()).isNotNull();
-        reportFromDB = reportRepo.findByUserAndReportDate(user, LocalDate.now());
+        reportFromDB = reportRepo.findByUserAndReportDate(user, LocalDate.now().atStartOfDay());
         Assertions.assertThat(responseEntity.getBody()).usingRecursiveComparison().isEqualTo(reportFromDB);
     }
 
@@ -542,7 +543,7 @@ public class ReportControllerTestRestTemplateTest {
         User user = findUsersWhoAdopt().stream().findFirst().get();
         Report newReport = new Report();
         newReport.setId(0);
-        newReport.setReportDate(LocalDate.now());
+        newReport.setReportDate(LocalDate.now().atStartOfDay());
         newReport.setUser(user);
         Report reportFromDB = reportRepo.save(newReport);
         String health = "";
@@ -565,7 +566,7 @@ public class ReportControllerTestRestTemplateTest {
         User user = findUsersWhoAdopt().stream().findFirst().get();
         Report newReport = new Report();
         newReport.setId(0);
-        newReport.setReportDate(LocalDate.now());
+        newReport.setReportDate(LocalDate.now().atStartOfDay());
         newReport.setUser(user);
         Report reportFromDB = reportRepo.save(newReport);
         String behaviour = "Здоровье";
@@ -578,7 +579,7 @@ public class ReportControllerTestRestTemplateTest {
 
         Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         Assertions.assertThat(responseEntity.getBody()).isNotNull();
-        reportFromDB = reportRepo.findByUserAndReportDate(user, LocalDate.now());
+        reportFromDB = reportRepo.findByUserAndReportDate(user, LocalDate.now().atStartOfDay());
         Assertions.assertThat(responseEntity.getBody()).usingRecursiveComparison().isEqualTo(reportFromDB);
     }
 
@@ -603,7 +604,7 @@ public class ReportControllerTestRestTemplateTest {
         User user = findUsersWhoAdopt().stream().findFirst().get();
         Report newReport = new Report();
         newReport.setId(0);
-        newReport.setReportDate(LocalDate.now());
+        newReport.setReportDate(LocalDate.now().atStartOfDay());
         newReport.setUser(user);
         Report reportFromDB = reportRepo.save(newReport);
         String behaviour = "";
@@ -626,7 +627,7 @@ public class ReportControllerTestRestTemplateTest {
         User user = findUsersWhoAdopt().stream().findFirst().get();
         Report newReport = new Report();
         newReport.setId(0);
-        newReport.setReportDate(LocalDate.now());
+        newReport.setReportDate(LocalDate.now().atStartOfDay());
         newReport.setUser(user);
         Report reportFromDB = reportRepo.save(newReport);
         boolean acceptAll = true;
@@ -639,7 +640,7 @@ public class ReportControllerTestRestTemplateTest {
 
         Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         Assertions.assertThat(responseEntity.getBody()).isNotNull();
-        reportFromDB = reportRepo.findByUserAndReportDate(user, LocalDate.now());
+        reportFromDB = reportRepo.findByUserAndReportDate(user, LocalDate.now().atStartOfDay());
         Assertions.assertThat(responseEntity.getBody()).usingRecursiveComparison().isEqualTo(reportFromDB);
     }
 
@@ -664,7 +665,7 @@ public class ReportControllerTestRestTemplateTest {
         User user = findUsersWhoAdopt().stream().findFirst().get();
         Report newReport = new Report();
         newReport.setId(0);
-        newReport.setReportDate(LocalDate.now());
+        newReport.setReportDate(LocalDate.now().atStartOfDay());
         newReport.setUser(user);
         Report reportFromDB = reportRepo.save(newReport);
         boolean acceptPhoto = true;
@@ -677,7 +678,7 @@ public class ReportControllerTestRestTemplateTest {
 
         Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         Assertions.assertThat(responseEntity.getBody()).isNotNull();
-        reportFromDB = reportRepo.findByUserAndReportDate(user, LocalDate.now());
+        reportFromDB = reportRepo.findByUserAndReportDate(user, LocalDate.now().atStartOfDay());
         Assertions.assertThat(responseEntity.getBody()).usingRecursiveComparison().isEqualTo(reportFromDB);
     }
 
@@ -701,7 +702,7 @@ public class ReportControllerTestRestTemplateTest {
         User user = findUsersWhoAdopt().stream().findFirst().get();
         Report newReport = new Report();
         newReport.setId(0);
-        newReport.setReportDate(LocalDate.now());
+        newReport.setReportDate(LocalDate.now().atStartOfDay());
         newReport.setUser(user);
         Report reportFromDB = reportRepo.save(newReport);
         boolean acceptDiet = true;
@@ -714,7 +715,7 @@ public class ReportControllerTestRestTemplateTest {
 
         Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         Assertions.assertThat(responseEntity.getBody()).isNotNull();
-        reportFromDB = reportRepo.findByUserAndReportDate(user, LocalDate.now());
+        reportFromDB = reportRepo.findByUserAndReportDate(user, LocalDate.now().atStartOfDay());
         Assertions.assertThat(responseEntity.getBody()).usingRecursiveComparison().isEqualTo(reportFromDB);
     }
 
@@ -740,7 +741,7 @@ public class ReportControllerTestRestTemplateTest {
         User user = findUsersWhoAdopt().stream().findFirst().get();
         Report newReport = new Report();
         newReport.setId(0);
-        newReport.setReportDate(LocalDate.now());
+        newReport.setReportDate(LocalDate.now().atStartOfDay());
         newReport.setUser(user);
         Report reportFromDB = reportRepo.save(newReport);
         boolean acceptHealth = true;
@@ -753,7 +754,7 @@ public class ReportControllerTestRestTemplateTest {
 
         Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         Assertions.assertThat(responseEntity.getBody()).isNotNull();
-        reportFromDB = reportRepo.findByUserAndReportDate(user, LocalDate.now());
+        reportFromDB = reportRepo.findByUserAndReportDate(user, LocalDate.now().atStartOfDay());
         Assertions.assertThat(responseEntity.getBody()).usingRecursiveComparison().isEqualTo(reportFromDB);
     }
 
@@ -779,7 +780,7 @@ public class ReportControllerTestRestTemplateTest {
         User user = findUsersWhoAdopt().stream().findFirst().get();
         Report newReport = new Report();
         newReport.setId(0);
-        newReport.setReportDate(LocalDate.now());
+        newReport.setReportDate(LocalDate.now().atStartOfDay());
         newReport.setUser(user);
         Report reportFromDB = reportRepo.save(newReport);
         boolean acceptBehaviour = true;
@@ -792,7 +793,7 @@ public class ReportControllerTestRestTemplateTest {
 
         Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         Assertions.assertThat(responseEntity.getBody()).isNotNull();
-        reportFromDB = reportRepo.findByUserAndReportDate(user, LocalDate.now());
+        reportFromDB = reportRepo.findByUserAndReportDate(user, LocalDate.now().atStartOfDay());
         Assertions.assertThat(responseEntity.getBody()).usingRecursiveComparison().isEqualTo(reportFromDB);
     }
 
@@ -820,14 +821,14 @@ public class ReportControllerTestRestTemplateTest {
         for(User user : adopters){
             Report newReport = new Report();
             newReport.setId(0);
-            newReport.setReportDate(LocalDate.now());
+            newReport.setReportDate(LocalDate.now().atStartOfDay());
             newReport.setUser(user);
             reports.add(reportRepo.save(newReport));
         }
 
         ResponseEntity<List<Report>> responseEntity = testRestTemplate
                 .exchange(
-                        "http://localhost:" + port + "/report/" + LocalDate.now(),
+                        "http://localhost:" + port + "/report?date=" + LocalDate.now(),
                         HttpMethod.GET,
                         HttpEntity.EMPTY,
                         new ParameterizedTypeReference<>() {
