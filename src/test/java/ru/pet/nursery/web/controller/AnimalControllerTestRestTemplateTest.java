@@ -204,6 +204,14 @@ public class AnimalControllerTestRestTemplateTest {
                     String.class
             );
             Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            String photoPath = animalRepo.findById(animal.getId()).get().getPhotoPath();
+            strPath = System.getProperty("user.dir");
+            if(strPath.contains("\\")){
+                strPath += "\\" + animalImagesDir + "\\";
+            }else{
+                strPath += "/" + animalImagesDir + "/";
+            }
+            Assertions.assertThat(photoPath).isEqualTo(strPath + animal.getId() + ".jpg");
         }
     }
 

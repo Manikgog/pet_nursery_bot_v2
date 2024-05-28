@@ -1,33 +1,41 @@
 package ru.pet.nursery.web.service;
 
+import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import ru.pet.nursery.entity.Animal;
 import ru.pet.nursery.entity.Report;
 import ru.pet.nursery.entity.User;
+import ru.pet.nursery.manager.AbstractManager;
 import ru.pet.nursery.repository.ReportRepo;
 import ru.pet.nursery.repository.UserRepo;
 import ru.pet.nursery.web.exception.EntityNotFoundException;
 import ru.pet.nursery.web.exception.IllegalFieldException;
+import ru.pet.nursery.web.exception.ImageNotFoundException;
 import ru.pet.nursery.web.exception.ReportIsExistException;
 import ru.pet.nursery.web.validator.ReportValidator;
 import ru.pet.nursery.web.validator.VolunteerValidator;
-
 import java.io.*;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
+import static java.nio.file.StandardOpenOption.READ;
 
 @Service
 public class ReportService implements IReportService {
-    @Value("${path.to.report_foto.folder}")
-    private String REPORT_FOTO;
+    private final Logger logger = LoggerFactory.getLogger(AbstractManager.class);
+    @Value("${path.to.report_photo.folder}")
+    private String REPORT_PHOTO;
     private final ReportRepo reportRepo;
     private final UserRepo userRepo;
     private final ReportValidator reportValidator;
@@ -86,7 +94,7 @@ public class ReportService implements IReportService {
     public Report updateFoto(long id, MultipartFile reportFoto) throws IOException {
         Report reportFromDB = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
         String strPath = System.getProperty("user.dir");
-        strPath += REPORT_FOTO;
+        strPath += "/" + REPORT_PHOTO;
         Path path = Path.of(strPath);
         Path filePath = Path.of(path.toString(), reportFromDB.getId() + "." + getExtension(Objects.requireNonNull(reportFoto.getOriginalFilename())));
         Files.createDirectories(filePath.getParent());
@@ -260,4 +268,31 @@ public class ReportService implements IReportService {
     }
 
 
+    public void getPhotoById(long id, HttpServletResponse response) {
+        logger.info("Method getPhotoById of ReportService class with parameters long -> {}, HttpServletResponse -> {}", id, response);
+        Report report = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+        if(report.getPathToPhoto() == null){
+            throw new ImageNotFoundException("Путь к файлу с изображением отсутствует!");
+        }
+        Path path = Paths.get(report.getPathToPhoto());
+        if(!Files.exists(path)){
+            throw new ImageNotFoundException("Файл с изображением не найден!");
+        }
+        int size;
+        SeekableByteChannel seekableByteChannel;
+        try(SeekableByteChannel sbc = Files.newByteChannel(path, EnumSet.of(READ))){
+            seekableByteChannel = sbc;
+            size = (int)seekableByteChannel.size();
+        } catch (IOException e) {
+            throw new ImageNotFoundException(e.getMessage());
+        }
+        try(InputStream is = Files.newInputStream(path);
+            OutputStream os = response.getOutputStream()){
+            response.setContentType(Files.probeContentType(path));
+            response.setContentLength(size);
+            is.transferTo(os);
+        } catch (IOException e) {
+            throw new RuntimeException(e.getCause() + "\n" + e.getMessage() + "\n" + Arrays.toString(e.getStackTrace()));
+        }
+    }
 }

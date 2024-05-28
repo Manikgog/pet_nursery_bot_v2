@@ -122,7 +122,7 @@ public class AnimalController {
             }
     )
     @GetMapping("/{id}/photo")
-    public void getAnimalPhoto(@PathVariable("id") int id, HttpServletResponse response) throws IOException {
+    public void getAnimalPhoto(@PathVariable("id") int id, HttpServletResponse response) {
         animalService.getAnimalPhoto(id, response);
     }
 

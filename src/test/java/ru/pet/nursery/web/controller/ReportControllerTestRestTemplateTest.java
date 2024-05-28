@@ -25,10 +25,13 @@ import ru.pet.nursery.repository.AnimalRepo;
 import ru.pet.nursery.repository.ReportRepo;
 import ru.pet.nursery.repository.ShelterRepo;
 import ru.pet.nursery.repository.UserRepo;
+import ru.pet.nursery.web.exception.EntityNotFoundException;
 import ru.pet.nursery.web.service.ReportService;
 import ru.pet.nursery.web.validator.ReportValidator;
 import ru.pet.nursery.web.validator.VolunteerValidator;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -36,7 +39,9 @@ import java.util.concurrent.TimeUnit;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ReportControllerTestRestTemplateTest {
     @Value("${path.to.animals.folder}")
-    private String animalImagesDir;
+    private String ANIMAL_IMAGES;
+    @Value("${path.to.report_photo.folder}")
+    private String REPORT_PHOTO;
     @LocalServerPort
     private int port;
     @Autowired
@@ -310,25 +315,107 @@ public class ReportControllerTestRestTemplateTest {
                 String.class
         );
         Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        String photoPath = reportRepo.findById(report.getId()).get().getPathToPhoto();
+        String strPath = System.getProperty("user.dir");
+        if(strPath.contains("\\")){
+            strPath += "\\" + REPORT_PHOTO + "\\";
+        }else{
+            strPath += "/" + REPORT_PHOTO + "/";
+        }
+        Assertions.assertThat(photoPath).isEqualTo(strPath + report.getId() + ".jpg");
     }
 
 
     public HttpEntity<MultiValueMap<String, Object>> getRequestEntity(){
         String strPath = System.getProperty("user.dir");
         if(strPath.contains("\\")){
-            strPath += "\\" + animalImagesDir + "\\1.jpg";
+            strPath += "\\" + ANIMAL_IMAGES + "\\1.jpg";
         }else{
-            strPath += "/" + animalImagesDir + "/1.jpg";
+            strPath += "/" + ANIMAL_IMAGES + "/1.jpg";
         }
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         FileSystemResource fileSystemResource = new FileSystemResource(strPath);
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("animalPhoto", fileSystemResource);
+        return new HttpEntity<>(body, headers);
+    }
+
+
+    @Test
+    public void getAnimalPhoto_negativeTest(){
+        // получение идентификатора, которого нет в таблице animal_table
+        List<Long> reportIds = reportRepo.findAll().stream().map(Report::getId).toList();
+        long wrongReportId = 1;
+        while(reportIds.contains(wrongReportId)){
+            wrongReportId = faker.random().nextInt(1, 100);
+        }
+        ResponseEntity<String> responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/report/{wrongReportId}/photo",
+                HttpMethod.GET,
+                HttpEntity.EMPTY,
+                String.class,
+                Map.of("wrongReportId", wrongReportId));
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo("Ресурс с id = " + wrongReportId + " не найден");
+
+    }
+
+
+    @Test
+    public void getAnimalPhoto_positiveTest() throws IOException {
+        // получение пользователя, который усыновил питомца
+        User user = findUsersWhoAdopt().stream().findFirst().get();
+        // создание отчёта
+        Report newReport = new Report();
+        newReport.setReportDate(LocalDate.now());
+        newReport.setUser(user);
+        Report reportFromDB = reportRepo.save(newReport);
+        long correctReportId = reportFromDB.getId();
+        // сначала надо загрузить фотографию для найденного идентификатора животного
+        updatePhoto(correctReportId);
+
+        ResponseEntity<String> responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/report/{correctReportId}/photo",
+                HttpMethod.GET,
+                HttpEntity.EMPTY,
+                String.class,
+                Map.of("correctReportId", correctReportId)
+        );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+
+    public void updatePhoto(long id) throws IOException {
+        Report reportFromDB = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+        String strPath = System.getProperty("user.dir");
+        if(strPath.contains("\\")){
+            strPath += "\\" + ANIMAL_IMAGES + "\\1.jpg";
+        }else{
+            strPath += "/" + ANIMAL_IMAGES + "/1.jpg";
+        }
+
+        Path filePath = Path.of(strPath);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        FileSystemResource fileSystemResource = new FileSystemResource(filePath);
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("animalPhoto", fileSystemResource);
         HttpEntity<MultiValueMap<String, Object>> requestEntity
                 = new HttpEntity<>(body, headers);
-        return requestEntity;
+
+        ResponseEntity<Report> responseEntity = testRestTemplate.exchange(
+                "http://localhost:" + port + "/report/{id}/photo",
+                HttpMethod.PUT,
+                requestEntity,
+                Report.class,
+                Map.of("id", id)
+        );
     }
+
 
     @Test
     public void putPhoto_negativeTestByNotValidAdopterId(){

@@ -405,8 +405,6 @@ public class InfoManager extends AbstractManager {
      * @param callbackQuery - запрос обратного вызова
      */
     public void dogInformation(CallbackQuery callbackQuery){
-        String cbq = new Gson().toJson(callbackQuery);
-        System.out.println(cbq);
         logger.info("The dogInformation method of the InfoManager class works. Parameter: CallbackQuery -> {}", callbackQuery);
         List<Animal> dogs = animalService.getAllAnimalsByType(AnimalType.DOG)
                 .stream()

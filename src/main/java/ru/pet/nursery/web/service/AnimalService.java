@@ -29,10 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 import static java.nio.file.StandardOpenOption.READ;
@@ -153,7 +150,7 @@ public class AnimalService implements IAnimalService {
             response.setContentLength(size);
             is.transferTo(os);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getCause() + e.getMessage() + Arrays.toString(e.getStackTrace()));
         }
     }
 

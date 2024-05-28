@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -92,7 +93,7 @@ public class ReportController {
             }
     )
     @PutMapping(value = "/{reportId}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Report> putFoto(@PathVariable long reportId, @RequestParam MultipartFile animalPhoto) throws IOException {
+    public ResponseEntity<Report> putPhoto(@PathVariable long reportId, @RequestParam MultipartFile animalPhoto) throws IOException {
         return ResponseEntity.ok(reportService.updateFoto(reportId, animalPhoto));
     }
 
@@ -272,5 +273,24 @@ public class ReportController {
                                                                   @PathVariable LocalDate date){
         return ResponseEntity.ok(reportService.getListOfReportByDate(date));
     }
+
+
+
+    @Operation(summary = "Получение фотографии животного по id отчёта",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Получение изображения животного id отчёта прошло успешно",
+                            content = @Content(
+                                    mediaType = MediaType.MULTIPART_FORM_DATA_VALUE
+                            )
+                    )
+            }
+    )
+    @GetMapping("/{id}/photo")
+    public void getPhotoById(@PathVariable long id, HttpServletResponse response){
+        reportService.getPhotoById(id, response);
+    }
+
 
 }

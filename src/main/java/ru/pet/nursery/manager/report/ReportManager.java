@@ -2,6 +2,7 @@ package ru.pet.nursery.manager.report;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Document;
@@ -43,6 +44,8 @@ public class ReportManager extends AbstractManager {
     private final UserRepo userRepo;
     private final AnimalRepo animalRepo;
     private final ReportService reportService;
+    private ObjectMapper mapper;
+
 
     public ReportManager(AnswerMethodFactory answerMethodFactory,
                          KeyboardFactory keyboardFactory,
@@ -58,6 +61,7 @@ public class ReportManager extends AbstractManager {
         this.userRepo = userRepo;
         this.animalRepo = animalRepo;
         this.reportService = reportService;
+        this.mapper = new ObjectMapper();
     }
 
     @Override
@@ -132,7 +136,7 @@ public class ReportManager extends AbstractManager {
      * @param callbackQuery - запрос обратного вызова пользователя
      */
     public void answerPhoto(CallbackQuery callbackQuery){
-        logger.info("Processing callbackQuery in method answerFoto ReportManager class: {}", callbackQuery);
+        logger.info("Processing callbackQuery in method answerPhoto ReportManager class: {}", callbackQuery);
         // проверить есть ли в базе данных пользователь с таким chatId, который усыновил животное
         long adopterId = callbackQuery.message().chat().id();
         User user = userRepo.findById(adopterId).orElseThrow(() -> new EntityNotFoundException(adopterId));
@@ -295,7 +299,7 @@ public class ReportManager extends AbstractManager {
     public void answerUserIsNotAdopter(CallbackQuery callbackQuery){
         logger.warn("Method answerUserIsNotAdopter. User with id = {} is not adopter", callbackQuery.message().chat().id());
         String answerMessage = """
-                  Вы не усыновляли нашего питомца
+                Вы не усыновляли нашего питомца
                 """;
         SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                 answerMessage,
@@ -358,7 +362,6 @@ public class ReportManager extends AbstractManager {
             Files.createDirectories(filePath.getParent());
             Files.deleteIfExists(filePath);
 
-            ObjectMapper mapper = new ObjectMapper();
             JsonNode jsonNode = mapper.readTree(url);
 
             String urlTelegramFile = jsonNode.get("result").get("file_path").asText();
@@ -444,6 +447,8 @@ public class ReportManager extends AbstractManager {
      * @param update - обновление от пользователя
      */
     public void uploadBehaviourToReport(Update update){
+        String cbq = new Gson().toJson(update);
+        System.out.println(cbq);
         logger.info("Processing update in method uploadBehaviourToReport ReportManager class: {}", update);
         long adopterId = update.message().chat().id();
         User user = userRepo.findById(adopterId).orElseThrow(() -> new IllegalFieldException("Идентификатор пользователя " + adopterId + " отсутствует в базе данных"));

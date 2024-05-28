@@ -128,23 +128,6 @@ public class InfoManagerMockTest {
                                 START)));
     }
 
-    private Update getUpdate(String filename) throws IOException {
-        String strPath = System.getProperty("user.dir");
-        if(strPath.contains("\\")){
-            strPath += "\\src\\test\\resources\\ru.pet.nursery\\manager\\info\\" + filename;
-        }else{
-            strPath += "/src/test/resources/ru.pet.nursery/manager/info/" + filename;
-        }
-        String json = Files.readString(
-                Paths.get(Objects.requireNonNull(strPath)
-                ), Charset.forName("WINDOWS-1251")
-        );
-        Update update = BotUtils.fromJson(
-                json,
-                Update.class
-        );
-        return update;
-    }
 
 
     @Test
@@ -930,7 +913,6 @@ public class InfoManagerMockTest {
             infoManager.putTOUserChatId_AnimalId(i + 10, faker.random().nextInt(1, dogs.size() - 2));
         }
         actual = infoManager.getNextId(chatId, dogs);
-        expected = 0;
         Assertions.assertThat(expected).isEqualTo(actual);
     }
 
@@ -1171,6 +1153,24 @@ public class InfoManagerMockTest {
         );
 
         return BotUtils.fromJson(json, CallbackQuery.class);
+    }
+
+
+    private Update getUpdate(String filename) throws IOException {
+        String strPath = System.getProperty("user.dir");
+        if(strPath.contains("\\")){
+            strPath += "\\src\\test\\resources\\ru.pet.nursery\\manager\\info\\" + filename;
+        }else{
+            strPath += "/src/test/resources/ru.pet.nursery/manager/info/" + filename;
+        }
+        String json = Files.readString(
+                Paths.get(Objects.requireNonNull(strPath)
+                ), Charset.forName("WINDOWS-1251")
+        );
+        return BotUtils.fromJson(
+                json,
+                Update.class
+        );
     }
 
 }
