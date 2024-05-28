@@ -16,7 +16,7 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Service
-public class ShelterService {
+public class ShelterService implements IShelterService {
 
     private final ShelterRepo shelterRepo;
 
@@ -110,7 +110,7 @@ public class ShelterService {
     }
 
     public List<Nursery> getAll() {
-        return shelterRepo.findAll().stream().toList();
+        return shelterRepo.findAll();
     }
 
 }

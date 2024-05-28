@@ -13,8 +13,11 @@ import ru.pet.nursery.repository.VolunteerRepo;
 import ru.pet.nursery.web.exception.EntityNotFoundException;
 import ru.pet.nursery.web.exception.IllegalFieldException;
 import ru.pet.nursery.web.exception.IllegalParameterException;
+import ru.pet.nursery.web.service.VolunteerService;
 import ru.pet.nursery.web.validator.VolunteerValidator;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
@@ -29,8 +32,6 @@ public class VolunteerServiceMockTest {
     VolunteerValidator validator;
     @InjectMocks
     VolunteerService volunteerService;
-
-
     private final Faker faker = new Faker();
 
     /**
@@ -320,5 +321,14 @@ public class VolunteerServiceMockTest {
         Mockito.doThrow(new EntityNotFoundException((long) id)).when(validator).validateId(id);
         Assertions.assertThrows(EntityNotFoundException.class, () -> volunteerService.delete(id));
     }
+
+
+    @Test
+    public void getAll_Test(){
+        List<Volunteer> volunteers = new ArrayList<>();
+        when(volunteerRepo.findAll()).thenReturn(volunteers);
+        Assertions.assertEquals(volunteers, volunteerService.getAll());
+    }
+
 
 }

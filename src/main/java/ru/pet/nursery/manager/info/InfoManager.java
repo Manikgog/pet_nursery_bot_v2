@@ -1,5 +1,6 @@
 package ru.pet.nursery.manager.info;
 
+import com.google.gson.Gson;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Update;
@@ -12,9 +13,10 @@ import ru.pet.nursery.enumerations.AnimalType;
 import ru.pet.nursery.factory.AnswerMethodFactory;
 import ru.pet.nursery.factory.KeyboardFactory;
 import ru.pet.nursery.manager.AbstractManager;
-import ru.pet.nursery.web.service.AnimalService;
-import ru.pet.nursery.web.service.ShelterService;
-
+import ru.pet.nursery.repository.AnimalRepo;
+import ru.pet.nursery.web.exception.EntityNotFoundException;
+import ru.pet.nursery.web.service.IAnimalService;
+import ru.pet.nursery.web.service.IShelterService;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -26,19 +28,22 @@ import static ru.pet.nursery.data.CallbackData.*;
 public class InfoManager extends AbstractManager {
     private final AnswerMethodFactory answerMethodFactory;
     private final KeyboardFactory keyboardFactory;
-    private final ShelterService shelterService;
-    private final AnimalService animalService;
-    private final Map<Long, Integer> userId_animalId = new HashMap<>(); // словарь соответствия chatId идентификатору животного, чтобы передавать новую фотографию
+    private final IShelterService shelterService;
+    private final AnimalRepo animalRepo;
+    private final IAnimalService animalService;
+    private final Map<Long, Long> userId_animalId = new HashMap<>(); // словарь соответствия chatId идентификатору животного, чтобы передавать новую фотографию
 
     public InfoManager(AnswerMethodFactory answerMethodFactory,
                        KeyboardFactory keyboardFactory,
                        TelegramBot telegramBot,
-                       ShelterService shelterService,
-                       AnimalService animalService) {
+                       IShelterService shelterService,
+                       AnimalRepo animalRepo,
+                       IAnimalService animalService) {
         super(telegramBot);
         this.answerMethodFactory = answerMethodFactory;
         this.keyboardFactory = keyboardFactory;
         this.shelterService = shelterService;
+        this.animalRepo = animalRepo;
         this.animalService = animalService;
     }
 
@@ -48,7 +53,7 @@ public class InfoManager extends AbstractManager {
      * @param update - объект класса Update
      */
     @Override
-    public void answerCommand(Update update){
+    public void answerCommand(Update update) {
         logger.info("the answerCommand method of the InfoManager class works. Parameter: Update -> {}", update);
         SendMessage sendMessage = answerMethodFactory.getSendMessage(update.message().chat().id(),
                 "Здесь вы можете посмотреть информацию о приютах, питомцах и требованиях к усыновителю",
@@ -63,12 +68,8 @@ public class InfoManager extends AbstractManager {
                                 WHAT_NEED_FOR_ADOPTION,
                                 START)
                 ));
+
         telegramBot.execute(sendMessage);
-    }
-
-    @Override
-    public void answerMessage(Update update) {
-
     }
 
 
@@ -219,11 +220,12 @@ public class InfoManager extends AbstractManager {
             );
             return;
         }
-        int id = Math.toIntExact(cats.get(getNextId(chatId, cats)).getId());
-        String name = animalService.get(id).getAnimalName();
-        if(animalService.get(id).getPhotoPath() == null){
+        long id = cats.get((int)getNextId(chatId, cats)).getId();
+        Animal animal = animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+        String name = animal.getAnimalName();
+        if(animal.getPhotoPath() == null){
             SendMessage sendMessage = answerMethodFactory.getSendMessage(chatId,
-                    "Фотография отсуствует",
+                    "Фотография отсутствует",
                     keyboardFactory.getInlineKeyboard(
                             List.of(name,
                                     "Следующее фото",
@@ -237,7 +239,8 @@ public class InfoManager extends AbstractManager {
             return;
         }
         byte[] photoArray = animalService.getPhotoByteArray(id);
-        SendPhoto sendPhoto = answerMethodFactory.getSendFoto(callbackQuery.message().chat().id(),
+        SendPhoto sendPhoto = answerMethodFactory.getSendFoto(
+                callbackQuery.message().chat().id(),
                 photoArray,
                 keyboardFactory.getInlineKeyboard(
                         List.of(name,
@@ -262,6 +265,8 @@ public class InfoManager extends AbstractManager {
      * @throws IOException - исключение ввода-вывода
      */
     public void dogPhoto(CallbackQuery callbackQuery) throws IOException {
+        String cbq = new Gson().toJson(callbackQuery);
+        System.out.println(cbq);
         logger.info("The dogPhoto method of the InfoManager class works. Parameter: CallbackQuery -> {}", callbackQuery);
         long chatId = callbackQuery.message().chat().id();
         List<Animal> dogs = animalService.getAllAnimalsByType(AnimalType.DOG)
@@ -278,11 +283,12 @@ public class InfoManager extends AbstractManager {
             );
             return;
         }
-        int id = Math.toIntExact(dogs.get(getNextId(chatId, dogs)).getId());
-        String name = animalService.get(id).getAnimalName();
-        if(animalService.get(id).getPhotoPath() == null){
+        long id = dogs.get((int)getNextId(chatId, dogs)).getId();
+        Animal animal = animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+        String name = animal.getAnimalName();
+        if(animal.getPhotoPath() == null){
             SendMessage sendMessage = answerMethodFactory.getSendMessage(chatId,
-                    "Фотография отсуствует",
+                    "Фотография отсутствует",
                     keyboardFactory.getInlineKeyboard(
                             List.of(name,
                                     "Следующее фото",
@@ -317,22 +323,22 @@ public class InfoManager extends AbstractManager {
      * @param animals - список животных
      * @return новый идентификатор
      */
-    private int getNextId(long chatId, List<Animal> animals){
+    public long getNextId(long chatId, List<Animal> animals){
         logger.info("The getNextId method of the InfoManager class works. Parameters: long -> {}, List<Animal> -> {}", chatId, animals);
         if(userId_animalId.size() > 1000){
             userId_animalId.clear();
         }
         if(userId_animalId.containsKey(chatId)){
-            int newId = userId_animalId.get(chatId) + 1;
+            long newId = userId_animalId.get(chatId) + 1;
             if(newId >= animals.size()){
                 newId = 0;
-                userId_animalId.put(chatId, 0);
+                userId_animalId.put(chatId, 0L);
                 return newId;
             }
             userId_animalId.put(chatId, newId);
             return newId;
         }
-        userId_animalId.put(chatId, 0);
+        userId_animalId.put(chatId, 0L);
         return 0;
     }
 
@@ -342,6 +348,8 @@ public class InfoManager extends AbstractManager {
      * @param callbackQuery - запрос обратного вызова
      */
     public void dogsInformation(CallbackQuery callbackQuery){
+        String cbq = new Gson().toJson(callbackQuery);
+        System.out.println(cbq);
         logger.info("The dogsInformation method of the InfoManager class works. Parameter: CallbackQuery -> {}", callbackQuery);
         SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                 "Здесь вы можете посмотреть фотографии собак",
@@ -370,8 +378,8 @@ public class InfoManager extends AbstractManager {
                 .filter(a -> a.getUser() == null)
                 .toList();
         if(userId_animalId.containsKey(callbackQuery.message().chat().id())) {
-            int catIndex = userId_animalId.get(callbackQuery.message().chat().id());
-            String description = cats.get(catIndex).getDescription();
+            long catIndex = userId_animalId.get(callbackQuery.message().chat().id());
+            String description = cats.get((int)catIndex).getDescription();
             SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                     description,
                     keyboardFactory.getInlineKeyboard(
@@ -398,8 +406,8 @@ public class InfoManager extends AbstractManager {
                 .filter(a -> a.getUser() == null)
                 .toList();
         if(userId_animalId.containsKey(callbackQuery.message().chat().id())) {
-            int dogIndex = userId_animalId.get(callbackQuery.message().chat().id());
-            String description = dogs.get(dogIndex).getDescription();
+            long dogIndex = userId_animalId.get(callbackQuery.message().chat().id());
+            String description = dogs.get((int)dogIndex).getDescription();
             SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                     description,
                     keyboardFactory.getInlineKeyboard(
@@ -410,4 +418,9 @@ public class InfoManager extends AbstractManager {
             telegramBot.execute(sendMessage);
         }
     }
+
+    public void putTOUserChatId_AnimalId(long chatId, long animalId){
+        userId_animalId.put(chatId, animalId);
+    }
+
 }

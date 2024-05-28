@@ -12,6 +12,7 @@ import ru.pet.nursery.entity.User;
 import ru.pet.nursery.repository.UserRepo;
 import ru.pet.nursery.web.exception.UserNotFoundException;
 import ru.pet.nursery.web.exception.UserNotValidException;
+import ru.pet.nursery.web.service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;

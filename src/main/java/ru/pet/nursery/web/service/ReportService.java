@@ -1,33 +1,39 @@
 package ru.pet.nursery.web.service;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
+import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.pet.nursery.entity.Report;
 import ru.pet.nursery.entity.User;
+import ru.pet.nursery.manager.AbstractManager;
 import ru.pet.nursery.repository.ReportRepo;
 import ru.pet.nursery.repository.UserRepo;
 import ru.pet.nursery.web.exception.EntityNotFoundException;
 import ru.pet.nursery.web.exception.IllegalFieldException;
+import ru.pet.nursery.web.exception.ImageNotFoundException;
 import ru.pet.nursery.web.exception.ReportIsExistException;
 import ru.pet.nursery.web.validator.ReportValidator;
 import ru.pet.nursery.web.validator.VolunteerValidator;
-
 import java.io.*;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
+
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
+import static java.nio.file.StandardOpenOption.READ;
 
 @Service
-public class ReportService {
-    @Value("${path.to.report_foto.folder}")
-    private String REPORT_FOTO;
+public class ReportService implements IReportService {
+    private final Logger logger = LoggerFactory.getLogger(AbstractManager.class);
+    private final String REPORT_PHOTO = "test_report_photo";
     private final ReportRepo reportRepo;
     private final UserRepo userRepo;
     private final ReportValidator reportValidator;
@@ -46,7 +52,7 @@ public class ReportService {
     /**
      * Метод для загрузки нового отчёта в базу данных
      * @param adopterId - идентификатор усыновителя из таблицы пользователей
-     * @return ResponseEntity.of(Optional.of(reportFromDB))
+     * @return объект класса Report
      */
     public Report upload(long adopterId) {
         User user = userRepo.findById(adopterId)
@@ -66,7 +72,7 @@ public class ReportService {
     /**
      * Метод для удаления отчёта по его идентификатору
      * @param id - идентификатор отчёта
-     * @return удалённый из базы данных отчёт
+     * @return объект класса Report, удалённый из базы данных отчёт
      */
     public Report delete(long id) {
         Report reportFromDB = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
@@ -79,20 +85,26 @@ public class ReportService {
      * которая загружается на диск, а путь к ней в базу
      * данных
      * @param id - идентификатор отчёта
-     * @param reportFoto - файл с фотографией
+     * @param reportPhoto - файл с фотографией
      * @return ResponseEntity.ok()
      * @throws IOException - исключение ввода-вывода
      */
-    public ResponseEntity updateFoto(long id, MultipartFile reportFoto) throws IOException {
+    public Report updateFoto(long id, MultipartFile reportPhoto) throws IOException {
         Report reportFromDB = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
         String strPath = System.getProperty("user.dir");
-        strPath += REPORT_FOTO;
+        if(strPath.contains("\\")){
+            strPath += "\\" + REPORT_PHOTO;
+        }else{
+            strPath += "/" + REPORT_PHOTO;
+        }
         Path path = Path.of(strPath);
-        Path filePath = Path.of(path.toString(), reportFromDB.getId() + "." + getExtension(Objects.requireNonNull(reportFoto.getOriginalFilename())));
+        long reportId = reportFromDB.getId();
+        String extension = getExtension(reportPhoto.getOriginalFilename());
+        Path filePath = Path.of(path.toString(), reportId + "." + extension);
         Files.createDirectories(filePath.getParent());
         Files.deleteIfExists(filePath);
 
-        try(InputStream is = reportFoto.getInputStream();
+        try(InputStream is = reportPhoto.getInputStream();
             OutputStream os = Files.newOutputStream(filePath, CREATE_NEW);
             BufferedInputStream bis = new BufferedInputStream(is, 1024);
             BufferedOutputStream bos = new BufferedOutputStream(os, 1024)
@@ -100,24 +112,22 @@ public class ReportService {
             bis.transferTo(bos);
         }
 
-        updateFotoPathColumn(filePath.toString(), reportFromDB.getId());
-
-        return ResponseEntity.ok().build();
+        return updateFotoPathColumn(filePath.toString(), reportFromDB.getId());
     }
 
     /**
      * Метод для поиска и возвращения строки, содержащей расширения файла
      * @param fileName - имя файла
-     * @return строка, содержащая расширения файла
+     * @return строка, содержащая расширение файла
      */
     public String getExtension(String fileName){
         return fileName.substring(fileName.lastIndexOf('.') + 1);
     }
 
-    private void updateFotoPathColumn(String path, long id){
+    private Report updateFotoPathColumn(String path, long id){
         Report reportOld = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
         reportOld.setPathToPhoto(path);
-        Report reportNew = reportRepo.save(reportOld);
+        return reportRepo.save(reportOld);
     }
 
 
@@ -125,7 +135,7 @@ public class ReportService {
      * Метод для обновления поля diet в строке с идентификатором id
      * @param id - идентификатор отчёта в таблице отчётов
      * @param diet - строка с описанием диеты питомца
-     * @return ResponseEntity<Report> - измененный объект отчёта из базы данных
+     * @return объект класса Report - измененный объект отчёта из базы данных
      */
     public Report updateDiet(long id, String diet) {
         Report reportOld = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
@@ -140,7 +150,7 @@ public class ReportService {
      *
      * @param id     - идентификатор отчёта в таблице отчётов
      * @param health - строка с описанием здоровья питомца
-     * @return ResponseEntity<Report> - измененный объект отчёта из базы данных
+     * @return объект класса Report - измененный объект отчёта из базы данных
      */
     public Report updateHealth(long id, String health) {
         Report reportOld = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
@@ -154,7 +164,7 @@ public class ReportService {
      * Метод для обновления поля behaviour в строке с идентификатором id
      * @param id - идентификатор отчёта в таблице отчётов
      * @param behaviour - строка с описанием поведения питомца
-     * @return ResponseEntity<Report> - измененный объект отчёта из базы данных
+     * @return объект класса Report - измененный объект отчёта из базы данных
      */
     public Report updateBehaviour(long id, String behaviour) {
         Report reportOld = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
@@ -168,7 +178,7 @@ public class ReportService {
      * Метод для обновления поля allItemsIsAccepted в строке с идентификатором id
      * @param id - идентификатор отчёта в таблице отчётов
      * @param isAllItemsAccepted - приняты или не приняты (true или false) все пункты отчёта, т.е. присутствуют ли они в базе данных
-     * @return ResponseEntity<Report> - измененный объект отчёта из базы данных
+     * @return объект класса Report - измененный объект отчёта из базы данных
      */
     public Report updateIsAllItemsIsAccepted(long id, boolean isAllItemsAccepted) {
         Report reportOld = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
@@ -181,7 +191,7 @@ public class ReportService {
      * Метод для обновления поля fotoIsAaccepted в строке с идентификатором id
      * @param id - идентификатор отчёта в таблице отчётов
      * @param isPhotoAccepted - принята или не принята (true или false) волонтером фотография питомца
-     * @return ResponseEntity<Report> - измененный объект отчёта из базы данных
+     * @return объект класса Report - измененный объект отчёта из базы данных
      */
     public Report updatePhotoIsAccepted(long id, boolean isPhotoAccepted) {
         Report reportOld = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
@@ -194,7 +204,7 @@ public class ReportService {
      * Метод для обновления поля dietIsAccepted в строке с идентификатором id
      * @param id - идентификатор отчёта в таблице отчётов
      * @param isDietAccepted - принята или не принята (true или false) волонтером отчёт о диете питомца
-     * @return ResponseEntity<Report> - измененный объект отчёта из базы данных
+     * @return объект класса Report - измененный объект отчёта из базы данных
      */
     public Report updateIsDietAccepted(long id, boolean isDietAccepted) {
         Report reportOld = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
@@ -207,7 +217,7 @@ public class ReportService {
      * Метод для обновления поля healthIsAccepted в строке с идентификатором id
      * @param id - идентификатор отчёта в таблице отчётов
      * @param isHealthAccepted - принят или не принят (true или false) волонтером отчёт о здоровье питомца
-     * @return ResponseEntity<Report> - измененный объект отчёта из базы данных
+     * @return объект класса Report - измененный объект отчёта из базы данных
      */
     public Report updateIsHealthAccepted(long id, boolean isHealthAccepted) {
         Report reportOld = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
@@ -221,7 +231,7 @@ public class ReportService {
      * Метод для обновления поля behaviourIsAccepted в строке с идентификатором id
      * @param id - идентификатор отчёта в таблице отчётов
      * @param isBehaviourAccepted - принят или не принят (true или false) волонтером отчёт о поведении питомца
-     * @return ResponseEntity<Report> - измененный объект отчёта из базы данных
+     * @return объект класса Report - измененный объект отчёта из базы данных
      */
     public Report updateIsBehaviourAccepted(long id, boolean isBehaviourAccepted) {
         Report reportOld = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
@@ -233,7 +243,7 @@ public class ReportService {
     /**
      * Метод для получения из базы данных списка отчётов по переданной дате
      * @param date - дата
-     * @return ResponseEntity<List<Report>> - список объектов Report
+     * @return List<Report> - список объектов Report
      */
     public List<Report> getListOfReportByDate(LocalDate date) {
         return reportRepo.findByReportDate(date);
@@ -249,13 +259,46 @@ public class ReportService {
         return reportRepo.findByUserAndReportDate(user, date);
     }
 
-
+    /**
+     * Метод для обновления поля updatePhotoPath в строке с идентификатором id
+     * @param reportId - идентификатор отчёта
+     * @param path - путь к файлу с фотографией
+     * @return объект Report - измененная строка базы данных
+     */
     public Report updatePhotoPath(long reportId, String path){
         Report reportOld = reportRepo.findById(reportId).orElseThrow(() -> new EntityNotFoundException(reportId));
         reportOld.setPathToPhoto(path);
         return reportRepo.save(reportOld);
     }
 
+
+    public void getPhotoById(long id, HttpServletResponse response) {
+        logger.info("Method getPhotoById of ReportService class with parameters long -> {}, HttpServletResponse -> {}", id, response);
+        Report report = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+        if(report.getPathToPhoto() == null){
+            throw new ImageNotFoundException("Путь к файлу с изображением отсутствует!");
+        }
+        Path path = Paths.get(report.getPathToPhoto());
+        if(!Files.exists(path)){
+            throw new ImageNotFoundException("Файл с изображением не найден!");
+        }
+        int size;
+        SeekableByteChannel seekableByteChannel;
+        try(SeekableByteChannel sbc = Files.newByteChannel(path, EnumSet.of(READ))){
+            seekableByteChannel = sbc;
+            size = (int)seekableByteChannel.size();
+        } catch (IOException e) {
+            throw new ImageNotFoundException(e.getMessage());
+        }
+        try(InputStream is = Files.newInputStream(path);
+            OutputStream os = response.getOutputStream()){
+            response.setContentType(Files.probeContentType(path));
+            response.setContentLength(size);
+            is.transferTo(os);
+        } catch (IOException e) {
+            throw new RuntimeException(e.getCause() + "\n" + e.getMessage() + "\n" + Arrays.toString(e.getStackTrace()));
+        }
+    }
 
     public List<Report> findByPetReturnDate() {
         return reportRepo.findByNextReportDate(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS));

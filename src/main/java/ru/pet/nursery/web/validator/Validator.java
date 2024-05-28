@@ -3,7 +3,7 @@ package ru.pet.nursery.web.validator;
 import org.springframework.stereotype.Component;
 import ru.pet.nursery.entity.Nursery;
 import ru.pet.nursery.enumerations.AnimalType;
-import ru.pet.nursery.repository.NurseryRepo;
+import ru.pet.nursery.repository.ShelterRepo;
 import ru.pet.nursery.web.dto.AnimalDTO;
 import ru.pet.nursery.web.exception.IllegalFieldException;
 import ru.pet.nursery.web.exception.PageNumberException;
@@ -16,9 +16,9 @@ import java.util.Optional;
 
 @Component
 public class Validator {
-    private final NurseryRepo nurseryRepo;
-    public Validator(NurseryRepo nurseryRepo){
-        this.nurseryRepo = nurseryRepo;
+    private final ShelterRepo shelterRepo;
+    public Validator(ShelterRepo shelterRepo){
+        this.shelterRepo = shelterRepo;
     }
 
     /**
@@ -127,7 +127,7 @@ public class Validator {
      */
     private String validateNurseryId(AnimalDTO animalDTO){
         int id = Math.toIntExact(animalDTO.getNurseryId());
-        Optional<Nursery> nursery = nurseryRepo.findById((long) id);
+        Optional<Nursery> nursery = shelterRepo.findById((long) id);
         if(nursery.isEmpty()){
             return "Питомника с id = " + id + " нет в нашей базе данных";
         }

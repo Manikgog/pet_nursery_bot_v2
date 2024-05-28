@@ -1,5 +1,7 @@
 package ru.pet.nursery.handler;
 
+import com.google.gson.Gson;
+import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
@@ -34,34 +36,35 @@ public class Handler {
     }
     public void answer(Update update) throws IOException {
         logger.info("Processing update in method answer of Handler class: {}", update);
-
-       if(update.callbackQuery() != null){
+        String updateStr = new Gson().toJson(update);
+        System.out.println(updateStr);
+        if(update.callbackQuery() != null){
             addUserByCallbackQuery(update.callbackQuery());
-           if(MessageData.chatId_reportStatus.containsKey(update.callbackQuery().message().chat().id())){
-               reportHandler.answer(update);
-               return;
-           }
+            if(MessageData.chatId_reportStatus.containsKey(update.callbackQuery().message().chat().id())){
+                reportHandler.answer(update);
+                return;
+            }
 
             callbackQueryHandler.answer(update);
             return;
-       }
-       if(update.message() != null){
+        }
+        if(update.message() != null){
             addUserByMessage(update.message());
-           if(MessageData.chatId_reportStatus.containsKey(update.message().chat().id())){
-               reportHandler.answer(update);
-               return;
-           }
+            if(MessageData.chatId_reportStatus.containsKey(update.message().chat().id())){
+                reportHandler.answer(update);
+                return;
+            }
 
-           Message message = update.message();
-           if(message.text() != null){
-               if(message.text().startsWith("/")){
-                   commandHandler.answer(update);
-                   return;
-               }
-           }
-           messageHandler.answer(update);
-       }
-       logger.info("Неподдерживаемый update: " + update);
+            Message message = update.message();
+            if(message.text() != null){
+                if(message.text().startsWith("/")){
+                    commandHandler.answer(update);
+                    return;
+                }
+            }
+            messageHandler.answer(update);
+        }
+        logger.info("Неподдерживаемый update: " + update);
     }
 
     private void addUserByMessage(Message message) {
@@ -88,5 +91,4 @@ public class Handler {
             userRepo.save(user);
         }
     }
-
 }

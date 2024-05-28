@@ -66,8 +66,8 @@ public class AnimalController {
             }
     )
     @PostMapping(value = "/{id}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity uploadPhotoAnimal(@PathVariable("id") Integer id, @RequestParam MultipartFile animalPhoto) throws IOException, InterruptedException {
-        return animalService.uploadPhoto(id, animalPhoto);
+    public ResponseEntity<Animal> uploadPhotoAnimal(@PathVariable("id") Integer id, @RequestParam MultipartFile animalPhoto) throws IOException, InterruptedException {
+        return ResponseEntity.ok(animalService.uploadPhoto(id, animalPhoto));
     }
 
 
@@ -122,7 +122,7 @@ public class AnimalController {
             }
     )
     @GetMapping("/{id}/photo")
-    public void getAnimalPhoto(@PathVariable("id") int id, HttpServletResponse response) throws IOException {
+    public void getAnimalPhoto(@PathVariable("id") int id, HttpServletResponse response) {
         animalService.getAnimalPhoto(id, response);
     }
 

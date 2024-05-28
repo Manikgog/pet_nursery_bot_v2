@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import ru.pet.nursery.factory.AnswerMethodFactory;
 import ru.pet.nursery.factory.KeyboardFactory;
 import ru.pet.nursery.manager.AbstractManager;
-
 import java.util.List;
 
 import static ru.pet.nursery.data.CallbackData.*;
@@ -50,10 +49,6 @@ public class StartManager extends AbstractManager {
         telegramBot.execute(sendMessage);
     }
 
-    @Override
-    public void answerMessage(Update update) {
-
-    }
 
 
     /**

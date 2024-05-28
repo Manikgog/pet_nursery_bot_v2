@@ -6,7 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.pet.nursery.repository.NurseryRepo;
+import ru.pet.nursery.repository.ShelterRepo;
 import ru.pet.nursery.web.exception.IllegalFieldException;
 import ru.pet.nursery.web.exception.PageNumberException;
 import ru.pet.nursery.web.exception.PageSizeException;
@@ -21,7 +21,7 @@ import static ru.pet.nursery.web.Constants.*;
 @ExtendWith(MockitoExtension.class)
 public class ValidatorUnitTest {
     @Mock
-    NurseryRepo nurseryRepo;
+    ShelterRepo shelterRepo;
     @InjectMocks
     Validator validator;
 
@@ -31,7 +31,7 @@ public class ValidatorUnitTest {
      */
     @Test
     public void validateAnimalDTO_positiveTest(){
-        when(nurseryRepo.findById(VASKA_DTO.getNurseryId())).thenReturn(Optional.ofNullable(NURSERY_1));
+        when(shelterRepo.findById(VASKA_DTO.getNurseryId())).thenReturn(Optional.ofNullable(NURSERY_1));
         validator.validateAnimalDTO(VASKA_DTO);
     }
 
@@ -42,14 +42,14 @@ public class ValidatorUnitTest {
      */
     @Test
     public void validateAnimalDTO_negativeTest(){
-        when(nurseryRepo.findById(VASKA_DTO.getNurseryId())).thenReturn(Optional.ofNullable(NURSERY_1));
+        when(shelterRepo.findById(VASKA_DTO.getNurseryId())).thenReturn(Optional.ofNullable(NURSERY_1));
         VASKA_DTO.setAnimalName("");
         Assertions.assertThrows(IllegalFieldException.class, () -> validator.validateAnimalDTO(VASKA_DTO));
 
-        when(nurseryRepo.findById(VASKA_DTO.getNurseryId())).thenReturn(Optional.empty());
+        when(shelterRepo.findById(VASKA_DTO.getNurseryId())).thenReturn(Optional.empty());
         Assertions.assertThrows(IllegalFieldException.class, () -> validator.validateAnimalDTO(VASKA_DTO));
 
-        when(nurseryRepo.findById(VASKA_DTO.getNurseryId())).thenReturn(Optional.ofNullable(NURSERY_1));
+        when(shelterRepo.findById(VASKA_DTO.getNurseryId())).thenReturn(Optional.ofNullable(NURSERY_1));
         VASKA_DTO.setDescription("");
         Assertions.assertThrows(IllegalFieldException.class, () -> validator.validateAnimalDTO(VASKA_DTO));
 

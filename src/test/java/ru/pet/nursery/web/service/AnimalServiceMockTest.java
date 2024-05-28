@@ -11,16 +11,19 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 import ru.pet.nursery.entity.Animal;
+import ru.pet.nursery.entity.Nursery;
 import ru.pet.nursery.entity.User;
 import ru.pet.nursery.enumerations.AnimalType;
 import ru.pet.nursery.enumerations.Gender;
 import ru.pet.nursery.mapper.AnimalDTOForUserMapper;
 import ru.pet.nursery.repository.AnimalRepo;
-import ru.pet.nursery.repository.NurseryRepo;
+import ru.pet.nursery.repository.ShelterRepo;
 import ru.pet.nursery.repository.UserRepo;
+import ru.pet.nursery.web.Constants;
 import ru.pet.nursery.web.dto.AnimalDTO;
 import ru.pet.nursery.web.dto.AnimalDTOForUser;
 import ru.pet.nursery.web.exception.*;
@@ -37,38 +40,37 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static ru.pet.nursery.web.Constants.*;
 
 @ExtendWith(MockitoExtension.class)
 public class AnimalServiceMockTest {
-    private final String animalImagesDir = "\\test_animal_images";
+    private final String animalImagesDir = "test_animal_images";
     @Mock
     AnimalRepo animalRepo;
     @Mock
     UserRepo userRepo;
     @Mock
-    NurseryRepo nurseryRepo;
+    ShelterRepo shelterRepo;
     @InjectMocks
     AnimalService animalService;
     private final Faker faker = new Faker();
 
     @Test
     public void uploadAnimal_positiveTest(){
-        when(animalRepo.save(any())).thenReturn(VASKA);
-        when(nurseryRepo.findById(1L)).thenReturn(Optional.ofNullable(NURSERY_1));
-        Animal actualResult = animalService.uploadAnimal(VASKA_DTO);
-        Assertions.assertEquals(VASKA.getAnimalName(), actualResult.getAnimalName());
-        Assertions.assertEquals(VASKA.getAnimalType(), actualResult.getAnimalType());
-        Assertions.assertEquals(VASKA.getUser(), actualResult.getUser());
-        Assertions.assertEquals(VASKA.getDescription(), actualResult.getDescription());
+        when(animalRepo.save(any())).thenReturn(Constants.VASKA);
+        when(shelterRepo.findById(1L)).thenReturn(Optional.ofNullable(Constants.NURSERY_1));
+        Animal actualResult = animalService.uploadAnimal(Constants.VASKA_DTO);
+        Assertions.assertEquals(Constants.VASKA.getAnimalName(), actualResult.getAnimalName());
+        Assertions.assertEquals(Constants.VASKA.getAnimalType(), actualResult.getAnimalType());
+        Assertions.assertEquals(Constants.VASKA.getUser(), actualResult.getUser());
+        Assertions.assertEquals(Constants.VASKA.getDescription(), actualResult.getDescription());
 
-        when(animalRepo.save(any())).thenReturn(PALKAN_FROM_DB);
-        when(nurseryRepo.findById(2L)).thenReturn(Optional.ofNullable(NURSERY_2));
-        actualResult = animalService.uploadAnimal(PALKAN_DTO);
-        Assertions.assertEquals(PALKAN.getAnimalName(), actualResult.getAnimalName());
-        Assertions.assertEquals(PALKAN.getAnimalType(), actualResult.getAnimalType());
-        Assertions.assertEquals(PALKAN.getUser(), actualResult.getUser());
-        Assertions.assertEquals(PALKAN.getDescription(), actualResult.getDescription());
+        when(animalRepo.save(any())).thenReturn(Constants.PALKAN_FROM_DB);
+        when(shelterRepo.findById(2L)).thenReturn(Optional.ofNullable(Constants.NURSERY_2));
+        actualResult = animalService.uploadAnimal(Constants.PALKAN_DTO);
+        Assertions.assertEquals(Constants.PALKAN.getAnimalName(), actualResult.getAnimalName());
+        Assertions.assertEquals(Constants.PALKAN.getAnimalType(), actualResult.getAnimalType());
+        Assertions.assertEquals(Constants.PALKAN.getUser(), actualResult.getUser());
+        Assertions.assertEquals(Constants.PALKAN.getDescription(), actualResult.getDescription());
     }
 
 
@@ -97,7 +99,7 @@ public class AnimalServiceMockTest {
         animal.setGender(Gender.MALE);
         animal.setNurseryId(1L);
         animal.setDescription(faker.name().malefirstName());
-        when(nurseryRepo.findById(1L)).thenReturn(Optional.ofNullable(NURSERY_1));
+        when(shelterRepo.findById(1L)).thenReturn(Optional.ofNullable(Constants.NURSERY_1));
         Assertions.assertThrows(IllegalFieldException.class, () -> animalService.uploadAnimal(animal));
     }
 
@@ -112,7 +114,7 @@ public class AnimalServiceMockTest {
         animal.setGender(Gender.MALE);
         animal.setNurseryId(1L);
         animal.setDescription(faker.name().malefirstName());
-        when(nurseryRepo.findById(1L)).thenReturn(Optional.ofNullable(NURSERY_1));
+        when(shelterRepo.findById(1L)).thenReturn(Optional.ofNullable(Constants.NURSERY_1));
         Assertions.assertThrows(IllegalFieldException.class, () -> animalService.uploadAnimal(animal));
     }
 
@@ -127,7 +129,7 @@ public class AnimalServiceMockTest {
         animal.setGender(Gender.MALE);
         animal.setNurseryId(1L);
         animal.setDescription(faker.name().malefirstName());
-        when(nurseryRepo.findById(1L)).thenReturn(Optional.ofNullable(NURSERY_1));
+        when(shelterRepo.findById(1L)).thenReturn(Optional.ofNullable(Constants.NURSERY_1));
         Assertions.assertThrows(IllegalFieldException.class, () -> animalService.uploadAnimal(animal));
     }
 
@@ -142,7 +144,7 @@ public class AnimalServiceMockTest {
         animal.setGender(Gender.MALE);
         animal.setNurseryId(1L);
         animal.setDescription(faker.name().malefirstName());
-        when(nurseryRepo.findById(1L)).thenReturn(Optional.ofNullable(NURSERY_1));
+        when(shelterRepo.findById(1L)).thenReturn(Optional.ofNullable(Constants.NURSERY_1));
         Assertions.assertThrows(IllegalFieldException.class, () -> animalService.uploadAnimal(animal));
     }
 
@@ -158,7 +160,7 @@ public class AnimalServiceMockTest {
         animal.setGender(Gender.MALE);
         animal.setNurseryId(1L);
         animal.setDescription(faker.name().malefirstName());
-        when(nurseryRepo.findById(1L)).thenReturn(Optional.ofNullable(NURSERY_1));
+        when(shelterRepo.findById(1L)).thenReturn(Optional.ofNullable(Constants.NURSERY_1));
         Assertions.assertThrows(IllegalFieldException.class, () -> animalService.uploadAnimal(animal));
     }
 
@@ -207,12 +209,15 @@ public class AnimalServiceMockTest {
 
 
     @Test
-    public void getPhotoByteArray_positiveTest() throws IOException {
+    public void getPhotoByteArray_positiveTest() {
         User user = new User();
         user.setTelegramUserId(1L);
         String strPath = System.getProperty("user.dir");
-        strPath += this.animalImagesDir;
-        strPath += "\\1.jpg";
+        if(strPath.contains("\\")){
+            strPath += "\\" + animalImagesDir + "\\1.jpg";
+        }else{
+            strPath += "/" + animalImagesDir + "/1.jpg";
+        }
         Path path = Path.of(strPath);
         long id = 1;
         Animal animal = new Animal();
@@ -241,7 +246,6 @@ public class AnimalServiceMockTest {
      * Метод для получения байтового массива из файла с изображением
      * @param path - путь к файлу
      * @return байтовый массив
-     * @throws IOException - checked исключение
      */
     private byte[] getByteArray(Path path) {
         if(!Files.exists(path)){
@@ -346,6 +350,36 @@ public class AnimalServiceMockTest {
 
 
     @Test
+    public void getPageList_positiveTestByNotValidPageAndSize(){
+        int page = faker.random().nextInt(1, 10);
+        int size = faker.random().nextInt(1, 10);
+        PageRequest pageRequest = PageRequest.of(page - 1, size);
+        List<Animal> animals = new ArrayList<>();
+        Nursery nursery = new Nursery();
+        for (int i = 0; i < 100; i++) {
+            Animal animal = new Animal();
+            animal.setId((long)i + 1);
+            animal.setAnimalName(faker.funnyName().name());
+            animal.setAnimalType(AnimalType.CAT);
+            animal.setNursery(nursery);
+            animal.setBirthDate(faker.date().birthdayLocalDate(1, 10));
+            animal.setDescription(faker.examplify("asdfglkjoiuweoirjflkawefoiwef"));
+            animal.setGender(Gender.MALE);
+            animals.add(animal);
+        }
+        int offset = (page - 1) * size;
+        List<Animal> animalsPage = animals.stream().skip(offset).limit(size).toList();
+        when(animalRepo.findByUserIsNull(pageRequest)).thenReturn(animalsPage);
+        AnimalDTOForUserMapper animalDTOForUserMapper = new AnimalDTOForUserMapper();
+        List<AnimalDTOForUser> animalDTOList = animalsPage.stream()
+                .filter(animal -> animal.getUser() == null)
+                .map(animalDTOForUserMapper::perform)
+                .toList();
+        Assertions.assertEquals(animalDTOList, animalService.getPageList(page, size));
+    }
+
+
+    @Test
     public void insertDateOfReturn_positiveTest(){
         long animalId = 1;
         long adopterId = 1;
@@ -409,7 +443,7 @@ public class AnimalServiceMockTest {
             animal.setAnimalType(faker.random().nextBoolean() ? AnimalType.CAT : AnimalType.DOG);
             animal.setGender(faker.random().nextBoolean() ? Gender.MALE : Gender.FEMALE);
             animal.setBirthDate(faker.date().birthdayLocalDate(1, 20));
-            animal.setNursery(animal.getAnimalType() == AnimalType.CAT ? NURSERY_1 : NURSERY_2);
+            animal.setNursery(animal.getAnimalType() == AnimalType.CAT ? Constants.NURSERY_1 : Constants.NURSERY_2);
             animal.setDescription(faker.examplify(animal.getAnimalName() + animal.getAnimalType()));
         }
 
