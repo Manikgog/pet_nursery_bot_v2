@@ -72,11 +72,6 @@ public class InfoManager extends AbstractManager {
         telegramBot.execute(sendMessage);
     }
 
-    @Override
-    public void answerMessage(Update update) {
-
-    }
-
 
     /**
      * Метод для отправки меню для получения информации

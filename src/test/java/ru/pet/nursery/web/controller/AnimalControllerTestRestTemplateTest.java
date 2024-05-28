@@ -259,7 +259,11 @@ public class AnimalControllerTestRestTemplateTest {
         }
 
         String strPath = System.getProperty("user.dir");
-        strPath += "\\" + animalImagesDir + "\\1.jpg";
+        if(strPath.contains("\\")){
+            strPath += "\\" + animalImagesDir + "\\1.jpg";
+        }else{
+            strPath += "/" + animalImagesDir + "/1.jpg";
+        }
         Path filePath = Path.of(strPath);
 
         HttpHeaders headers = new HttpHeaders();
@@ -423,7 +427,12 @@ public class AnimalControllerTestRestTemplateTest {
 
     private void uploadAnimalPhoto(int animalId){
         String strPath = System.getProperty("user.dir");
-        strPath += "\\" + animalImagesDir + "\\1.jpg";
+        if(strPath.contains("\\")){
+            strPath += "\\" + animalImagesDir + "\\1.jpg";
+        }else{
+            strPath += "/" + animalImagesDir + "/1.jpg";
+        }
+
         Path filePath = Path.of(strPath);
 
         HttpHeaders headers = new HttpHeaders();

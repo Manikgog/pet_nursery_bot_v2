@@ -43,7 +43,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class AnimalServiceMockTest {
-    private final String animalImagesDir = "\\test_animal_images";
+    private final String animalImagesDir = "test_animal_images";
     @Mock
     AnimalRepo animalRepo;
     @Mock
@@ -209,12 +209,15 @@ public class AnimalServiceMockTest {
 
 
     @Test
-    public void getPhotoByteArray_positiveTest() throws IOException {
+    public void getPhotoByteArray_positiveTest() {
         User user = new User();
         user.setTelegramUserId(1L);
         String strPath = System.getProperty("user.dir");
-        strPath += this.animalImagesDir;
-        strPath += "\\1.jpg";
+        if(strPath.contains("\\")){
+            strPath += "\\" + animalImagesDir + "\\1.jpg";
+        }else{
+            strPath += "/" + animalImagesDir + "/1.jpg";
+        }
         Path path = Path.of(strPath);
         long id = 1;
         Animal animal = new Animal();
@@ -243,7 +246,6 @@ public class AnimalServiceMockTest {
      * Метод для получения байтового массива из файла с изображением
      * @param path - путь к файлу
      * @return байтовый массив
-     * @throws IOException - checked исключение
      */
     private byte[] getByteArray(Path path) {
         if(!Files.exists(path)){

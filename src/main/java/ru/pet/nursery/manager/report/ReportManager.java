@@ -2,7 +2,6 @@ package ru.pet.nursery.manager.report;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Document;
@@ -24,6 +23,7 @@ import ru.pet.nursery.web.exception.IllegalFieldException;
 import ru.pet.nursery.web.exception.IllegalParameterException;
 import ru.pet.nursery.web.service.ReportService;
 import ru.pet.nursery.web.validator.ReportValidator;
+
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -84,10 +84,6 @@ public class ReportManager extends AbstractManager {
         telegramBot.execute(sendMessage);
     }
 
-    @Override
-    public void answerMessage(Update update) {
-
-    }
 
     @Override
     public void answerCallbackQuery(CallbackQuery callbackQuery){
@@ -447,8 +443,6 @@ public class ReportManager extends AbstractManager {
      * @param update - обновление от пользователя
      */
     public void uploadBehaviourToReport(Update update){
-        String cbq = new Gson().toJson(update);
-        System.out.println(cbq);
         logger.info("Processing update in method uploadBehaviourToReport ReportManager class: {}", update);
         long adopterId = update.message().chat().id();
         User user = userRepo.findById(adopterId).orElseThrow(() -> new IllegalFieldException("Идентификатор пользователя " + adopterId + " отсутствует в базе данных"));

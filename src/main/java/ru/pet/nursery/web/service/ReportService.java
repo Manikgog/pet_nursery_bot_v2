@@ -3,7 +3,6 @@ package ru.pet.nursery.web.service;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.pet.nursery.entity.Report;
@@ -26,7 +25,6 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Objects;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 import static java.nio.file.StandardOpenOption.READ;
@@ -34,8 +32,7 @@ import static java.nio.file.StandardOpenOption.READ;
 @Service
 public class ReportService implements IReportService {
     private final Logger logger = LoggerFactory.getLogger(AbstractManager.class);
-    @Value("${path.to.report_photo.folder}")
-    private String REPORT_PHOTO;
+    private final String REPORT_PHOTO = "test_report_photo";
     private final ReportRepo reportRepo;
     private final UserRepo userRepo;
     private final ReportValidator reportValidator;
@@ -87,20 +84,26 @@ public class ReportService implements IReportService {
      * которая загружается на диск, а путь к ней в базу
      * данных
      * @param id - идентификатор отчёта
-     * @param reportFoto - файл с фотографией
+     * @param reportPhoto - файл с фотографией
      * @return ResponseEntity.ok()
      * @throws IOException - исключение ввода-вывода
      */
-    public Report updateFoto(long id, MultipartFile reportFoto) throws IOException {
+    public Report updateFoto(long id, MultipartFile reportPhoto) throws IOException {
         Report reportFromDB = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
         String strPath = System.getProperty("user.dir");
-        strPath += "/" + REPORT_PHOTO;
+        if(strPath.contains("\\")){
+            strPath += "\\" + REPORT_PHOTO;
+        }else{
+            strPath += "/" + REPORT_PHOTO;
+        }
         Path path = Path.of(strPath);
-        Path filePath = Path.of(path.toString(), reportFromDB.getId() + "." + getExtension(Objects.requireNonNull(reportFoto.getOriginalFilename())));
+        long reportId = reportFromDB.getId();
+        String extension = getExtension(reportPhoto.getOriginalFilename());
+        Path filePath = Path.of(path.toString(), reportId + "." + extension);
         Files.createDirectories(filePath.getParent());
         Files.deleteIfExists(filePath);
 
-        try(InputStream is = reportFoto.getInputStream();
+        try(InputStream is = reportPhoto.getInputStream();
             OutputStream os = Files.newOutputStream(filePath, CREATE_NEW);
             BufferedInputStream bis = new BufferedInputStream(is, 1024);
             BufferedOutputStream bos = new BufferedOutputStream(os, 1024)

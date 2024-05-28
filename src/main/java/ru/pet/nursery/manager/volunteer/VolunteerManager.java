@@ -3,7 +3,6 @@ package ru.pet.nursery.manager.volunteer;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Update;
-import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.request.SendMessage;
 import org.springframework.stereotype.Component;
 import ru.pet.nursery.factory.AnswerMethodFactory;
@@ -35,10 +34,6 @@ public class VolunteerManager extends AbstractManager {
         telegramBot.execute(sendMessage);
     }
 
-    @Override
-    public void answerMessage(Update update) {
-
-    }
 
     @Override
     public void answerCallbackQuery(CallbackQuery callbackQuery){
@@ -46,7 +41,7 @@ public class VolunteerManager extends AbstractManager {
         String answerMessage = """
                   // связь с волонтером через телеграм
                 """;
-        EditMessageText editMessageText = answerMethodFactory.getEditMessageText(callbackQuery, answerMessage, null);
-        telegramBot.execute(editMessageText);
+        SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(), answerMessage, null);
+        telegramBot.execute(sendMessage);
     }
 }

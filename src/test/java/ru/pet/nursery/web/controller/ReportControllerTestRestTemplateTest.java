@@ -29,7 +29,6 @@ import ru.pet.nursery.web.exception.EntityNotFoundException;
 import ru.pet.nursery.web.service.ReportService;
 import ru.pet.nursery.web.validator.ReportValidator;
 import ru.pet.nursery.web.validator.VolunteerValidator;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDate;
@@ -388,7 +387,7 @@ public class ReportControllerTestRestTemplateTest {
     }
 
 
-    public void updatePhoto(long id) throws IOException {
+    public void updatePhoto(long id) {
         Report reportFromDB = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
         String strPath = System.getProperty("user.dir");
         if(strPath.contains("\\")){

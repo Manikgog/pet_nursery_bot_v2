@@ -10,7 +10,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 import ru.pet.nursery.entity.Animal;
@@ -20,7 +19,6 @@ import ru.pet.nursery.repository.ReportRepo;
 import ru.pet.nursery.repository.UserRepo;
 import ru.pet.nursery.web.exception.EntityNotFoundException;
 import ru.pet.nursery.web.exception.IllegalFieldException;
-import ru.pet.nursery.web.service.ReportService;
 import ru.pet.nursery.web.validator.ReportValidator;
 import ru.pet.nursery.web.validator.VolunteerValidator;
 import java.io.IOException;
@@ -99,11 +97,12 @@ public class ReportServiceMockTest {
         Report report = new Report();
         report.setUser(user);
         report.setReportDate(LocalDate.now());
-        String fileName = "animalPhoto";
+        String fileName = "animalImage";
         byte[] array = new byte[]{1, 2, 3, 4, 5, 6, 7, 8};
-        MultipartFile multipartFile = new MockMultipartFile(fileName, array);
+        MultipartFile multipartFile = new MockMultipartFile(fileName, fileName + ".jpg", "image.jpg", array);
         when(reportRepo.findById(report.getId())).thenReturn(Optional.of(report));
-        Assertions.assertEquals(ResponseEntity.ok().build(), reportService.updateFoto(report.getId(), multipartFile));
+        when(reportRepo.save(report)).thenReturn(report);
+        Assertions.assertEquals(report, reportService.updateFoto(report.getId(), multipartFile));
     }
 
 

@@ -16,6 +16,5 @@ public abstract class AbstractManager {
     }
 
     public abstract void answerCommand(Update update) throws JsonProcessingException;
-    public abstract void answerMessage(Update update);
     public abstract void answerCallbackQuery(CallbackQuery callbackQuery);
 }
