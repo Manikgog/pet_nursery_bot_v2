@@ -4,6 +4,7 @@ import com.pengrad.telegrambot.BotUtils;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Update;
+import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.request.SendPhoto;
 import net.datafaker.Faker;
@@ -63,6 +64,32 @@ public class InfoManagerMockTest {
     @Test
     public void answerCommand_Test() throws IOException {
         Update update = getUpdate("update.json");
+
+        InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory_.getInlineKeyboard(List.of(
+                "Адреса и телефоны приютов",
+                        "Информация о питомцах",
+                        "Что нужно для усыновления",
+                        "Назад"),
+                List.of(1, 1, 1, 1),
+                List.of(ADDRESS_AND_PHONE,
+                        PET_INFORMATION,
+                        WHAT_NEED_FOR_ADOPTION,
+                        START));
+
+        SendMessage sendMessage = new AnswerMethodFactory().getSendMessage(update.message().chat().id(),
+                "Здесь вы можете посмотреть информацию о приютах, питомцах и требованиях к усыновителю",
+                keyboardFactory_.getInlineKeyboard(
+                        List.of("Адреса и телефоны приютов",
+                                "Информация о питомцах",
+                                "Что нужно для усыновления",
+                                "Назад"),
+                        List.of(1, 1, 1, 1),
+                        List.of(ADDRESS_AND_PHONE,
+                                PET_INFORMATION,
+                                WHAT_NEED_FOR_ADOPTION,
+                                START)
+                ));
+
         when(keyboardFactory.getInlineKeyboard(List.of("Адреса и телефоны приютов",
                         "Информация о питомцах",
                         "Что нужно для усыновления",
@@ -71,16 +98,7 @@ public class InfoManagerMockTest {
                 List.of(ADDRESS_AND_PHONE,
                         PET_INFORMATION,
                         WHAT_NEED_FOR_ADOPTION,
-                        START))).thenReturn(keyboardFactory_.getInlineKeyboard(List.of("Адреса и телефоны приютов",
-                        "Информация о питомцах",
-                        "Что нужно для усыновления",
-                        "Назад"),
-                List.of(1, 1, 1, 1),
-                List.of(ADDRESS_AND_PHONE,
-                        PET_INFORMATION,
-                        WHAT_NEED_FOR_ADOPTION,
-                        START))
-        );
+                        START))).thenReturn(inlineKeyboardMarkup);
         when(answerMethodFactory.getSendMessage(update.message().chat().id(),
                 "Здесь вы можете посмотреть информацию о приютах, питомцах и требованиях к усыновителю",
                 keyboardFactory.getInlineKeyboard(
@@ -92,21 +110,7 @@ public class InfoManagerMockTest {
                 List.of(ADDRESS_AND_PHONE,
                         PET_INFORMATION,
                         WHAT_NEED_FOR_ADOPTION,
-                        START)))).thenReturn(
-                new AnswerMethodFactory().getSendMessage(update.message().chat().id(),
-                        "Здесь вы можете посмотреть информацию о приютах, питомцах и требованиях к усыновителю",
-                        keyboardFactory_.getInlineKeyboard(
-                                List.of("Адреса и телефоны приютов",
-                                        "Информация о питомцах",
-                                        "Что нужно для усыновления",
-                                        "Назад"),
-                                List.of(1, 1, 1, 1),
-                                List.of(ADDRESS_AND_PHONE,
-                                        PET_INFORMATION,
-                                        WHAT_NEED_FOR_ADOPTION,
-                                        START)
-                ))
-        );
+                        START)))).thenReturn(sendMessage);
         infoManager.answerCommand(update);
         ArgumentCaptor<SendMessage> argumentCaptor = ArgumentCaptor.forClass(SendMessage.class);
         Mockito.verify(telegramBot).execute(argumentCaptor.capture());
@@ -116,16 +120,7 @@ public class InfoManagerMockTest {
         Assertions.assertThat(actual.getParameters().get("text")).isEqualTo(
                 "Здесь вы можете посмотреть информацию о приютах, питомцах и требованиях к усыновителю");
         Assertions.assertThat(actual.getParameters().get("reply_markup"))
-                .isEqualTo(keyboardFactory_.getInlineKeyboard(
-                        List.of("Адреса и телефоны приютов",
-                                "Информация о питомцах",
-                                "Что нужно для усыновления",
-                                "Назад"),
-                        List.of(1, 1, 1, 1),
-                        List.of(ADDRESS_AND_PHONE,
-                                PET_INFORMATION,
-                                WHAT_NEED_FOR_ADOPTION,
-                                START)));
+                .isEqualTo(inlineKeyboardMarkup);
     }
 
 
