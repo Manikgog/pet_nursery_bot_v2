@@ -1,6 +1,5 @@
 package ru.pet.nursery.manager.info;
 
-import com.google.gson.Gson;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Update;
@@ -17,6 +16,7 @@ import ru.pet.nursery.repository.AnimalRepo;
 import ru.pet.nursery.web.exception.EntityNotFoundException;
 import ru.pet.nursery.web.service.IAnimalService;
 import ru.pet.nursery.web.service.IShelterService;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -265,8 +265,6 @@ public class InfoManager extends AbstractManager {
      * @throws IOException - исключение ввода-вывода
      */
     public void dogPhoto(CallbackQuery callbackQuery) throws IOException {
-        String cbq = new Gson().toJson(callbackQuery);
-        System.out.println(cbq);
         logger.info("The dogPhoto method of the InfoManager class works. Parameter: CallbackQuery -> {}", callbackQuery);
         long chatId = callbackQuery.message().chat().id();
         List<Animal> dogs = animalService.getAllAnimalsByType(AnimalType.DOG)
@@ -348,8 +346,6 @@ public class InfoManager extends AbstractManager {
      * @param callbackQuery - запрос обратного вызова
      */
     public void dogsInformation(CallbackQuery callbackQuery){
-        String cbq = new Gson().toJson(callbackQuery);
-        System.out.println(cbq);
         logger.info("The dogsInformation method of the InfoManager class works. Parameter: CallbackQuery -> {}", callbackQuery);
         SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                 "Здесь вы можете посмотреть фотографии собак",

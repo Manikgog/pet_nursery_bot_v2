@@ -1,7 +1,5 @@
 package ru.pet.nursery.handler;
 
-import com.google.gson.Gson;
-import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
@@ -36,8 +34,6 @@ public class Handler {
     }
     public void answer(Update update) throws IOException {
         logger.info("Processing update in method answer of Handler class: {}", update);
-        String updateStr = new Gson().toJson(update);
-        System.out.println(updateStr);
         if(update.callbackQuery() != null){
             addUserByCallbackQuery(update.callbackQuery());
             if(MessageData.chatId_reportStatus.containsKey(update.callbackQuery().message().chat().id())){

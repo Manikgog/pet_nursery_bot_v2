@@ -22,17 +22,17 @@ import ru.pet.nursery.web.exception.EntityNotFoundException;
 import ru.pet.nursery.web.exception.ImageNotFoundException;
 import ru.pet.nursery.web.exception.UserNotValidException;
 import ru.pet.nursery.web.validator.Validator;
-
 import java.io.*;
-import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
-import static java.nio.file.StandardOpenOption.READ;
 
 @Service
 public class AnimalService implements IAnimalService {
@@ -136,18 +136,10 @@ public class AnimalService implements IAnimalService {
         if(!Files.exists(path)){
             throw new ImageNotFoundException("Файл с изображением не найден!");
         }
-        int size;
-        SeekableByteChannel seekableByteChannel;
-        try(SeekableByteChannel sbc = Files.newByteChannel(path, EnumSet.of(READ))){
-            seekableByteChannel = sbc;
-            size = (int)seekableByteChannel.size();
-        } catch (IOException e) {
-            throw new ImageNotFoundException(e.getMessage());
-        }
         try(InputStream is = Files.newInputStream(path);
             OutputStream os = response.getOutputStream()){
             response.setContentType(Files.probeContentType(path));
-            response.setContentLength(size);
+            response.setContentLength(Files.readAllBytes(path).length);
             is.transferTo(os);
         } catch (IOException e) {
             throw new RuntimeException(e.getCause() + e.getMessage() + Arrays.toString(e.getStackTrace()));
@@ -159,7 +151,7 @@ public class AnimalService implements IAnimalService {
      * @param id - идентификатор животного
      * @return байтовый массив фотографии
      */
-    public byte[] getPhotoByteArray(long id) {
+    public byte[] getPhotoByteArray(long id) throws IOException {
         logger.info("Method getPhotoByteArray of AnimalService class with parameter long -> {}", id);
         Animal animal = animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
         if(animal.getPhotoPath() == null){
@@ -169,13 +161,7 @@ public class AnimalService implements IAnimalService {
         if(!Files.exists(path)){
             throw new ImageNotFoundException("Файл с изображением не найден!");
         }
-        byte[] photoByteArray;
-        try(InputStream is = Files.newInputStream(path)){
-            photoByteArray = is.readAllBytes();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return photoByteArray;
+        return Files.readAllBytes(path);
     }
 
     /**

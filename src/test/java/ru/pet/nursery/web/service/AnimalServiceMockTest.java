@@ -209,7 +209,7 @@ public class AnimalServiceMockTest {
 
 
     @Test
-    public void getPhotoByteArray_positiveTest() {
+    public void getPhotoByteArray_positiveTest() throws IOException {
         User user = new User();
         user.setTelegramUserId(1L);
         String strPath = System.getProperty("user.dir");

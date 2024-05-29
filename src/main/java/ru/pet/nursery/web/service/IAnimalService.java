@@ -17,7 +17,7 @@ public interface IAnimalService {
 
     void getAnimalPhoto(long id, HttpServletResponse response);
 
-    byte[] getPhotoByteArray(long id);
+    byte[] getPhotoByteArray(long id) throws IOException;
 
     Animal delete(long id);
 
