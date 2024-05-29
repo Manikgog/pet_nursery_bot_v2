@@ -181,7 +181,7 @@ public class InfoManager extends AbstractManager {
         SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                 "Здесь вы можете посмотреть фотографии котов",
                 keyboardFactory.getInlineKeyboard(
-                        List.of("Фото",
+                        List.of("Фото и описание",
                                 "Назад"),
                         List.of(1, 1),
                         List.of(CAT_PHOTO,
@@ -212,28 +212,27 @@ public class InfoManager extends AbstractManager {
         // если список пуст, то отправляем сообщение пользователю
         if(cats.isEmpty()){
             telegramBot.execute(answerMethodFactory.getSendMessage(
-                    chatId,
-                    """
-                            В приютах нет кошек""",
-                    null
-                 )
+                            chatId,
+                            """
+                                    В приютах нет кошек""",
+                            null
+                    )
             );
             return;
         }
         long id = cats.get((int)getNextId(chatId, cats)).getId();
         Animal animal = animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
-        String name = animal.getAnimalName();
+        String description = animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id)).getDescription();
         if(animal.getPhotoPath() == null){
             SendMessage sendMessage = answerMethodFactory.getSendMessage(chatId,
-                    "Фотография отсутствует",
+                    "Фотография отсутствует\n\n" +
+                            description,
                     keyboardFactory.getInlineKeyboard(
-                            List.of(name,
-                                    "Следующее фото",
+                            List.of("Следующее фото c описанием",
                                     "Назад"),
-                            List.of(1, 1, 1),
-                            List.of(CAT_INFORMATION,
-                                    CAT_PHOTO,
-                                    INFO)
+                            List.of(1, 1),
+                            List.of(CAT_PHOTO,
+                                    CATS)
                     ));
             telegramBot.execute(sendMessage);
             return;
@@ -242,16 +241,11 @@ public class InfoManager extends AbstractManager {
         SendPhoto sendPhoto = answerMethodFactory.getSendFoto(
                 callbackQuery.message().chat().id(),
                 photoArray,
-                keyboardFactory.getInlineKeyboard(
-                        List.of(name,
-                                "Следующее фото",
-                                "Назад"),
-                        List.of(1, 1, 1),
-                        List.of(CAT_INFORMATION,
-                                CAT_PHOTO,
-                                CATS)
-                ));
+                null
+        );
         telegramBot.execute(sendPhoto);
+
+        catInformation(callbackQuery);
     }
 
     /**
@@ -273,45 +267,39 @@ public class InfoManager extends AbstractManager {
                 .toList();
         if(dogs.isEmpty()){
             telegramBot.execute(answerMethodFactory.getSendMessage(
-                    chatId,
-                    """
-                            В приютах нет собак""",
-                    null
-                )
+                            chatId,
+                            """
+                                    В приютах нет собак""",
+                            null
+                    )
             );
             return;
         }
         long id = dogs.get((int)getNextId(chatId, dogs)).getId();
         Animal animal = animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
-        String name = animal.getAnimalName();
+        String description = animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id)).getDescription();
         if(animal.getPhotoPath() == null){
             SendMessage sendMessage = answerMethodFactory.getSendMessage(chatId,
-                    "Фотография отсутствует",
+                    "Фотография отсутствует\n\n" +
+                            description,
                     keyboardFactory.getInlineKeyboard(
-                            List.of(name,
-                                    "Следующее фото",
+                            List.of("Следующее фото c описанием",
                                     "Назад"),
-                            List.of(1, 1, 1),
-                            List.of(DOG_INFORMATION,
-                                    DOG_PHOTO,
-                                    INFO)
+                            List.of(1, 1),
+                            List.of(DOG_PHOTO,
+                                    DOGS)
                     ));
             telegramBot.execute(sendMessage);
             return;
         }
         byte[] photoArray = animalService.getPhotoByteArray(id);
-        SendPhoto sendPhoto = answerMethodFactory.getSendFoto(callbackQuery.message().chat().id(),
+        SendPhoto sendPhoto = answerMethodFactory.getSendFoto(
+                callbackQuery.message().chat().id(),
                 photoArray,
-                keyboardFactory.getInlineKeyboard(
-                        List.of(name,
-                                "Следующее фото",
-                                "Назад"),
-                        List.of(1, 1, 1),
-                        List.of(DOG_INFORMATION,
-                                DOG_PHOTO,
-                                DOGS)
-                ));
+                null
+        );
         telegramBot.execute(sendPhoto);
+        dogInformation(callbackQuery);
     }
 
 
@@ -350,7 +338,7 @@ public class InfoManager extends AbstractManager {
         SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                 "Здесь вы можете посмотреть фотографии собак",
                 keyboardFactory.getInlineKeyboard(
-                        List.of("Фото",
+                        List.of("Фото и описание",
                                 "Назад"),
                         List.of(1, 1),
                         List.of(DOG_PHOTO,
@@ -379,9 +367,11 @@ public class InfoManager extends AbstractManager {
             SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                     description,
                     keyboardFactory.getInlineKeyboard(
-                            List.of("Назад"),
-                            List.of(1),
-                            List.of(CATS)
+                            List.of("Следующее фото c описанием",
+                                    "Назад"),
+                            List.of(1, 1),
+                            List.of(CAT_PHOTO,
+                                    CATS)
                     ));
             telegramBot.execute(sendMessage);
         }
@@ -407,9 +397,11 @@ public class InfoManager extends AbstractManager {
             SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                     description,
                     keyboardFactory.getInlineKeyboard(
-                            List.of("Назад"),
-                            List.of(1),
-                            List.of(DOGS)
+                            List.of("Следующее фото c описанием",
+                                    "Назад"),
+                            List.of(1, 1),
+                            List.of(DOG_PHOTO,
+                                    DOGS)
                     ));
             telegramBot.execute(sendMessage);
         }
