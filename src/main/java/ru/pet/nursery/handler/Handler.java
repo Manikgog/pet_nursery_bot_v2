@@ -60,6 +60,7 @@ public class Handler {
             }
             messageHandler.answer(update);
         }
+
         logger.info("Неподдерживаемый update: " + update);
     }
 
