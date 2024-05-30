@@ -147,8 +147,8 @@ public class InfoManager extends AbstractManager {
                                 "Собаки",
                                 "Назад"),
                         List.of(1, 1, 1),
-                        List.of(CATS,
-                                DOGS,
+                        List.of(CAT_PHOTO,
+                                DOG_PHOTO,
                                 INFO)
                 ));
         telegramBot.execute(sendMessage);
@@ -171,12 +171,14 @@ public class InfoManager extends AbstractManager {
         telegramBot.execute(sendMessage);
     }
 
-
+/*
     /**
      * Метод для отправки меню для просмотра фотографий кошек
      * @param callbackQuery - запрос обратного вызова
      */
-    public void catsInformation(CallbackQuery callbackQuery){
+
+    /*
+   public void catsInformation(CallbackQuery callbackQuery){
         logger.info("The catsInformation method of the InfoManager class works. Parameter: CallbackQuery -> {}", callbackQuery);
         SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                 "Здесь вы можете посмотреть фотографии котов",
@@ -188,7 +190,7 @@ public class InfoManager extends AbstractManager {
                                 INFO)
                 ));
         telegramBot.execute(sendMessage);
-    }
+    }*/
 
 
 
@@ -232,7 +234,7 @@ public class InfoManager extends AbstractManager {
                                     "Назад"),
                             List.of(1, 1),
                             List.of(CAT_PHOTO,
-                                    CATS)
+                                    PET_INFORMATION)
                     ));
             telegramBot.execute(sendMessage);
             return;
@@ -287,7 +289,7 @@ public class InfoManager extends AbstractManager {
                                     "Назад"),
                             List.of(1, 1),
                             List.of(DOG_PHOTO,
-                                    DOGS)
+                                    PET_INFORMATION)
                     ));
             telegramBot.execute(sendMessage);
             return;
@@ -328,12 +330,12 @@ public class InfoManager extends AbstractManager {
         return 0;
     }
 
-
+/*
     /**
      * Метод для отправки меню для просмотра фотографий собак
      * @param callbackQuery - запрос обратного вызова
      */
-    public void dogsInformation(CallbackQuery callbackQuery){
+   /* public void dogsInformation(CallbackQuery callbackQuery){
         logger.info("The dogsInformation method of the InfoManager class works. Parameter: CallbackQuery -> {}", callbackQuery);
         SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                 "Здесь вы можете посмотреть фотографии собак",
@@ -342,10 +344,10 @@ public class InfoManager extends AbstractManager {
                                 "Назад"),
                         List.of(1, 1),
                         List.of(DOG_PHOTO,
-                                INFO)
+                                PET_INFORMATION)
                 ));
         telegramBot.execute(sendMessage);
-    }
+    }*/
 
     /**
      * Метод для получения описания кошки по ее идентификатору в базе данных.
@@ -371,7 +373,7 @@ public class InfoManager extends AbstractManager {
                                     "Назад"),
                             List.of(1, 1),
                             List.of(CAT_PHOTO,
-                                    CATS)
+                                    PET_INFORMATION)
                     ));
             telegramBot.execute(sendMessage);
         }
@@ -401,7 +403,7 @@ public class InfoManager extends AbstractManager {
                                     "Назад"),
                             List.of(1, 1),
                             List.of(DOG_PHOTO,
-                                    DOGS)
+                                    PET_INFORMATION)
                     ));
             telegramBot.execute(sendMessage);
         }
