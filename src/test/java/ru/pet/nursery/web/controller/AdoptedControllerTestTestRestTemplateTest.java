@@ -21,6 +21,7 @@ import ru.pet.nursery.repository.AnimalRepo;
 import ru.pet.nursery.repository.UserRepo;
 import ru.pet.nursery.web.service.UserService;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -97,8 +98,8 @@ class AdoptedControllerTestTestRestTemplateTest {
         Optional<Animal> animalFromDb = animalRepo.findById(animal.getId());
         assertThat(animalFromDb.get()).usingRecursiveComparison().ignoringFields("petReturnDate", "tookDate", "user").isEqualTo(animal);
         assertThat(animalFromDb.get().getUser()).usingRecursiveComparison().ignoringFields("petReturnDate", "tookDate").isEqualTo(user);
-        assertThat(animalFromDb.get().getTookDate()).isEqualTo(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS));
-        assertThat(animalFromDb.get().getPetReturnDate()).isEqualTo(LocalDateTime.now().plusDays(14).truncatedTo(ChronoUnit.DAYS));
+        assertThat(animalFromDb.get().getTookDate()).isEqualTo(LocalDate.now());
+        assertThat(animalFromDb.get().getPetReturnDate()).isEqualTo(LocalDate.now().plusDays(14));
     }
 
     @Test
@@ -145,8 +146,8 @@ class AdoptedControllerTestTestRestTemplateTest {
         assertThat(prolongDaysResponseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(prolongDaysResponseEntity.getBody()).isNotNull();
         Optional<Animal> animalFromDb = animalRepo.findById(animal.getId());
-        assertThat(animalFromDb.get().getTookDate()).isEqualTo(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS));
-        assertThat(animalFromDb.get().getPetReturnDate()).isEqualTo(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).plusDays(14+prolongDays));
+        assertThat(animalFromDb.get().getTookDate()).isEqualTo(LocalDate.now());
+        assertThat(animalFromDb.get().getPetReturnDate()).isEqualTo(LocalDate.now().plusDays(14+prolongDays));
     }
 
     @Test
@@ -167,8 +168,8 @@ class AdoptedControllerTestTestRestTemplateTest {
         assertThat(prolongDaysResponseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(prolongDaysResponseEntity.getBody()).isNotNull();
         Optional<Animal> animalFromDb = animalRepo.findById(animal.getId());
-        assertThat(animalFromDb.get().getTookDate()).isEqualTo(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS));
-        assertThat(animalFromDb.get().getPetReturnDate()).isEqualTo(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).plusDays(14+prolongDays));
+        assertThat(animalFromDb.get().getTookDate()).isEqualTo(LocalDate.now());
+        assertThat(animalFromDb.get().getPetReturnDate()).isEqualTo(LocalDate.now().plusDays(14+prolongDays));
     }
 
     @Test
