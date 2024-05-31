@@ -27,6 +27,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -279,5 +281,9 @@ public class AnimalService implements IAnimalService {
     public Animal get(long id){
         logger.info("Method get of AnimalService class with parameter long -> {}", id);
         return animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+    }
+
+    public List<Animal> adoptionPeriod() {
+        return animalRepo.findByPetReturnDate(LocalDate.now());
     }
 }

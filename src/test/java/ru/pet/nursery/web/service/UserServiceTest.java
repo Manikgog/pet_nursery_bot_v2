@@ -73,7 +73,7 @@ class UserServiceTest {
         User expected = new User();
         expected.setTelegramUserId(faker.random().nextLong(1231231));
         expected.setUserName(faker.harryPotter().character());
-        expected.setFirstName(null);
+        expected.setFirstName(faker.harryPotter().character());
         expected.setLastName(null);
         expected.setAddress(faker.harryPotter().location());
         expected.setPhoneNumber(String.valueOf(faker.random().nextInt(12312331)));

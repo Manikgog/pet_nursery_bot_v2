@@ -37,4 +37,5 @@ public interface IAnimalService {
 
     Animal get(long id);
 
+    List<Animal> adoptionPeriod();
 }

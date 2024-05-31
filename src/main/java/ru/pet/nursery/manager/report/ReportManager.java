@@ -361,6 +361,7 @@ public class ReportManager extends AbstractManager {
             Files.createDirectories(filePath.getParent());
             Files.deleteIfExists(filePath);
 
+            ObjectMapper mapper = new ObjectMapper();
             JsonNode jsonNode = mapper.readTree(url);
 
             String urlTelegramFile = jsonNode.get("result").get("file_path").asText();

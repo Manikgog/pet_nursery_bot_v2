@@ -4,6 +4,7 @@ import net.datafaker.Faker;
 import net.datafaker.service.FakeValuesService;
 import net.datafaker.service.FakerContext;
 import net.datafaker.service.RandomService;
+import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,6 +39,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -455,6 +457,16 @@ public class AnimalServiceMockTest {
 
         Assertions.assertEquals(resultList, animalService.convertListAnimalToListAnimalDTO(animals));
 
+    }
+
+    @Test
+    public void adoptionPeriodPositiveTest() {
+        Animal animal = new Animal();
+        animal.setAnimalName(faker.name().firstName());
+        animal.setTookDate(LocalDate.now().minusDays(14));
+        animal.setPetReturnDate(LocalDate.now());
+        when(animalRepo.findByPetReturnDate(LocalDate.now())).thenReturn(List.of(animal));
+        assertThat(animalService.adoptionPeriod()).contains(animal);
     }
 
 }

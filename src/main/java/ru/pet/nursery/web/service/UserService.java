@@ -15,8 +15,8 @@ public class UserService implements IUserService {
 
     public UserService(UserRepo userRepo) {
         this.userRepo = userRepo;
-
     }
+    private final Logger log = LoggerFactory.getLogger(UserService.class);
 
     /**
      * Метод для создания нового юзера
@@ -25,7 +25,8 @@ public class UserService implements IUserService {
      * @return пользователя из БД
      */
     public User addUser(User user) {
-        if (user.getFirstName() == null && user.getLastName() == null) {
+        log.info("Method addUser of UserService class with parameters User -> {}", user);
+        if (user.getFirstName() == null || user.getLastName() == null) {
             throw new UserNotValidException("Необходимо ввести имя/или фамилию");
         }
         return userRepo.save(user);
@@ -38,6 +39,7 @@ public class UserService implements IUserService {
      * @return пользователя если такой есть в БД, если такого пользователя нет то выбрасывает исключение UserNotFoundException
      */
     public User getUserById(Long userId) {
+        log.info("Method getUserById of UserService class with parameters Long userID -> {}", userId);
         return userRepo.findById(userId).orElseThrow(() -> new UserNotFoundException("Пользователя с таким ID = " + userId + " не существует"));
     }
 
@@ -49,6 +51,7 @@ public class UserService implements IUserService {
      * @return пользователя из БД с изменениями
      */
     public User updateUser(Long userId, User user) {
+        log.info("Method updateShelter of UserService class with parameters Long userID -> {}, newUser->{}", userId,user);
         User oldUser = getUserById(userId);
         oldUser.setUserName(user.getUserName());
         oldUser.setAddress(user.getAddress());
@@ -64,6 +67,7 @@ public class UserService implements IUserService {
      * @return пользователя у которого была проведена операция удаления
      */
     public User removeUser(Long userId) {
+        log.info("Method removeUser of UserService class with parameters Long userID -> {}", userId);
         User user = getUserById(userId);
         userRepo.delete(user);
         return user;
@@ -75,12 +79,13 @@ public class UserService implements IUserService {
      * @param pageSize размер страницы
      * @return список пользователей страница pageNo и количеством записей на странице pageSize
      */
-    public List<User> getAllUsersPagination(Integer pageNo, Integer pageSize) {
-        PageRequest pageable = PageRequest.of(pageNo - 1, pageSize);
-        return userRepo.findAll(pageable).getContent();
+    public List<User> getAllUser(Integer pageNo, Integer pageSize) {
+        log.info("Method getAllUser of UserService class with parameters int page-> {}, size -> {}", pageNo,pageSize);
+        return userRepo.findAll(PageRequest.of(pageNo-1,pageSize)).getContent();
     }
 
     public List<User> getAll() {
+        log.info("Method getAll of ShelterService class");
         return userRepo.findAll().stream().toList();
     }
 
