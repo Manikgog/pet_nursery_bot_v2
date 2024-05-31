@@ -6,8 +6,9 @@ import ru.pet.nursery.entity.Animal;
 import ru.pet.nursery.entity.User;
 import ru.pet.nursery.repository.AnimalRepo;
 import ru.pet.nursery.web.exception.AnimalNotFoundException;
-import java.time.LocalDate;
+
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Service
 public class AdoptedService {
@@ -29,11 +30,11 @@ public class AdoptedService {
      * @return питомца с назначенным усыновителем и установленными периодами взятия и возврата из приюта
      */
     public Animal setAdopterForAnimal(Long animalId, Long adopterId) {
-        Animal animal = getById(animalId);
+        Animal animal = getAnimalById(animalId);
         User adopter = userService.getUserById(adopterId);
         animal.setUser(adopter);
-        animal.setTookDate(LocalDate.from(LocalDateTime.now()));
-        animal.setPetReturnDate(LocalDate.from(LocalDateTime.now()));
+        animal.setTookDate(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS));
+        animal.setPetReturnDate(LocalDateTime.now().plusDays(BASIC_TRIAL_DAYS).truncatedTo(ChronoUnit.DAYS));
         return animalRepo.save(animal);
     }
 
@@ -44,17 +45,16 @@ public class AdoptedService {
      * @return пролонгированное содержание питомца усыновителями
      */
     public Animal prolongTrialForNDays(Long animalId, Integer days) {
-        Animal animal = getById(animalId);
-        LocalDateTime adoptionDate = animal.getPetReturnDate().atStartOfDay();
+        Animal animal = getAnimalById(animalId);
+        LocalDateTime adoptionDate = animal.getPetReturnDate();
         if (adoptionDate == null) {
-            adoptionDate = LocalDateTime.now();
+            adoptionDate = animal.getTookDate().truncatedTo(ChronoUnit.DAYS).plusDays(days);
         }
-        adoptionDate = adoptionDate.plusDays(days);
-        animal.setPetReturnDate(LocalDate.from(adoptionDate));
+        animal.setPetReturnDate(adoptionDate.truncatedTo(ChronoUnit.DAYS).plusDays(days));
         return animalRepo.save(animal);
     }
 
-    private Animal getById(Long id) {
+    private Animal getAnimalById(Long id) {
         return animalRepo.findById(id).orElseThrow(() -> new AnimalNotFoundException("Питомца с таким ID = " + id + " нет в БД"));
     }
 
@@ -64,9 +64,10 @@ public class AdoptedService {
      * @return измененные данные о животном из таблицы animal_table
      */
     public Animal cancelTrial(Long animalId) {
-        Animal animal = getById(animalId);
+        Animal animal = getAnimalById(animalId);
         animal.setTookDate(null);
         animal.setPetReturnDate(null);
+        animal.setUser(null);
         return animalRepo.save(animal);
     }
 }

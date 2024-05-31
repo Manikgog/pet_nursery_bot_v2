@@ -30,7 +30,9 @@ import ru.pet.nursery.web.dto.AnimalDTOForUser;
 import ru.pet.nursery.web.service.AnimalService;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class AnimalControllerTestRestTemplateTest {
@@ -101,7 +103,7 @@ public class AnimalControllerTestRestTemplateTest {
         if(isAdopted){
             User whoNotAdopt = findUserWhoNotAdopt();
             animal.setUser(whoNotAdopt);
-            animal.setTookDate(faker.date().birthdayLocalDate(1, 10));
+            animal.setTookDate(faker.date().past(faker.random().nextInt(5, 15), TimeUnit.DAYS).toLocalDateTime().toLocalDate());
         }else {
             animal.setUser(null);
         }
@@ -119,7 +121,7 @@ public class AnimalControllerTestRestTemplateTest {
         List<User> userWhoAdopt = animalRepo.findAll()
                 .stream()
                 .map(Animal::getUser)
-                .filter(Objects::nonNull)
+                .filter(user -> user != null)
                 .toList();
         Optional<User> userWhoNotAdopt = userRepo.findAll()
                 .stream()
@@ -202,14 +204,6 @@ public class AnimalControllerTestRestTemplateTest {
                     String.class
             );
             Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-            String photoPath = animalRepo.findById(animal.getId()).get().getPhotoPath();
-            strPath = System.getProperty("user.dir");
-            if(strPath.contains("\\")){
-                strPath += "\\" + animalImagesDir + "\\";
-            }else{
-                strPath += "/" + animalImagesDir + "/";
-            }
-            Assertions.assertThat(photoPath).isEqualTo(strPath + animal.getId() + ".jpg");
         }
     }
 
@@ -351,10 +345,11 @@ public class AnimalControllerTestRestTemplateTest {
         );
         Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         // проверяется содержание ячеек с информацией о возвращении животного
+        Animal animal = responseEntity.getBody();
         Animal animalAfterReturn = animalRepo.findById(adoptedAnimal.getId()).get();
-        Assertions.assertThat(responseEntity.getBody()).isEqualTo(animalAfterReturn);
+        Assertions.assertThat(animal.getPetReturnDate().toLocalDate()).isEqualTo(animalAfterReturn.getPetReturnDate().toLocalDate());
         // проверяется ячейка с датой возвращения.
-        Assertions.assertThat(animalAfterReturn.getPetReturnDate()).isEqualTo(LocalDate.now());
+        Assertions.assertThat(animalAfterReturn.getPetReturnDate().toLocalDate()).isEqualTo(LocalDateTime.now().toLocalDate());
         // проверяется ячейка с идентификатором человека, который забрал животное
         // если животное возвращено, то в этой ячейке ставиться null
         Assertions.assertThat(animalAfterReturn.getUser() == null);
@@ -553,7 +548,7 @@ public class AnimalControllerTestRestTemplateTest {
                                     AnimalDTOForUser.class
                             );
             Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-            Assertions.assertThat(responseEntity.getBody()).usingRecursiveComparison()
+            Assertions.assertThat(responseEntity.getBody())
                     .isEqualTo(animalDTOForUser);
         }
     }

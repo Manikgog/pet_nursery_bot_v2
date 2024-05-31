@@ -7,6 +7,8 @@ import org.springframework.stereotype.Component;
 import ru.pet.nursery.web.service.ReportService;
 
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -26,6 +28,7 @@ public class Notifier {
             SendMessage message = new SendMessage(report.getUser()
                     .getTelegramUserId(), "У вас есть пропуск по отчётам. Пожалуйста, отправьте отчёт по животному за просроченный период.");
             telegramBot.execute(message);
+            report.setReportDate(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).plusDays(1));
         });
     }
 }

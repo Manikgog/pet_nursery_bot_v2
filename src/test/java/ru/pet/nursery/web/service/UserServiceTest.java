@@ -8,19 +8,21 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import ru.pet.nursery.entity.User;
 import ru.pet.nursery.repository.UserRepo;
 import ru.pet.nursery.web.exception.UserNotFoundException;
 import ru.pet.nursery.web.exception.UserNotValidException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -71,10 +73,11 @@ class UserServiceTest {
         User expected = new User();
         expected.setTelegramUserId(faker.random().nextLong(1231231));
         expected.setUserName(faker.harryPotter().character());
-        expected.setFirstName(faker.harryPotter().character());
+        expected.setFirstName(null);
         expected.setLastName(null);
         expected.setAddress(faker.harryPotter().location());
         expected.setPhoneNumber(String.valueOf(faker.random().nextInt(12312331)));
+        lenient().when(userRepo.save(expected)).thenThrow(UserNotValidException.class);
         assertThatThrownBy(() -> userService.addUser(expected)).isInstanceOf(UserNotValidException.class);
     }
     @Test
@@ -86,6 +89,7 @@ class UserServiceTest {
         expected.setLastName(faker.harryPotter().character());
         expected.setAddress(faker.harryPotter().location());
         expected.setPhoneNumber(String.valueOf(faker.random().nextInt(12312331)));
+        when(userRepo.save(expected)).thenThrow(UserNotValidException.class);
         assertThatThrownBy(() -> userService.addUser(expected)).isInstanceOf(UserNotValidException.class);
     }
 
@@ -99,16 +103,11 @@ class UserServiceTest {
     }
 
     @Test
-    void getUserByIdNegativeTest() {
-        User expected = new User();
-        expected.setTelegramUserId(faker.random().nextLong(1231231));
-        expected.setUserName(faker.harryPotter().character());
-        expected.setFirstName(faker.harryPotter().character());
-        expected.setLastName(faker.harryPotter().character());
-        expected.setAddress(faker.harryPotter().location());
-        expected.setPhoneNumber(String.valueOf(faker.random().nextInt(12312331)));
-        lenient().when(userRepo.save(expected)).thenThrow(UserNotFoundException.class);
-        assertThatThrownBy(() -> userService.getUserById(expected.getTelegramUserId())).isInstanceOf(UserNotFoundException.class);
+    void getUserByIdNegativeTest_ifNotFoundUser() {
+        User expected = userList.get(faker.random().nextInt(userList.size()));
+        when(userRepo.findById(expected.getTelegramUserId())).thenThrow(UserNotFoundException.class);
+        assertThatThrownBy(() -> userService.getUserById(expected.getTelegramUserId()))
+                .isInstanceOf(UserNotFoundException.class);
     }
 
     @Test
@@ -132,28 +131,16 @@ class UserServiceTest {
 
     @Test
     void updateUserNegativeTest() {
-        User expected = new User();
-        expected.setTelegramUserId(faker.random().nextLong(1231231));
-        expected.setUserName(faker.harryPotter().character());
-        expected.setFirstName(faker.harryPotter().character());
-        expected.setLastName(faker.harryPotter().character());
-        expected.setAddress(faker.harryPotter().location());
-        expected.setPhoneNumber(String.valueOf(faker.random().nextInt(12312331)));
-        lenient().when(userRepo.findById(expected.getTelegramUserId())).thenThrow(UserNotFoundException.class);
+        User expected = userList.get(faker.random().nextInt(userList.size()));
+        Long userId = -1L;
+        when(userRepo.findById(userId)).thenThrow(UserNotFoundException.class);
         assertThatThrownBy(() -> userService.updateUser(-1L, expected)).isInstanceOf(UserNotFoundException.class);
     }
 
 
     @Test
     void removeUserPositiveTest() {
-        User expected = new User();
-        expected.setTelegramUserId(faker.random().nextLong(1231231));
-        expected.setUserName(faker.harryPotter().character());
-        expected.setFirstName(faker.harryPotter().character());
-        expected.setLastName(faker.harryPotter().character());
-        expected.setAddress(faker.harryPotter().location());
-        expected.setPhoneNumber(String.valueOf(faker.random().nextInt(12312331)));
-        userList.add(expected);
+        User expected = userList.get(faker.random().nextInt(userList.size()));
         when(userRepo.save(expected)).thenReturn(expected);
         userService.addUser(expected);
         when(userRepo.findById(expected.getTelegramUserId())).thenReturn(Optional.of(expected));
@@ -168,7 +155,21 @@ class UserServiceTest {
     }
 
     @Test
-    void getAllShelter() {
+    void getAllUsersPagination() {
+        int limit = 2;
+        int finalPage = 1;
+        int finalSize = 2;
+        List<User> list = userList.stream().limit(limit).toList();
+        Page<User> page = new PageImpl<>(list);
+        when(userRepo.findAll(any(Pageable.class))).thenReturn(page);
+        Collection<User> actual = userService.getAllUsersPagination(finalPage, finalSize);
+        assertThat(actual).isNotNull().containsExactlyInAnyOrderElementsOf(list);
+        assertThat(actual.size()).isEqualTo(limit);
+    }
 
+    @Test
+    void getAll() {
+        when(userRepo.findAll()).thenReturn(userList);
+        assertThat(userService.getAll()).isEqualTo(userList);
     }
 }

@@ -55,6 +55,18 @@ class ShelterServiceTest {
         lenient().when(shelterRepo.save(expected)).thenThrow(ShelterNullException.class);
         assertThatThrownBy(() -> shelterService.addShelter(expected)).isInstanceOf(ShelterNullException.class);
     }
+    @Test
+    void addShelterNegative_ifNullAddressTest() {
+        Nursery expected = new Nursery(7L, "чтото", null, "4654465456", true);
+        lenient().when(shelterRepo.save(expected)).thenThrow(ShelterNullException.class);
+        assertThatThrownBy(() -> shelterService.addShelter(expected)).isInstanceOf(ShelterNullException.class);
+    }
+    @Test
+    void addShelterNegative_ifNullNameShelterTest() {
+        Nursery expected = new Nursery(7L, null, "что то", "4654465456", true);
+        lenient().when(shelterRepo.save(expected)).thenThrow(ShelterNullException.class);
+        assertThatThrownBy(() -> shelterService.addShelter(expected)).isInstanceOf(ShelterNullException.class);
+    }
 
     @Test
     void findShelterPositiveTest() {
@@ -109,10 +121,42 @@ class ShelterServiceTest {
 
     @Test
     void getAllShelter() {
+        int limit = 2;
+        int finalPage = 1;
+        int finalSize = 2;
+        List<Nursery> list = nurseryList.stream().limit(limit).toList();
+        Page<Nursery> page = new PageImpl<>(list);
+        when(shelterRepo.findAll(any(Pageable.class))).thenReturn(page);
+        Collection<Nursery> actual = shelterService.getAllShelter(finalPage, finalSize);
+        assertThat(actual).isNotNull().containsExactlyInAnyOrderElementsOf(list);
+        assertThat(actual.size()).isEqualTo(limit);
     }
 
     @Test
-    void getShelterForDog() {
+    void getShelterForDog_ifForDog() {
+        int limit = 2;
+        int finalPage = 1;
+        int finalSize = 2;
+        boolean forDog = true;
+        List<Nursery> list = nurseryList.stream().filter(kindOfAnimal -> kindOfAnimal.isForDog()==forDog).limit(limit).toList();
+        Page<Nursery> page = new PageImpl<>(list);
+        when(shelterRepo.findAll(any(Pageable.class))).thenReturn(page);
+        Collection<Nursery> actual = shelterService.getShelterForDog(forDog,finalPage, finalSize);
+        assertThat(actual).isNotNull().containsExactlyInAnyOrderElementsOf(list);
+        assertThat(actual.size()).isEqualTo(limit);
+    }
+    @Test
+    void getShelterForDog_ifForCat() {
+        int limit = 2;
+        int finalPage = 1;
+        int finalSize = 2;
+        boolean forDog = false;
+        List<Nursery> list = nurseryList.stream().filter(kindOfAnimal -> kindOfAnimal.isForDog()==forDog).limit(limit).toList();
+        Page<Nursery> page = new PageImpl<>(list);
+        when(shelterRepo.findAll(any(Pageable.class))).thenReturn(page);
+        Collection<Nursery> actual = shelterService.getShelterForDog(forDog,finalPage, finalSize);
+        assertThat(actual).isNotNull().containsExactlyInAnyOrderElementsOf(list);
+        assertThat(actual.size()).isEqualTo(limit);
     }
 
     @Test

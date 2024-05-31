@@ -15,6 +15,7 @@ public class UserService implements IUserService {
 
     public UserService(UserRepo userRepo) {
         this.userRepo = userRepo;
+
     }
 
     /**
@@ -24,7 +25,7 @@ public class UserService implements IUserService {
      * @return пользователя из БД
      */
     public User addUser(User user) {
-        if (user.getFirstName() == null || user.getLastName() == null) {
+        if (user.getFirstName() == null && user.getLastName() == null) {
             throw new UserNotValidException("Необходимо ввести имя/или фамилию");
         }
         return userRepo.save(user);
@@ -74,8 +75,9 @@ public class UserService implements IUserService {
      * @param pageSize размер страницы
      * @return список пользователей страница pageNo и количеством записей на странице pageSize
      */
-    public List<User> getAllShelter(Integer pageNo, Integer pageSize) {
-        return userRepo.findAll(PageRequest.of(pageNo-1,pageSize)).getContent();
+    public List<User> getAllUsersPagination(Integer pageNo, Integer pageSize) {
+        PageRequest pageable = PageRequest.of(pageNo - 1, pageSize);
+        return userRepo.findAll(pageable).getContent();
     }
 
     public List<User> getAll() {

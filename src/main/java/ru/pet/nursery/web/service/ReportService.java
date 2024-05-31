@@ -1,8 +1,7 @@
 package ru.pet.nursery.web.service;
 
-import jakarta.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.pet.nursery.entity.Report;
@@ -34,7 +33,7 @@ import static java.nio.file.StandardOpenOption.READ;
 
 @Service
 public class ReportService implements IReportService {
-    private final Logger logger = LoggerFactory.getLogger(AbstractManager.class);
+    private final Logger logger = LoggerFactory.getLogger(ReportService.class);
     private final String REPORT_PHOTO = "test_report_photo";
     private final ReportRepo reportRepo;
     private final UserRepo userRepo;
@@ -120,7 +119,7 @@ public class ReportService implements IReportService {
     /**
      * Метод для поиска и возвращения строки, содержащей расширения файла
      * @param fileName - имя файла
-     * @return строка, содержащая расширение файла
+     * @return строка, содержащая расширения файла
      */
     public String getExtension(String fileName){
         return fileName.substring(fileName.lastIndexOf('.') + 1);

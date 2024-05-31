@@ -3,6 +3,8 @@ package ru.pet.nursery.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import ru.pet.nursery.entity.Report;
 import ru.pet.nursery.entity.User;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 

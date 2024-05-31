@@ -35,6 +35,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ReportControllerTestRestTemplateTest {
@@ -415,7 +416,6 @@ public class ReportControllerTestRestTemplateTest {
                 Map.of("id", id)
         );
     }
-
 
     @Test
     public void putPhoto_negativeTestByNotValidAdopterId(){
