@@ -8,18 +8,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import ru.pet.nursery.entity.Animal;
 import ru.pet.nursery.entity.User;
 import ru.pet.nursery.repository.AnimalRepo;
-import ru.pet.nursery.repository.UserRepo;
 import ru.pet.nursery.web.exception.AnimalNotFoundException;
 import ru.pet.nursery.web.exception.UserNotFoundException;
 
-
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -112,13 +107,13 @@ class AdoptedServiceTest {
         when(animalRepo.save(animal)).thenReturn(animal);
         when(userService.getUserById(user.getTelegramUserId())).thenReturn(user);
         adoptedService.setAdopterForAnimal(animal.getId(), user.getTelegramUserId());
-        int days = faker.random().nextInt(1,30);
+        int days = faker.random().nextInt(1, 30);
         when(animalRepo.findById(animal.getId())).thenReturn(Optional.of(animal));
         when(animalRepo.save(animal)).thenReturn(animal);
         Animal actual = adoptedService.prolongTrialForNDays(animal.getId(), days);
         assertThat(actual).isNotNull().isEqualTo(animal);
         assertThat(actual.getTookDate()).isEqualTo(LocalDate.now());
-        assertThat(actual.getPetReturnDate()).isEqualTo(LocalDate.now().plusDays(14+days));
+        assertThat(actual.getPetReturnDate()).isEqualTo(LocalDate.now().plusDays(14 + days));
     }
 
     @Test
@@ -131,7 +126,7 @@ class AdoptedServiceTest {
         when(userService.getUserById(user.getTelegramUserId())).thenReturn(user);
         adoptedService.setAdopterForAnimal(animal.getId(), user.getTelegramUserId());
         animal.setPetReturnDate(null);
-        int days = faker.random().nextInt(1,30);
+        int days = faker.random().nextInt(1, 30);
         when(animalRepo.findById(animal.getId())).thenReturn(Optional.of(animal));
         when(animalRepo.save(animal)).thenReturn(animal);
         Animal actual = adoptedService.prolongTrialForNDays(animal.getId(), days);

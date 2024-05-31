@@ -89,7 +89,6 @@ class UserServiceTest {
         expected.setLastName(faker.harryPotter().character());
         expected.setAddress(faker.harryPotter().location());
         expected.setPhoneNumber(String.valueOf(faker.random().nextInt(12312331)));
-        when(userRepo.save(expected)).thenThrow(UserNotValidException.class);
         assertThatThrownBy(() -> userService.addUser(expected)).isInstanceOf(UserNotValidException.class);
     }
 

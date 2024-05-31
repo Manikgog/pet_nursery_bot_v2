@@ -1,15 +1,20 @@
 package ru.pet.nursery.web.service;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.pet.nursery.entity.Animal;
 import ru.pet.nursery.entity.User;
 import ru.pet.nursery.repository.AnimalRepo;
 import ru.pet.nursery.web.exception.AnimalNotFoundException;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Service
 public class AdoptedService {
+    private final Logger log = LoggerFactory.getLogger(AdoptedService.class);
 
     private final static int BASIC_TRIAL_DAYS = 14;
     private final AnimalRepo animalRepo;
@@ -33,7 +38,7 @@ public class AdoptedService {
         User adopter = userService.getUserById(adopterId);
         animal.setUser(adopter);
         animal.setTookDate(LocalDateTime.now().toLocalDate());
-        animal.setPetReturnDate(LocalDateTime.now().toLocalDate());
+        animal.setPetReturnDate(LocalDate.now().plusDays(BASIC_TRIAL_DAYS));
         return animalRepo.save(animal);
     }
 
@@ -48,7 +53,7 @@ public class AdoptedService {
         Animal animal = getById(animalId);
         LocalDate adoptionDate = animal.getPetReturnDate();
         if (adoptionDate == null) {
-            adoptionDate = LocalDate.now().plusDays(days);
+            adoptionDate = LocalDate.now();
         }
         adoptionDate = adoptionDate.plusDays(days);
         animal.setPetReturnDate(LocalDate.from(adoptionDate));
