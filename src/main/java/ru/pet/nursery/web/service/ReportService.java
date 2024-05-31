@@ -1,12 +1,12 @@
 package ru.pet.nursery.web.service;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
+import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.pet.nursery.entity.Report;
 import ru.pet.nursery.entity.User;
-import ru.pet.nursery.manager.AbstractManager;
 import ru.pet.nursery.repository.ReportRepo;
 import ru.pet.nursery.repository.UserRepo;
 import ru.pet.nursery.web.exception.EntityNotFoundException;
@@ -15,7 +15,6 @@ import ru.pet.nursery.web.exception.ImageNotFoundException;
 import ru.pet.nursery.web.exception.ReportIsExistException;
 import ru.pet.nursery.web.validator.ReportValidator;
 import ru.pet.nursery.web.validator.VolunteerValidator;
-
 import java.io.*;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;

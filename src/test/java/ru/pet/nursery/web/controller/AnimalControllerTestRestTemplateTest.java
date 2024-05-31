@@ -347,9 +347,9 @@ public class AnimalControllerTestRestTemplateTest {
         // проверяется содержание ячеек с информацией о возвращении животного
         Animal animal = responseEntity.getBody();
         Animal animalAfterReturn = animalRepo.findById(adoptedAnimal.getId()).get();
-        Assertions.assertThat(animal.getPetReturnDate().toLocalDate()).isEqualTo(animalAfterReturn.getPetReturnDate().toLocalDate());
+        Assertions.assertThat(animal.getPetReturnDate()).isEqualTo(animalAfterReturn.getPetReturnDate());
         // проверяется ячейка с датой возвращения.
-        Assertions.assertThat(animalAfterReturn.getPetReturnDate().toLocalDate()).isEqualTo(LocalDateTime.now().toLocalDate());
+        Assertions.assertThat(animalAfterReturn.getPetReturnDate()).isEqualTo(LocalDate.now());
         // проверяется ячейка с идентификатором человека, который забрал животное
         // если животное возвращено, то в этой ячейке ставиться null
         Assertions.assertThat(animalAfterReturn.getUser() == null);
