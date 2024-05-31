@@ -171,28 +171,6 @@ public class InfoManager extends AbstractManager {
         telegramBot.execute(sendMessage);
     }
 
-/*
-    /**
-     * Метод для отправки меню для просмотра фотографий кошек
-     * @param callbackQuery - запрос обратного вызова
-     */
-
-    /*
-   public void catsInformation(CallbackQuery callbackQuery){
-        logger.info("The catsInformation method of the InfoManager class works. Parameter: CallbackQuery -> {}", callbackQuery);
-        SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
-                "Здесь вы можете посмотреть фотографии котов",
-                keyboardFactory.getInlineKeyboard(
-                        List.of("Фото и описание",
-                                "Назад"),
-                        List.of(1, 1),
-                        List.of(CAT_PHOTO,
-                                INFO)
-                ));
-        telegramBot.execute(sendMessage);
-    }*/
-
-
 
     /**
      * Метод для отправки фотографии животного пользователю.
@@ -240,7 +218,7 @@ public class InfoManager extends AbstractManager {
             return;
         }
         byte[] photoArray = animalService.getPhotoByteArray(id);
-        SendPhoto sendPhoto = answerMethodFactory.getSendFoto(
+        SendPhoto sendPhoto = answerMethodFactory.getSendPhoto(
                 callbackQuery.message().chat().id(),
                 photoArray,
                 null
@@ -295,7 +273,7 @@ public class InfoManager extends AbstractManager {
             return;
         }
         byte[] photoArray = animalService.getPhotoByteArray(id);
-        SendPhoto sendPhoto = answerMethodFactory.getSendFoto(
+        SendPhoto sendPhoto = answerMethodFactory.getSendPhoto(
                 callbackQuery.message().chat().id(),
                 photoArray,
                 null
@@ -330,24 +308,6 @@ public class InfoManager extends AbstractManager {
         return 0;
     }
 
-/*
-    /**
-     * Метод для отправки меню для просмотра фотографий собак
-     * @param callbackQuery - запрос обратного вызова
-     */
-   /* public void dogsInformation(CallbackQuery callbackQuery){
-        logger.info("The dogsInformation method of the InfoManager class works. Parameter: CallbackQuery -> {}", callbackQuery);
-        SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
-                "Здесь вы можете посмотреть фотографии собак",
-                keyboardFactory.getInlineKeyboard(
-                        List.of("Фото и описание",
-                                "Назад"),
-                        List.of(1, 1),
-                        List.of(DOG_PHOTO,
-                                PET_INFORMATION)
-                ));
-        telegramBot.execute(sendMessage);
-    }*/
 
     /**
      * Метод для получения описания кошки по ее идентификатору в базе данных.
