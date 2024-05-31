@@ -8,13 +8,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import ru.pet.nursery.entity.Nursery;
 import ru.pet.nursery.repository.ShelterRepo;
 import ru.pet.nursery.web.exception.IllegalParameterException;
 import ru.pet.nursery.web.exception.ShelterNotFoundException;
 import ru.pet.nursery.web.exception.ShelterNullException;
 
-import java.awt.print.Pageable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -124,16 +125,16 @@ class ShelterServiceTest {
     }
 
     @Test
-    void getAllShelter() {
+    void getAllShelterTest() {
         int limit = 2;
         int finalPage = 1;
         int finalSize = 2;
         List<Nursery> list = nurseryList.stream().limit(limit).toList();
         Page<Nursery> page = new PageImpl<>(list);
-       /* when(shelterRepo.findAll(any(Pageable.class))).thenReturn(page);
+        when(shelterRepo.findAll(any(Pageable.class))).thenReturn(page);
         Collection<Nursery> actual = shelterService.getAllShelter(finalPage, finalSize);
         assertThat(actual).isNotNull().containsExactlyInAnyOrderElementsOf(list);
-        assertThat(actual.size()).isEqualTo(limit);*/
+        assertThat(actual.size()).isEqualTo(limit);
     }
 
     @Test
@@ -144,10 +145,10 @@ class ShelterServiceTest {
         boolean forDog = true;
         List<Nursery> list = nurseryList.stream().filter(kindOfAnimal -> kindOfAnimal.isForDog()==forDog).limit(limit).toList();
         Page<Nursery> page = new PageImpl<>(list);
-        /*when(shelterRepo.findAll(any(Pageable.class))).thenReturn(page);
+        when(shelterRepo.findAll(any(Pageable.class))).thenReturn(page);
         Collection<Nursery> actual = shelterService.getShelterForDog(forDog,finalPage, finalSize);
         assertThat(actual).isNotNull().containsExactlyInAnyOrderElementsOf(list);
-        assertThat(actual.size()).isEqualTo(limit);*/
+        assertThat(actual.size()).isEqualTo(limit);
     }
     @Test
     void getShelterForDog_ifForCat() {
@@ -157,10 +158,10 @@ class ShelterServiceTest {
         boolean forDog = false;
         List<Nursery> list = nurseryList.stream().filter(kindOfAnimal -> kindOfAnimal.isForDog()==forDog).limit(limit).toList();
         Page<Nursery> page = new PageImpl<>(list);
-        /*when(shelterRepo.findAll(any(Pageable.class))).thenReturn(page);
+        when(shelterRepo.findAll(any(Pageable.class))).thenReturn(page);
         Collection<Nursery> actual = shelterService.getShelterForDog(forDog,finalPage, finalSize);
         assertThat(actual).isNotNull().containsExactlyInAnyOrderElementsOf(list);
-        assertThat(actual.size()).isEqualTo(limit);*/
+        assertThat(actual.size()).isEqualTo(limit);
     }
 
     @Test

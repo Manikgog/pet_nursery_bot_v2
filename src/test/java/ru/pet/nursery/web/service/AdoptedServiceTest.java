@@ -17,6 +17,7 @@ import ru.pet.nursery.web.exception.AnimalNotFoundException;
 import ru.pet.nursery.web.exception.UserNotFoundException;
 
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -77,8 +78,8 @@ class AdoptedServiceTest {
 
         Animal actual = adoptedService.setAdopterForAnimal(animal.getId(), user.getTelegramUserId());
         assertThat(actual).isEqualTo(animal);
-        assertThat(actual.getTookDate()).isNotNull().isEqualTo(LocalDateTime.now().toLocalDate());
-        assertThat(actual.getPetReturnDate()).isNotNull().isEqualTo(LocalDateTime.now().plusDays(14).toLocalDate());
+        assertThat(actual.getTookDate()).isNotNull().isEqualTo(LocalDate.now());
+        assertThat(actual.getPetReturnDate()).isNotNull().isEqualTo(LocalDate.now().plusDays(14));
         assertThat(actual.getUser().getTelegramUserId()).isNotNull().isEqualTo(user.getTelegramUserId());
     }
 
@@ -116,8 +117,8 @@ class AdoptedServiceTest {
         when(animalRepo.save(animal)).thenReturn(animal);
         Animal actual = adoptedService.prolongTrialForNDays(animal.getId(), days);
         assertThat(actual).isNotNull().isEqualTo(animal);
-        assertThat(actual.getTookDate()).isEqualTo(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS));
-        assertThat(actual.getPetReturnDate()).isEqualTo(LocalDateTime.now().plusDays(14+days).truncatedTo(ChronoUnit.DAYS));
+        assertThat(actual.getTookDate()).isEqualTo(LocalDate.now());
+        assertThat(actual.getPetReturnDate()).isEqualTo(LocalDate.now().plusDays(14+days));
     }
 
     @Test
@@ -135,7 +136,7 @@ class AdoptedServiceTest {
         when(animalRepo.save(animal)).thenReturn(animal);
         Animal actual = adoptedService.prolongTrialForNDays(animal.getId(), days);
         assertThat(actual).isNotNull().isEqualTo(animal);
-        assertThat(actual.getPetReturnDate()).isEqualTo(LocalDateTime.now().plusDays(days+days).truncatedTo(ChronoUnit.DAYS));
+        assertThat(actual.getPetReturnDate()).isEqualTo(LocalDate.now().plusDays(days));
     }
 
     @Test

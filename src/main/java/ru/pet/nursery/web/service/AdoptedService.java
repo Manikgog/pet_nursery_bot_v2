@@ -1,19 +1,15 @@
 package ru.pet.nursery.web.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.stereotype.Service;
 import ru.pet.nursery.entity.Animal;
 import ru.pet.nursery.entity.User;
 import ru.pet.nursery.repository.AnimalRepo;
 import ru.pet.nursery.web.exception.AnimalNotFoundException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Service
 public class AdoptedService {
-
-    private final Logger log = LoggerFactory.getLogger(AdoptedService.class);
 
     private final static int BASIC_TRIAL_DAYS = 14;
     private final AnimalRepo animalRepo;
@@ -36,12 +32,10 @@ public class AdoptedService {
         Animal animal = getById(animalId);
         User adopter = userService.getUserById(adopterId);
         animal.setUser(adopter);
-        animal.setTookDate(LocalDate.from(LocalDateTime.now()));
-        animal.setPetReturnDate(LocalDate.now().plusDays(BASIC_TRIAL_DAYS));
+        animal.setTookDate(LocalDateTime.now().toLocalDate());
+        animal.setPetReturnDate(LocalDateTime.now().toLocalDate());
         return animalRepo.save(animal);
     }
-
-
 
     /**
      * Метод для пролонгации времени пребывания в приемной семье
