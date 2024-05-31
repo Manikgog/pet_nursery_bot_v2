@@ -77,8 +77,8 @@ class AdoptedServiceTest {
 
         Animal actual = adoptedService.setAdopterForAnimal(animal.getId(), user.getTelegramUserId());
         assertThat(actual).isEqualTo(animal);
-        assertThat(actual.getTookDate()).isNotNull().isEqualTo(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS));
-        assertThat(actual.getPetReturnDate()).isNotNull().isEqualTo(LocalDateTime.now().plusDays(14).truncatedTo(ChronoUnit.DAYS));
+        assertThat(actual.getTookDate()).isNotNull().isEqualTo(LocalDateTime.now().toLocalDate());
+        assertThat(actual.getPetReturnDate()).isNotNull().isEqualTo(LocalDateTime.now().plusDays(14).toLocalDate());
         assertThat(actual.getUser().getTelegramUserId()).isNotNull().isEqualTo(user.getTelegramUserId());
     }
 

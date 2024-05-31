@@ -828,7 +828,7 @@ public class ReportControllerTestRestTemplateTest {
 
         ResponseEntity<List<Report>> responseEntity = testRestTemplate
                 .exchange(
-                        "http://localhost:" + port + "/report?date=" + LocalDate.now(),
+                        "http://localhost:" + port + "/report/date?date=" + LocalDate.now(),
                         HttpMethod.GET,
                         HttpEntity.EMPTY,
                         new ParameterizedTypeReference<>() {
