@@ -162,7 +162,7 @@ class UserServiceTest {
         List<User> list = userList.stream().limit(limit).toList();
         Page<User> page = new PageImpl<>(list);
         when(userRepo.findAll(any(Pageable.class))).thenReturn(page);
-        Collection<User> actual = userService.getAllUsersPagination(finalPage, finalSize);
+        Collection<User> actual = userService.getAllUser(finalPage, finalSize);
         assertThat(actual).isNotNull().containsExactlyInAnyOrderElementsOf(list);
         assertThat(actual.size()).isEqualTo(limit);
     }

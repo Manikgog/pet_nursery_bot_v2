@@ -30,7 +30,6 @@ import ru.pet.nursery.web.dto.AnimalDTOForUser;
 import ru.pet.nursery.web.service.AnimalService;
 import java.nio.file.Path;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -548,7 +547,7 @@ public class AnimalControllerTestRestTemplateTest {
                                     AnimalDTOForUser.class
                             );
             Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-            Assertions.assertThat(responseEntity.getBody())
+            Assertions.assertThat(responseEntity.getBody()).usingRecursiveComparison()
                     .isEqualTo(animalDTOForUser);
         }
     }

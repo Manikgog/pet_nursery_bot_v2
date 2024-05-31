@@ -1,5 +1,7 @@
 package ru.pet.nursery.web.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.pet.nursery.entity.User;
