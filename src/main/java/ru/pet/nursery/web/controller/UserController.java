@@ -143,6 +143,6 @@ public class UserController {
     })
     @GetMapping(params = {"page","size"})
     public ResponseEntity<List<User>> paginationUserFromDb(@RequestParam ("page") int page, @RequestParam ("size") int pageSize) {
-        return ResponseEntity.ok(userService.getAllShelter(page, pageSize));
+        return ResponseEntity.ok(userService.getAllUser(page, pageSize));
     }
 }

@@ -168,7 +168,7 @@ class UserServiceTest {
     }
 
     @Test
-    void getAllShelter() {
+    void getAllUser() {
 
     }
 }
