@@ -52,8 +52,6 @@ public class CallbackQueryHandler {
             case ADDRESS_AND_PHONE -> infoManager.addressAndPhoneNursery(update.callbackQuery());
             case PET_INFORMATION -> infoManager.petInformation(update.callbackQuery());
             case WHAT_NEED_FOR_ADOPTION -> infoManager.whatNeedForAdoption(update.callbackQuery());
-            case DOGS -> infoManager.dogsInformation(update.callbackQuery());
-            case CATS -> infoManager.catsInformation(update.callbackQuery());
             case CAT_PHOTO -> infoManager.catPhoto(update.callbackQuery());
             case DOG_PHOTO -> infoManager.dogPhoto(update.callbackQuery());
             case CAT_INFORMATION -> infoManager.catInformation(update.callbackQuery());

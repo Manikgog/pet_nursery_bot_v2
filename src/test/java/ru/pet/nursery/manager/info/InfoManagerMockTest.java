@@ -26,6 +26,7 @@ import ru.pet.nursery.repository.AnimalRepo;
 import ru.pet.nursery.web.exception.ImageNotFoundException;
 import ru.pet.nursery.web.service.IAnimalService;
 import ru.pet.nursery.web.service.IShelterService;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -290,25 +291,35 @@ public class InfoManagerMockTest {
     public void petInformation_Test() throws IOException {
         CallbackQuery callbackQuery = readJsonFromResource("callbackquery_pet_info.json");
 
-        when(keyboardFactory.getInlineKeyboard(
+        InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory_.getInlineKeyboard(
                 List.of("Кошки",
                         "Собаки",
                         "Назад"),
                 List.of(1, 1, 1),
-                List.of(CATS,
-                        DOGS,
-                        INFO)
-        )).thenReturn(
+                List.of(CAT_PHOTO,
+                        DOG_PHOTO,
+                        INFO));
+
+        SendMessage sendMessage =  new AnswerMethodFactory().getSendMessage(callbackQuery.message().chat().id(),
+                "Здесь вы можете посмотреть информацию о питомцах",
                 keyboardFactory_.getInlineKeyboard(
                         List.of("Кошки",
                                 "Собаки",
                                 "Назад"),
                         List.of(1, 1, 1),
-                        List.of(CATS,
-                                DOGS,
-                                INFO)
-                )
-        );
+                        List.of(CAT_PHOTO,
+                                DOG_PHOTO,
+                                INFO)));
+
+        when(keyboardFactory.getInlineKeyboard(
+                List.of("Кошки",
+                        "Собаки",
+                        "Назад"),
+                List.of(1, 1, 1),
+                List.of(CAT_PHOTO,
+                        DOG_PHOTO,
+                        INFO)
+        )).thenReturn(inlineKeyboardMarkup);
 
 
         when(answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
@@ -318,23 +329,10 @@ public class InfoManagerMockTest {
                                 "Собаки",
                                 "Назад"),
                         List.of(1, 1, 1),
-                        List.of(CATS,
-                                DOGS,
+                        List.of(CAT_PHOTO,
+                                DOG_PHOTO,
                                 INFO)
-        ))).thenReturn(
-                new AnswerMethodFactory().getSendMessage(callbackQuery.message().chat().id(),
-                        "Здесь вы можете посмотреть информацию о питомцах",
-                        keyboardFactory_.getInlineKeyboard(
-                                List.of("Кошки",
-                                        "Собаки",
-                                        "Назад"),
-                                List.of(1, 1, 1),
-                                List.of(CATS,
-                                        DOGS,
-                                        INFO)
-                        )
-        )
-        );
+        ))).thenReturn(sendMessage);
 
         infoManager.petInformation(callbackQuery);
 
@@ -346,15 +344,7 @@ public class InfoManagerMockTest {
         Assertions.assertThat(actual.getParameters().get("text")).isEqualTo(
                 "Здесь вы можете посмотреть информацию о питомцах");
         Assertions.assertThat(actual.getParameters().get("reply_markup"))
-                .isEqualTo(keyboardFactory_.getInlineKeyboard(
-                        List.of("Кошки",
-                                "Собаки",
-                                "Назад"),
-                        List.of(1, 1, 1),
-                        List.of(CATS,
-                                DOGS,
-                                INFO)
-                ));
+                .isEqualTo(inlineKeyboardMarkup);
     }
 
 
@@ -425,48 +415,40 @@ public class InfoManagerMockTest {
     }
 
 
-
+/*
     @Test
     public void catsInformation_Test() throws IOException {
         CallbackQuery callbackQuery = readJsonFromResource("callbackquery_cats_info.json");
 
-        when(keyboardFactory.getInlineKeyboard(
+        InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory_.getInlineKeyboard(
                 List.of("Фото",
                         "Назад"),
                 List.of(1, 1),
                 List.of(CAT_PHOTO,
                         INFO)
-        )).thenReturn(
-                keyboardFactory_.getInlineKeyboard(
-                        List.of("Фото",
-                                "Назад"),
-                        List.of(1, 1),
-                        List.of(CAT_PHOTO,
-                                INFO)
-                )
         );
 
+        when(keyboardFactory.getInlineKeyboard(
+                List.of("Фото и описание",
+                        "Назад"),
+                List.of(1, 1),
+                List.of(CAT_PHOTO,
+                        INFO)
+        )).thenReturn(inlineKeyboardMarkup);
+
+        SendMessage sendMessage = new AnswerMethodFactory().getSendMessage(callbackQuery.message().chat().id(),
+                "Здесь вы можете посмотреть фотографии котов",
+                inlineKeyboardMarkup);
 
         when(answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                 "Здесь вы можете посмотреть фотографии котов",
                 keyboardFactory.getInlineKeyboard(
-                        List.of("Фото",
+                        List.of("Фото и описание",
                                 "Назад"),
                         List.of(1, 1),
                         List.of(CAT_PHOTO,
                                 INFO)
-                ))).thenReturn(
-                new AnswerMethodFactory().getSendMessage(callbackQuery.message().chat().id(),
-                        "Здесь вы можете посмотреть фотографии котов",
-                        keyboardFactory_.getInlineKeyboard(
-                                List.of("Фото",
-                                        "Назад"),
-                                List.of(1, 1),
-                                List.of(CAT_PHOTO,
-                                        INFO)
-                        )
-                )
-        );
+                ))).thenReturn(sendMessage);
 
         infoManager.catsInformation(callbackQuery);
 
@@ -478,14 +460,8 @@ public class InfoManagerMockTest {
         Assertions.assertThat(actual.getParameters().get("text")).isEqualTo(
                 "Здесь вы можете посмотреть фотографии котов");
         Assertions.assertThat(actual.getParameters().get("reply_markup"))
-                .isEqualTo(keyboardFactory_.getInlineKeyboard(
-                        List.of("Фото",
-                                "Назад"),
-                        List.of(1, 1),
-                        List.of(CAT_PHOTO,
-                                INFO)
-                ));
-    }
+                .isEqualTo(inlineKeyboardMarkup);
+    }*/
 
 
     @Test
@@ -525,50 +501,45 @@ public class InfoManagerMockTest {
         List<Animal> cats = createAnimals(10, AnimalType.CAT);
         when(animalService.getAllAnimalsByType(AnimalType.CAT)).thenReturn(cats);
         when(animalRepo.findById(1L)).thenReturn(Optional.of(cats.get(0)));
-        when(keyboardFactory.getInlineKeyboard(
-                List.of(cats.get(0).getAnimalName(),
-                        "Следующее фото",
+        long chatId = callbackQuery.message().chat().id();
+        InlineKeyboardMarkup inlineKeyboardMarkup =  keyboardFactory.getInlineKeyboard(
+                List.of("Следующее фото c описанием",
                         "Назад"),
-                List.of(1, 1, 1),
-                List.of(CAT_INFORMATION,
-                        CAT_PHOTO,
-                        INFO)
-        )).thenReturn(
-                keyboardFactory_.getInlineKeyboard(
-                        List.of(cats.get(0).getAnimalName(),
-                                "Следующее фото",
+                List.of(1, 1),
+                List.of(CAT_PHOTO,
+                        CATS)
+        );
+
+        SendMessage sendMessage = new AnswerMethodFactory().getSendMessage(
+                chatId,
+                "Фотография отсутствует\n\n" + cats.get(0).getDescription(),
+                keyboardFactory.getInlineKeyboard(
+                        List.of("Следующее фото c описанием",
                                 "Назад"),
-                        List.of(1, 1, 1),
-                        List.of(CAT_INFORMATION,
-                                CAT_PHOTO,
-                                INFO)
+                        List.of(1, 1),
+                        List.of(CAT_PHOTO,
+                                CATS)
                 )
         );
 
+        when( keyboardFactory_.getInlineKeyboard(
+                List.of("Следующее фото c описанием",
+                        "Назад"),
+                List.of(1, 1),
+                List.of(CAT_PHOTO,
+                        CATS)
+        )).thenReturn(inlineKeyboardMarkup);
 
-        when(answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
-                "Фотография отсутствует",
+
+        when(answerMethodFactory.getSendMessage(chatId,
+                "Фотография отсутствует\n\n" + cats.get(0).getDescription(),
                 keyboardFactory.getInlineKeyboard(
-                        List.of(cats.get(0).getAnimalName(),
-                                "Следующее фото",
+                        List.of("Следующее фото c описанием",
                                 "Назад"),
-                        List.of(1, 1, 1),
-                        List.of(CAT_INFORMATION,
-                                CAT_PHOTO,
-                                INFO)
-                ))).thenReturn(
-                new AnswerMethodFactory().getSendMessage(callbackQuery.message().chat().id(),
-                        "Фотография отсутствует",
-                        keyboardFactory_.getInlineKeyboard(
-                                List.of(cats.get(0).getAnimalName(),
-                                        "Следующее фото",
-                                        "Назад"),
-                                List.of(1, 1, 1),
-                                List.of(CAT_INFORMATION,
-                                        CAT_PHOTO,
-                                        INFO)
-                        ))
-        );
+                        List.of(1, 1),
+                        List.of(CAT_PHOTO,
+                                CATS)
+                ))).thenReturn(sendMessage);
 
         infoManager.catPhoto(callbackQuery);
 
@@ -578,17 +549,9 @@ public class InfoManagerMockTest {
 
         Assertions.assertThat(actual.getParameters().get("chat_id")).isEqualTo(1874598997L);
         Assertions.assertThat(actual.getParameters().get("text")).isEqualTo(
-                "Фотография отсутствует");
+                "Фотография отсутствует\n\n" + cats.get(0).getDescription());
         Assertions.assertThat(actual.getParameters().get("reply_markup"))
-                .isEqualTo(keyboardFactory_.getInlineKeyboard(
-                        List.of(cats.get(0).getAnimalName(),
-                                "Следующее фото",
-                                "Назад"),
-                        List.of(1, 1, 1),
-                        List.of(CAT_INFORMATION,
-                                CAT_PHOTO,
-                                INFO)
-                ));
+                .isEqualTo(inlineKeyboardMarkup);
 
     }
 
@@ -609,72 +572,70 @@ public class InfoManagerMockTest {
         when(animalRepo.findById(1L)).thenReturn(Optional.of(cats.get(0)));
         byte[] photoArray = getPhotoByteArray(cats.get(0));
         when(animalService.getPhotoByteArray(1L)).thenReturn(photoArray);
-        when(keyboardFactory.getInlineKeyboard(
-                List.of(cats.get(0).getAnimalName(),
-                        "Следующее фото",
-                        "Назад"),
-                List.of(1, 1, 1),
-                List.of(CAT_INFORMATION,
-                        CAT_PHOTO,
-                        CATS)
-        )).thenReturn(
-                keyboardFactory_.getInlineKeyboard(
-                        List.of(cats.get(0).getAnimalName(),
-                                "Следующее фото",
-                                "Назад"),
-                        List.of(1, 1, 1),
-                        List.of(CAT_INFORMATION,
-                                CAT_PHOTO,
-                                CATS)
-                )
-        );
 
-
-        when(answerMethodFactory.getSendFoto(
+        when(answerMethodFactory.getSendPhoto(
                 callbackQuery.message().chat().id(),
                 photoArray,
-                keyboardFactory.getInlineKeyboard(
-                        List.of(cats.get(0).getAnimalName(),
-                                "Следующее фото",
-                                "Назад"),
-                        List.of(1, 1, 1),
-                        List.of(CAT_INFORMATION,
-                                CAT_PHOTO,
-                                CATS)
-                ))).thenReturn(
-                new AnswerMethodFactory().getSendFoto(
+                null)).thenReturn(
+                new AnswerMethodFactory().getSendPhoto(
                         callbackQuery.message().chat().id(),
                         photoArray,
-                        keyboardFactory_.getInlineKeyboard(
-                                List.of(cats.get(0).getAnimalName(),
-                                        "Следующее фото",
-                                        "Назад"),
-                                List.of(1, 1, 1),
-                                List.of(CAT_INFORMATION,
-                                        CAT_PHOTO,
-                                        CATS)
-                        ))
+                        null)
         );
+
+        InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory_.getInlineKeyboard(
+                List.of("Следующее фото c описанием",
+                        "Назад"),
+                List.of(1, 1),
+                List.of(CAT_PHOTO,
+                        PET_INFORMATION)
+        );
+        when(keyboardFactory.getInlineKeyboard(
+                        List.of("Следующее фото c описанием",
+                                "Назад"),
+                        List.of(1, 1),
+                        List.of(CAT_PHOTO,
+                                PET_INFORMATION)
+                )
+        ).thenReturn(inlineKeyboardMarkup);
+
+        SendMessage sendMessage = new AnswerMethodFactory().getSendMessage(
+                callbackQuery.message().chat().id(),
+                cats.get(0).getDescription(),
+                inlineKeyboardMarkup);
+
+
+        when(answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
+                cats.get(0).getDescription(),
+                keyboardFactory.getInlineKeyboard(
+                        List.of("Следующее фото c описанием",
+                                "Назад"),
+                        List.of(1, 1),
+                        List.of(CAT_PHOTO,
+                                PET_INFORMATION)
+                ))).thenReturn(sendMessage);
+
 
         infoManager.catPhoto(callbackQuery);
 
-        ArgumentCaptor<SendPhoto> argumentCaptor = ArgumentCaptor.forClass(SendPhoto.class);
-        Mockito.verify(telegramBot).execute(argumentCaptor.capture());
-        SendPhoto actual = argumentCaptor.getValue();
+        ArgumentCaptor<SendPhoto> argumentCaptorPhoto = ArgumentCaptor.forClass(SendPhoto.class);
+        Mockito.verify(telegramBot).execute(argumentCaptorPhoto.capture());
+        SendPhoto actual = argumentCaptorPhoto.getValue();
 
         Assertions.assertThat(actual.getParameters().get("chat_id")).isEqualTo(1874598997L);
         Assertions.assertThat(actual.getParameters().get("photo")).isEqualTo(
                 photoArray);
-        Assertions.assertThat(actual.getParameters().get("reply_markup"))
-                .isEqualTo(keyboardFactory_.getInlineKeyboard(
-                        List.of(cats.get(0).getAnimalName(),
-                                "Следующее фото",
-                                "Назад"),
-                        List.of(1, 1, 1),
-                        List.of(CAT_INFORMATION,
-                                CAT_PHOTO,
-                                CATS)
-                ));
+
+        //infoManager.catInformation(callbackQuery);
+        ArgumentCaptor<SendMessage> argumentCaptorMessage = ArgumentCaptor.forClass(SendMessage.class);
+        Mockito.verify(telegramBot).execute(argumentCaptorMessage.capture());
+        SendMessage actualMessage = argumentCaptorMessage.getValue();
+
+        Assertions.assertThat(actualMessage.getParameters().get("chat_id")).isEqualTo(1874598997L);
+        Assertions.assertThat(actualMessage.getParameters().get("text")).isEqualTo(
+                cats.get(0).getDescription());
+        Assertions.assertThat(actualMessage.getParameters().get("reply_markup"))
+                .isEqualTo(inlineKeyboardMarkup);
 
     }
 
@@ -694,73 +655,70 @@ public class InfoManagerMockTest {
         when(animalRepo.findById(1L)).thenReturn(Optional.of(dogs.get(0)));
         byte[] photoArray = getPhotoByteArray(dogs.get(0));
         when(animalService.getPhotoByteArray(1L)).thenReturn(photoArray);
-        when(keyboardFactory.getInlineKeyboard(
-                List.of(dogs.get(0).getAnimalName(),
-                        "Следующее фото",
-                        "Назад"),
-                List.of(1, 1, 1),
-                List.of(DOG_INFORMATION,
-                        DOG_PHOTO,
-                        DOGS)
-        )).thenReturn(
-                keyboardFactory_.getInlineKeyboard(
-                        List.of(dogs.get(0).getAnimalName(),
-                                "Следующее фото",
-                                "Назад"),
-                        List.of(1, 1, 1),
-                        List.of(DOG_INFORMATION,
-                                DOG_PHOTO,
-                                DOGS)
-                )
-        );
 
-
-        when(answerMethodFactory.getSendFoto(
+        SendPhoto sendPhoto = new AnswerMethodFactory().getSendPhoto(
                 callbackQuery.message().chat().id(),
                 photoArray,
-                keyboardFactory.getInlineKeyboard(
-                        List.of(dogs.get(0).getAnimalName(),
-                                "Следующее фото",
-                                "Назад"),
-                        List.of(1, 1, 1),
-                        List.of(DOG_INFORMATION,
-                                DOG_PHOTO,
-                                DOGS)
-                ))).thenReturn(
-                new AnswerMethodFactory().getSendFoto(
-                        callbackQuery.message().chat().id(),
-                        photoArray,
-                        keyboardFactory_.getInlineKeyboard(
-                                List.of(dogs.get(0).getAnimalName(),
-                                        "Следующее фото",
-                                        "Назад"),
-                                List.of(1, 1, 1),
-                                List.of(DOG_INFORMATION,
-                                        DOG_PHOTO,
-                                        DOGS)
-                        ))
+                null
         );
+
+        when(answerMethodFactory.getSendPhoto(
+                callbackQuery.message().chat().id(),
+                photoArray,
+                null
+                )
+        ).thenReturn(sendPhoto);
+
+        InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory_.getInlineKeyboard(
+                List.of("Следующее фото c описанием",
+                        "Назад"),
+                List.of(1, 1),
+                List.of(DOG_PHOTO,
+                        PET_INFORMATION)
+        );
+
+        when(keyboardFactory.getInlineKeyboard(
+                List.of("Следующее фото c описанием",
+                        "Назад"),
+                List.of(1, 1),
+                List.of(DOG_PHOTO,
+                        PET_INFORMATION)
+                )
+        ).thenReturn(inlineKeyboardMarkup);
+
+        SendMessage sendMessage = new AnswerMethodFactory().getSendMessage(callbackQuery.message().chat().id(),
+                dogs.get(0).getDescription(),
+                inlineKeyboardMarkup);
+
+        when(answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
+                        dogs.get(0).getDescription(),
+                        keyboardFactory.getInlineKeyboard(
+                                List.of("Следующее фото c описанием",
+                                        "Назад"),
+                                List.of(1, 1),
+                                List.of(DOG_PHOTO,
+                                        PET_INFORMATION)
+                        ))).thenReturn(sendMessage);
+
 
         infoManager.dogPhoto(callbackQuery);
 
-        ArgumentCaptor<SendPhoto> argumentCaptor = ArgumentCaptor.forClass(SendPhoto.class);
-        Mockito.verify(telegramBot).execute(argumentCaptor.capture());
-        SendPhoto actual = argumentCaptor.getValue();
+        ArgumentCaptor<SendPhoto> argumentCaptorPhoto = ArgumentCaptor.forClass(SendPhoto.class);
+        Mockito.verify(telegramBot).execute(argumentCaptorPhoto.capture());
+        SendPhoto actual = argumentCaptorPhoto.getValue();
 
         Assertions.assertThat(actual.getParameters().get("chat_id")).isEqualTo(1874598997L);
-        Assertions.assertThat(actual.getParameters().get("photo")).isEqualTo(
-                photoArray);
-        Assertions.assertThat(actual.getParameters().get("reply_markup"))
-                .isEqualTo(keyboardFactory_.getInlineKeyboard(
-                        List.of(dogs.get(0).getAnimalName(),
-                                "Следующее фото",
-                                "Назад"),
-                        List.of(1, 1, 1),
-                        List.of(DOG_INFORMATION,
-                                DOG_PHOTO,
-                                DOGS)
-                ));
+        Assertions.assertThat(actual.getParameters().get("photo")).isEqualTo(photoArray);
 
+
+        ArgumentCaptor<SendMessage> argumentCaptorMessage = ArgumentCaptor.forClass(SendMessage.class);
+        Mockito.verify(telegramBot).execute(argumentCaptorMessage.capture());
+        SendMessage actualMessage = argumentCaptorMessage.getValue();
+
+        Assertions.assertThat(actualMessage.getParameters().get("chat_id")).isEqualTo(1874598997L);
+        Assertions.assertThat(actualMessage.getParameters().get("text")).isEqualTo(dogs.get(0).getDescription());
+        Assertions.assertThat(actualMessage.getParameters().get("reply_markup"))
+                .isEqualTo(inlineKeyboardMarkup);
     }
 
     public byte[] getPhotoByteArray(Animal animal) {
@@ -817,50 +775,36 @@ public class InfoManagerMockTest {
         List<Animal> dogs = createAnimals(10, AnimalType.DOG);
         when(animalService.getAllAnimalsByType(AnimalType.DOG)).thenReturn(dogs);
         when(animalRepo.findById(1L)).thenReturn(Optional.of(dogs.get(0)));
-        when(keyboardFactory.getInlineKeyboard(
-                List.of(dogs.get(0).getAnimalName(),
-                        "Следующее фото",
+        long chatId = callbackQuery.message().chat().id();
+        InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory_.getInlineKeyboard(
+                List.of("Следующее фото c описанием",
                         "Назад"),
-                List.of(1, 1, 1),
-                List.of(DOG_INFORMATION,
-                        DOG_PHOTO,
-                        INFO)
-        )).thenReturn(
+                List.of(1, 1),
+                List.of(DOG_PHOTO,
+                        PET_INFORMATION)
+        );
+
+        SendMessage sendMessage = new AnswerMethodFactory().getSendMessage(callbackQuery.message().chat().id(),
+                "Фотография отсутствует\n\n" + dogs.get(0).getDescription(),
                 keyboardFactory_.getInlineKeyboard(
-                        List.of(dogs.get(0).getAnimalName(),
-                                "Следующее фото",
+                        List.of("Следующее фото c описанием",
                                 "Назад"),
-                        List.of(1, 1, 1),
-                        List.of(DOG_INFORMATION,
-                                DOG_PHOTO,
-                                INFO)
-                )
-        );
+                        List.of(1, 1),
+                        List.of(DOG_PHOTO,
+                                PET_INFORMATION)));
+
+        when(keyboardFactory.getInlineKeyboard(
+                List.of("Следующее фото c описанием",
+                        "Назад"),
+                List.of(1, 1),
+                List.of(DOG_PHOTO,
+                        PET_INFORMATION)
+        )).thenReturn(inlineKeyboardMarkup);
 
 
-        when(answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
-                "Фотография отсутствует",
-                keyboardFactory.getInlineKeyboard(
-                        List.of(dogs.get(0).getAnimalName(),
-                                "Следующее фото",
-                                "Назад"),
-                        List.of(1, 1, 1),
-                        List.of(DOG_INFORMATION,
-                                DOG_PHOTO,
-                                INFO)
-                ))).thenReturn(
-                new AnswerMethodFactory().getSendMessage(callbackQuery.message().chat().id(),
-                        "Фотография отсутствует",
-                        keyboardFactory_.getInlineKeyboard(
-                                List.of(dogs.get(0).getAnimalName(),
-                                        "Следующее фото",
-                                        "Назад"),
-                                List.of(1, 1, 1),
-                                List.of(DOG_INFORMATION,
-                                        DOG_PHOTO,
-                                        INFO)
-                        ))
-        );
+        when(answerMethodFactory.getSendMessage(chatId,
+                "Фотография отсутствует\n\n" + dogs.get(0).getDescription(),
+                        inlineKeyboardMarkup)).thenReturn(sendMessage);
 
         infoManager.dogPhoto(callbackQuery);
 
@@ -870,17 +814,9 @@ public class InfoManagerMockTest {
 
         Assertions.assertThat(actual.getParameters().get("chat_id")).isEqualTo(1874598997L);
         Assertions.assertThat(actual.getParameters().get("text")).isEqualTo(
-                "Фотография отсутствует");
+                "Фотография отсутствует\n\n" + dogs.get(0).getDescription());
         Assertions.assertThat(actual.getParameters().get("reply_markup"))
-                .isEqualTo(keyboardFactory_.getInlineKeyboard(
-                        List.of(dogs.get(0).getAnimalName(),
-                                "Следующее фото",
-                                "Назад"),
-                        List.of(1, 1, 1),
-                        List.of(DOG_INFORMATION,
-                                DOG_PHOTO,
-                                INFO)
-                ));
+                .isEqualTo(inlineKeyboardMarkup);
     }
 
 
@@ -911,49 +847,46 @@ public class InfoManagerMockTest {
         Assertions.assertThat(expected).isEqualTo(actual);
     }
 
-
+/*
     @Test
     public void dogsInformation_Test() throws IOException {
         CallbackQuery callbackQuery = readJsonFromResource("callback_query_dogs_info.json");
 
-        when(keyboardFactory.getInlineKeyboard(
-                List.of("Фото",
+        InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory_.getInlineKeyboard(
+                List.of("Фото и описание",
                         "Назад"),
                 List.of(1, 1),
                 List.of(DOG_PHOTO,
                         INFO)
-        )).thenReturn(
-                keyboardFactory_.getInlineKeyboard(
-                        List.of("Фото",
-                                "Назад"),
-                        List.of(1, 1),
-                        List.of(DOG_PHOTO,
-                                INFO)
-                )
         );
+
+        SendMessage sendMessage = new AnswerMethodFactory().getSendMessage(
+                callbackQuery.message().chat().id(),
+                "Здесь вы можете посмотреть фотографии собак",
+                inlineKeyboardMarkup
+        );
+
+
+        when(keyboardFactory.getInlineKeyboard(
+                List.of("Фото и описание",
+                        "Назад"),
+                List.of(1, 1),
+                List.of(DOG_PHOTO,
+                        INFO)
+        )).thenReturn(inlineKeyboardMarkup);
 
 
         when(answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                 "Здесь вы можете посмотреть фотографии собак",
                 keyboardFactory.getInlineKeyboard(
-                        List.of("Фото",
+                        List.of("Фото и описание",
                                 "Назад"),
                         List.of(1, 1),
                         List.of(DOG_PHOTO,
                                 INFO)
-                ))).thenReturn(
-                new AnswerMethodFactory().getSendMessage(callbackQuery.message().chat().id(),
-                        "Здесь вы можете посмотреть фотографии собак",
-                        keyboardFactory_.getInlineKeyboard(
-                                List.of("Фото",
-                                        "Назад"),
-                                List.of(1, 1),
-                                List.of(DOG_PHOTO,
-                                        INFO)
-                        ))
-        );
+                ))).thenReturn(sendMessage);
 
-        infoManager.dogsInformation(callbackQuery);
+       infoManager.dogsInformation(callbackQuery);
 
         ArgumentCaptor<SendMessage> argumentCaptor = ArgumentCaptor.forClass(SendMessage.class);
         Mockito.verify(telegramBot).execute(argumentCaptor.capture());
@@ -963,16 +896,10 @@ public class InfoManagerMockTest {
         Assertions.assertThat(actual.getParameters().get("text")).isEqualTo(
                 "Здесь вы можете посмотреть фотографии собак");
         Assertions.assertThat(actual.getParameters().get("reply_markup"))
-                .isEqualTo(keyboardFactory_.getInlineKeyboard(
-                        List.of("Фото",
-                                "Назад"),
-                        List.of(1, 1),
-                        List.of(DOG_PHOTO,
-                                INFO)
-                ));
+                .isEqualTo(inlineKeyboardMarkup);
 
     }
-
+*/
 
     @Test
     public void catInformation_Test() throws IOException {
@@ -984,34 +911,35 @@ public class InfoManagerMockTest {
         Animal animal = cats.get((int)randomIndex);
         infoManager.putTOUserChatId_AnimalId(chatId, randomIndex);
 
-        when(keyboardFactory.getInlineKeyboard(
-                List.of("Назад"),
-                List.of(1),
-                List.of(CATS)
-        )).thenReturn(
-                keyboardFactory_.getInlineKeyboard(
-                        List.of("Назад"),
-                        List.of(1),
-                        List.of(CATS)
-                )
-        );
+        InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory_.getInlineKeyboard(
+                List.of("Следующее фото c описанием",
+                        "Назад"),
+                List.of(1, 1),
+                List.of(CAT_PHOTO,
+                        PET_INFORMATION));
 
+        when(keyboardFactory.getInlineKeyboard(
+                List.of("Следующее фото c описанием",
+                        "Назад"),
+                List.of(1, 1),
+                List.of(CAT_PHOTO,
+                        PET_INFORMATION)
+        )).thenReturn(inlineKeyboardMarkup);
+
+        SendMessage sendMessage = new AnswerMethodFactory().getSendMessage(
+                callbackQuery.message().chat().id(),
+                cats.get((int) randomIndex).getDescription(),
+                inlineKeyboardMarkup
+        );
 
         when(answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                 animal.getDescription(),
                 keyboardFactory.getInlineKeyboard(
-                        List.of("Назад"),
-                        List.of(1),
-                        List.of(CATS)
-                ))).thenReturn(
-                new AnswerMethodFactory().getSendMessage(callbackQuery.message().chat().id(),
-                        animal.getDescription(),
-                        keyboardFactory_.getInlineKeyboard(
-                                List.of("Назад"),
-                                List.of(1),
-                                List.of(CATS)
-                        ))
-        );
+                        List.of("Следующее фото c описанием",
+                                "Назад"),
+                        List.of(1, 1),
+                        List.of(CAT_PHOTO,
+                                PET_INFORMATION)))).thenReturn(sendMessage);
 
         infoManager.catInformation(callbackQuery);
 
@@ -1023,11 +951,7 @@ public class InfoManagerMockTest {
         Assertions.assertThat(actual.getParameters().get("text")).isEqualTo(
                 animal.getDescription());
         Assertions.assertThat(actual.getParameters().get("reply_markup"))
-                .isEqualTo(keyboardFactory_.getInlineKeyboard(
-                        List.of("Назад"),
-                        List.of(1),
-                        List.of(CATS)
-                ));
+                .isEqualTo(inlineKeyboardMarkup);
 
     }
 
@@ -1041,34 +965,35 @@ public class InfoManagerMockTest {
         Animal animal = dogs.get((int)randomIndex);
         infoManager.putTOUserChatId_AnimalId(chatId, randomIndex);
 
-        when(keyboardFactory.getInlineKeyboard(
-                List.of("Назад"),
-                List.of(1),
-                List.of(DOGS)
-        )).thenReturn(
-                keyboardFactory_.getInlineKeyboard(
-                        List.of("Назад"),
-                        List.of(1),
-                        List.of(DOGS)
-                )
-        );
+        InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory_.getInlineKeyboard(
+                List.of("Следующее фото c описанием",
+                        "Назад"),
+                List.of(1, 1),
+                List.of(DOG_PHOTO,
+                        PET_INFORMATION));
 
+        when(keyboardFactory.getInlineKeyboard(
+                List.of("Следующее фото c описанием",
+                        "Назад"),
+                List.of(1, 1),
+                List.of(DOG_PHOTO,
+                        PET_INFORMATION)
+        )).thenReturn(inlineKeyboardMarkup);
+
+        SendMessage sendMessage = new AnswerMethodFactory().getSendMessage(
+                callbackQuery.message().chat().id(),
+                dogs.get((int) randomIndex).getDescription(),
+                inlineKeyboardMarkup
+        );
 
         when(answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                 animal.getDescription(),
                 keyboardFactory.getInlineKeyboard(
-                        List.of("Назад"),
-                        List.of(1),
-                        List.of(DOGS)
-                ))).thenReturn(
-                new AnswerMethodFactory().getSendMessage(callbackQuery.message().chat().id(),
-                        animal.getDescription(),
-                        keyboardFactory_.getInlineKeyboard(
-                                List.of("Назад"),
-                                List.of(1),
-                                List.of(DOGS)
-                        ))
-        );
+                        List.of("Следующее фото c описанием",
+                                "Назад"),
+                        List.of(1, 1),
+                        List.of(DOG_PHOTO,
+                                PET_INFORMATION)))).thenReturn(sendMessage);
 
         infoManager.dogInformation(callbackQuery);
 
@@ -1080,22 +1005,13 @@ public class InfoManagerMockTest {
         Assertions.assertThat(actual.getParameters().get("text")).isEqualTo(
                 animal.getDescription());
         Assertions.assertThat(actual.getParameters().get("reply_markup"))
-                .isEqualTo(keyboardFactory_.getInlineKeyboard(
-                        List.of("Назад"),
-                        List.of(1),
-                        List.of(DOGS)
-                ));
+                .isEqualTo(inlineKeyboardMarkup);
     }
 
 
     @Test
     public void putTOUserChatId_AnimalId_Test(){
         infoManager.putTOUserChatId_AnimalId(1L, 1L);
-    }
-
-    @Test
-    public void answerMessage_Test() {
-
     }
 
 

@@ -12,9 +12,6 @@ import com.pengrad.telegrambot.request.SendPhoto;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import ru.pet.nursery.factory.AnswerMethodFactory;
-import ru.pet.nursery.factory.KeyboardFactory;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
@@ -65,7 +62,7 @@ public class AnswerMethodFactoryTest {
         InlineKeyboardMarkup keyboard = keyboardFactory.getInlineKeyboard(List.of("button 1", "button 2"), List.of(1, 1), List.of("кнопка 1", "кнопка 2"));
         SendPhoto expected = new SendPhoto(chatId, photoArray).replyMarkup(keyboard);
 
-        SendPhoto actual = methodFactory.getSendFoto(chatId, photoArray, keyboard);
+        SendPhoto actual = methodFactory.getSendPhoto(chatId, photoArray, keyboard);
 
         assertEquals(expected.getParameters(), actual.getParameters());
         assertEquals(expected.getContentType(), actual.getContentType());
@@ -109,11 +106,10 @@ public class AnswerMethodFactoryTest {
             strPath += "/src/test/resources/ru.pet.nursery/factory/update.json";
         }
         String updateJson = readJsonFromResource(strPath);
-        List<Update> updates = getUpdates(updateJson);
-        return updates;
+        return getUpdates(updateJson);
     }
 
-    private String readJsonFromResource(String filename) throws URISyntaxException, IOException {
+    private String readJsonFromResource(String filename) throws IOException {
         return Files.readString(
                 Paths.get(Objects.requireNonNull(filename)
                 ), Charset.forName("WINDOWS-1251")

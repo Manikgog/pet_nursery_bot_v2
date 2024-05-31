@@ -21,12 +21,13 @@ public class AnswerMethodFactory {
         return new SendMessage(chatId, text).replyMarkup(keyboard);
     }
 
-    public SendPhoto getSendFoto(Long chatId,
+    public SendPhoto getSendPhoto(Long chatId,
                                    byte[] photoArray,
                                       InlineKeyboardMarkup keyboard) throws IOException {
-
-        SendPhoto sendPhoto = new SendPhoto(chatId, photoArray);
-        return sendPhoto.replyMarkup(keyboard);
+        if(keyboard == null) {
+            return new SendPhoto(chatId, photoArray);
+        }
+        return new SendPhoto(chatId, photoArray).replyMarkup(keyboard);
     }
 
     public EditMessageText getEditMessageText(CallbackQuery callbackQuery,

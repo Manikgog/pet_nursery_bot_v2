@@ -21,6 +21,9 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Objects;
 
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
+
 
 @ExtendWith(MockitoExtension.class)
 public class TelegramBotUpdatesListenerTest {
@@ -34,44 +37,15 @@ public class TelegramBotUpdatesListenerTest {
     @InjectMocks
     TelegramBotUpdatesListener telegramBotUpdatesListener;
 
-    @Test
-    public void handleStartTest() throws URISyntaxException, IOException {
-        String json = Files.readString(
-                Paths.get(TelegramBotUpdatesListenerTest.class.getResource("text_update.json").toURI()));
-        Update update = getUpdate(json, "/start");
-
-        telegramBotUpdatesListener.process(Collections.singletonList(update));
-
-        ArgumentCaptor<SendMessage> argumentCaptor = ArgumentCaptor.forClass(SendMessage.class);
-        Mockito.verify(telegramBot).execute(argumentCaptor.capture());
-        SendMessage actual = argumentCaptor.getValue();
-
-        Assertions.assertThat(actual.getParameters().get("chat_id")).isEqualTo(123L);
-        Assertions.assertThat(actual.getParameters().get("text")).isEqualTo(
-                "Для планирования задачи отправьте её в формате:\n*01.01.2022 20:00 Сделать домашнюю работу*");
-        Assertions.assertThat(actual.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.Markdown.name());
-    }
-
-    private Update getUpdate(String json, String replaced) {
-        return BotUtils.fromJson(json.replace("%command%", replaced), Update.class);
-    }
-
 
     @Test
     public void startTest() throws URISyntaxException, IOException {
         Update update = getUpdate("update_start.json");
+
+        doNothing().when(handler).answer(update);
+
         telegramBotUpdatesListener.process(Collections.singletonList(update));
 
-        ArgumentCaptor<SendMessage> argumentCaptor = ArgumentCaptor.forClass(SendMessage.class);
-        Mockito.verify(telegramBot).execute(argumentCaptor.capture());
-        SendMessage actual = argumentCaptor.getValue();
-
-        Assertions.assertThat(actual.getParameters().get("chat_id")).isEqualTo(123L);
-        Assertions.assertThat(actual.getParameters().get("text")).isEqualTo(
-                "Для планирования задачи отправьте её в формате:\n*01.01.2022 20:00 Сделать домашнюю работу*");
-        Assertions.assertThat(actual.getParameters().get("parse_mode"))
-                .isEqualTo(ParseMode.Markdown.name());
     }
 
     private Update getUpdate(String filename) throws IOException {

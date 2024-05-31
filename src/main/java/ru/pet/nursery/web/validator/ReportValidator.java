@@ -12,6 +12,7 @@ import ru.pet.nursery.web.exception.ReportIsExistException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Component
@@ -45,7 +46,7 @@ public class ReportValidator {
      * @return true - отчёт на сегодня уже составлен, false - отчёта на сегодня ещё нет
      */
     public boolean isReportInDataBase(User user){
-        return reportRepo.findByUserAndReportDate(user, LocalDateTime.now()) != null;
+        return reportRepo.findByUserAndReportDate(user, LocalDateTime.now().truncatedTo(ChronoUnit.DAYS)) != null;
     }
 
     /**

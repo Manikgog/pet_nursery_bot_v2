@@ -17,4 +17,5 @@ public class MessageData {
     public static final String DIET_STATUS = "diet_status";
     public static final String HEALTH_STATUS = "health_status";
     public static final String BEHAVIOUR_STATUS = "behaviour_status";
+    public static final String ERROR_MESSAGE = "error_message";
 }
