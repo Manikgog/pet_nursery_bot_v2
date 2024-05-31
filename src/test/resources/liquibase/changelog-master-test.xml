@@ -10,5 +10,6 @@
     <include file="v_1/create-animal_table-test.xml" relativeToChangelogFile="true"/>
     <include file="v_1/create-volunteer_table-test.xml" relativeToChangelogFile="true"/>
     <include file="v_1/create-report_table-test.xml" relativeToChangelogFile="true"/>
+    <include file="v_1/add-column-nursery_table-test.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

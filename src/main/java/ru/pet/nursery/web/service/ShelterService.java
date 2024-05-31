@@ -1,19 +1,14 @@
 package ru.pet.nursery.web.service;
 
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.pet.nursery.entity.Nursery;
-import ru.pet.nursery.mapper.ShelterMapper;
 import ru.pet.nursery.repository.ShelterRepo;
-import ru.pet.nursery.web.dto.ShelterDTO;
+import ru.pet.nursery.web.exception.IllegalParameterException;
 import ru.pet.nursery.web.exception.ShelterNotFoundException;
 import ru.pet.nursery.web.exception.ShelterNullException;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 @Service
 public class ShelterService implements IShelterService {
@@ -67,6 +62,7 @@ public class ShelterService implements IShelterService {
         oldNursery.setNameShelter(nursery.getNameShelter());
         oldNursery.setPhoneNumber(nursery.getPhoneNumber());
         oldNursery.setForDog(nursery.isForDog());
+        oldNursery.setMapLink(nursery.getMapLink());
         return shelterRepo.save(oldNursery);
     }
 
@@ -113,4 +109,18 @@ public class ShelterService implements IShelterService {
         return shelterRepo.findAll();
     }
 
+    /**
+     * Метод для внесения изменений в поле со ссылкой на карту приюта
+     * @param id - идентификатор приюта
+     * @param link - строка со ссылкой
+     * @return измененный объект приюта
+     */
+    public Nursery updateMap(Long id, String link) {
+        if(link == null || link.isEmpty() || link.isBlank()) {
+            throw new IllegalParameterException("Строка ссылки не должна быть пустой");
+        }
+        Nursery nurseryOld = getShelter(id);
+        nurseryOld.setMapLink(link);
+        return shelterRepo.save(nurseryOld);
+    }
 }

@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.constraints.Min;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -179,4 +178,25 @@ public class ShelterController {
                                                                     @RequestParam("size") Integer size) {
         return ResponseEntity.ok(shelterService.getShelterForDog(kindOfAnimal, page, size));
     }
+
+    @Operation(summary = "Обновление информации о расположении приюта где: id - PK приюта передается в строке запроса," +
+            " а link - ссылка на яндекс карты с расположением приюта", responses = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Обновление расположения приюта прошло успешно",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = Nursery.class),
+                            examples = @ExampleObject(
+                                    name = "Приют",
+                                    description = "Объект приюта изменен"
+                            )
+                    )
+            )
+    })
+    @PutMapping("/{id}/map")
+    public ResponseEntity<Nursery> updateShelterMap(@PathVariable Long id, @RequestParam String link) {
+        return ResponseEntity.ok(shelterService.updateMap(id, link));
+    }
+
 }

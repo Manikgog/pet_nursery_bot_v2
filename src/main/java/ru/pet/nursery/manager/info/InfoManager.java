@@ -118,8 +118,10 @@ public class InfoManager extends AbstractManager {
         StringBuilder nurseryInfo = new StringBuilder();
         for (Nursery nursery : listOfNursery) {
             nurseryInfo.append(nursery.isForDog() ? "Приют для собак\n" : "Приют для кошек\n")
+                    .append("Название: ").append(nursery.getNameShelter()).append(";\n")
                     .append("Адрес: ").append(nursery.getAddress()).append(";\n")
                     .append("Телефон: ").append(nursery.getPhoneNumber()).append(";\n")
+                    .append("Ссылка на карту: ").append(nursery.getMapLink() == null ? "нет" : nursery.getMapLink()).append(";\n")
                     .append("-------------------\n");
         }
         SendMessage sendMessage = answerMethodFactory.getSendMessage(

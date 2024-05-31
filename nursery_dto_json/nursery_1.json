@@ -1,7 +1,8 @@
 {
   "id": 0,
-  "nameShelter": "Надежда",
-  "address": "Астана ул. Калинина д. 24",
-  "phoneNumber": "+8 987-654-9874",
-  "forDog": true
+  "nameShelter": "Я живой",
+  "address": "г. Астана ул. Аккорган, 5в",
+  "phoneNumber": "+7-702-029-9141",
+  "forDog": true,
+  "mapLink": "https://yandex.ru/maps/org/ya_zhivoy/231771024536/?ll=71.335755%2C51.176370&z=17"
 }

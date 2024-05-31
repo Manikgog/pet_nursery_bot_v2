@@ -2,7 +2,6 @@ package ru.pet.nursery.web.controller;
 
 import net.datafaker.Faker;
 import org.assertj.core.api.Assertions;
-import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,7 +16,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import ru.pet.nursery.entity.Nursery;
-import ru.pet.nursery.entity.User;
 import ru.pet.nursery.repository.ShelterRepo;
 
 import java.util.ArrayList;
@@ -26,7 +24,6 @@ import java.util.Optional;
 import java.util.Random;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ShelterControllerTestRestTemplateTest {
@@ -89,7 +86,7 @@ class ShelterControllerTestRestTemplateTest {
     @Test
     void putShelterNegativeTest() {
         Nursery nursery = new Nursery(null, null, null,
-                String.valueOf(faker.random().nextInt(123123123)),faker.random().nextBoolean());
+                String.valueOf(faker.random().nextInt(123123123)),faker.random().nextBoolean(), null);
         ResponseEntity<String> responseEntity = testRestTemplate.postForEntity(builderUrl("/shelter"),
                 nursery,
                 String.class);
@@ -149,7 +146,7 @@ class ShelterControllerTestRestTemplateTest {
 
     @Test
     void updateShelterNegativeTest() {
-        Nursery newNursery = new Nursery(11L, "Какой то приют", "г. Н...2", "Номер телефона прежний2", true);
+        Nursery newNursery = new Nursery(11L, "Какой то приют", "г. Н...2", "Номер телефона прежний2", true, null);
         HttpEntity<Nursery> entity = new HttpEntity<>(newNursery);
         ResponseEntity<String> updateNursery = testRestTemplate.exchange(builderUrl("/shelter/-1"),
                 HttpMethod.PUT,
@@ -247,4 +244,87 @@ class ShelterControllerTestRestTemplateTest {
         Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         Assertions.assertThat(responseEntity.getBody().size()).isEqualTo(nurseriesKindOfAnimal.size());
     }
+
+
+    @Test
+    public void updateShelterMap_Test(){
+        List<Nursery> nurseries = shelterRepo.findAll();
+        long id = nurseries.get(faker.random().nextInt(0, nurseries.size())).getId();
+
+        String mapLink = faker.examplify("https://yandex.ru/maps/org/inucobo/117827125363/?ll=71.441434%2C51.166809");
+
+        ResponseEntity<Nursery> responseEntity = testRestTemplate
+                .exchange(
+                        "http://localhost:" + port + "/shelter/" + id + "/map?link=" + mapLink,
+                        HttpMethod.PUT,
+                        HttpEntity.EMPTY,
+                        Nursery.class
+                );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(responseEntity.getBody().getMapLink()).isEqualTo(mapLink);
+
+        Nursery nurseryFromDB = shelterRepo.findById(responseEntity.getBody().getId()).get();
+
+        Assertions.assertThat(nurseryFromDB.getMapLink()).isEqualTo(mapLink);
+    }
+
+
+    @Test
+    public void updateShelterMap_negativeTestByEmptyLink(){
+        List<Nursery> nurseries = shelterRepo.findAll();
+        long id = nurseries.get(faker.random().nextInt(0, nurseries.size())).getId();
+
+        String mapLink = "";
+
+        ResponseEntity<String> responseEntity = testRestTemplate
+                .exchange(
+                        "http://localhost:" + port + "/shelter/" + id + "/map?link=" + mapLink,
+                        HttpMethod.PUT,
+                        HttpEntity.EMPTY,
+                        String.class
+                );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo("Строка ссылки не должна быть пустой");
+
+        mapLink = "    ";
+
+        responseEntity = testRestTemplate
+                .exchange(
+                        "http://localhost:" + port + "/shelter/" + id + "/map?link=" + mapLink,
+                        HttpMethod.PUT,
+                        HttpEntity.EMPTY,
+                        String.class
+                );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo("Строка ссылки не должна быть пустой");
+    }
+
+
+    @Test
+    public void updateShelterMap_negativeTestByNotValidId(){
+        List<Long> nurseriesIds = shelterRepo.findAll().stream().map(Nursery::getId).toList();
+        long id = faker.random().nextLong();
+        while(nurseriesIds.contains(id)){
+            id = faker.random().nextLong();
+        }
+
+        String mapLink = faker.examplify("https://yandex.ru/maps/org/inucobo/117827125363/?ll=71.441434%2C51.166809");
+
+        ResponseEntity<String> responseEntity = testRestTemplate
+                .exchange(
+                        "http://localhost:" + port + "/shelter/" + id + "/map?link=" + mapLink,
+                        HttpMethod.PUT,
+                        HttpEntity.EMPTY,
+                        String.class
+                );
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo("Приют с id = " + id + " не найден");
+
+    }
+
+
 }

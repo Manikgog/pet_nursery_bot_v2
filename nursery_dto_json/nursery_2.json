@@ -1,7 +1,8 @@
 {
   "id": 0,
-  "nameShelter": "Вера",
-  "address": "Астана ул.Победы д.98",
-  "phoneNumber": "+8 321-654-9874",
-  "forDog": false
+  "nameShelter": "Inucobo",
+  "address": "ул. Кенесары, 52, Астана",
+  "phoneNumber": "+7 701-012-8612",
+  "forDog": false,
+  "mapLink": "https://yandex.ru/maps/org/inucobo/117827125363/?ll=71.441434%2C51.166809&z=17"
 }
