@@ -1,19 +1,15 @@
 package ru.pet.nursery.web.service;
 
+
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.pet.nursery.entity.Nursery;
-import ru.pet.nursery.mapper.ShelterMapper;
 import ru.pet.nursery.repository.ShelterRepo;
-import ru.pet.nursery.web.dto.ShelterDTO;
 import ru.pet.nursery.web.exception.ShelterNotFoundException;
 import ru.pet.nursery.web.exception.ShelterNullException;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
+
 
 @Service
 public class ShelterService implements IShelterService {

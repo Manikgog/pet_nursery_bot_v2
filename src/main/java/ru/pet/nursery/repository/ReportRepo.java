@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface ReportRepo extends JpaRepository<Report, Long> {
     List<Report> findByUser(User user);
-    Report findByUserAndReportDate(User user, LocalDate reportDate);
-    List<Report> findByReportDate(LocalDate reportDate);
+    Report findByUserAndReportDate(User user, LocalDateTime reportDateTime);
+    List<Report> findByReportDate(LocalDateTime reportDate);
     List<Report> findByNextReportDate(LocalDateTime localDateTime);
 }

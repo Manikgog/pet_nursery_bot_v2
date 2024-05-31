@@ -90,7 +90,7 @@ class AdoptedControllerTestTestRestTemplateTest {
         User user = userList.get(faker.random().nextInt(userList.size()));
 
         ResponseEntity<Animal> responseEntity = testRestTemplate.
-                exchange(builderUrl("/adopters?animalId=" + animal.getId() + "&adopterId=" + user.getTelegramUserId()),
+                exchange(builderUrl("/adopters/setAdopterForAnimal?animalId=" + animal.getId() + "&adopterId=" + user.getTelegramUserId()),
                         HttpMethod.PUT, null, Animal.class);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getBody()).isNotNull();
@@ -107,7 +107,7 @@ class AdoptedControllerTestTestRestTemplateTest {
         long animalId = -1L;
 
         ResponseEntity<String> responseEntity = testRestTemplate.
-                exchange(builderUrl("/adopters?animalId=" + animalId + "&adopterId=" + user.getTelegramUserId()),
+                exchange(builderUrl("/adopters/setAdopterForAnimal?animalId=" + animalId + "&adopterId=" + user.getTelegramUserId()),
                         HttpMethod.PUT, null, String.class);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         String animalFromDb = responseEntity.getBody();
@@ -121,7 +121,7 @@ class AdoptedControllerTestTestRestTemplateTest {
         long userId = -1L;
 
         ResponseEntity<String> responseEntity = testRestTemplate.
-                exchange(builderUrl("/adopters?animalId=" + animal.getId() + "&adopterId=" + userId),
+                exchange(builderUrl("/adopters/setAdopterForAnimal?animalId=" + animal.getId() + "&adopterId=" + userId),
                         HttpMethod.PUT, null, String.class);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         String animalFromDb = responseEntity.getBody();
@@ -133,11 +133,12 @@ class AdoptedControllerTestTestRestTemplateTest {
         Animal animal = animalList.get(faker.random().nextInt(animalList.size()));
         User user = userList.get(faker.random().nextInt(animalList.size()));
         ResponseEntity<Animal> responseEntity = testRestTemplate.
-                exchange(builderUrl("/adopters?animalId=" + animal.getId() + "&adopterId=" + user.getTelegramUserId()),
+                exchange(builderUrl("/adopters/setAdopterForAnimal?animalId=" + animal.getId() + "&adopterId=" + user.getTelegramUserId()),
                         HttpMethod.PUT, null, Animal.class);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         int prolongDays = 5;
-        ResponseEntity<Animal> prolongDaysResponseEntity = testRestTemplate.exchange(builderUrl("/adopters/" + animal.getId() + "/" + prolongDays),
+        ResponseEntity<Animal> prolongDaysResponseEntity = testRestTemplate.
+                exchange(builderUrl("/adopters/prolongTrialForNDays?animalId="+animal.getId()+"&days="+prolongDays),
                 HttpMethod.PUT,
                 null,
                 Animal.class);
@@ -153,15 +154,16 @@ class AdoptedControllerTestTestRestTemplateTest {
         Animal animal = animalList.get(faker.random().nextInt(animalList.size()));
         animal.setPetReturnDate(null);
         User user = userList.get(faker.random().nextInt(animalList.size()));
-        ResponseEntity<Animal> responseEntity = testRestTemplate.
-                exchange(builderUrl("/adopters?animalId=" + animal.getId() + "&adopterId=" + user.getTelegramUserId()),
+        ResponseEntity<Animal> responseEntitySetAdopter = testRestTemplate.
+                exchange(builderUrl("/adopters/setAdopterForAnimal?animalId=" + animal.getId() + "&adopterId=" + user.getTelegramUserId()),
                         HttpMethod.PUT, null, Animal.class);
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntitySetAdopter.getStatusCode()).isEqualTo(HttpStatus.OK);
         int prolongDays = 5;
-        ResponseEntity<Animal> prolongDaysResponseEntity = testRestTemplate.exchange(builderUrl("/adopters/" + animal.getId() + "/" + prolongDays),
-                HttpMethod.PUT,
-                null,
-                Animal.class);
+        ResponseEntity<Animal> prolongDaysResponseEntity = testRestTemplate.
+                exchange(builderUrl("/adopters/prolongTrialForNDays?animalId="+animal.getId()+"&days="+prolongDays),
+                        HttpMethod.PUT,
+                        null,
+                        Animal.class);
         assertThat(prolongDaysResponseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(prolongDaysResponseEntity.getBody()).isNotNull();
         Optional<Animal> animalFromDb = animalRepo.findById(animal.getId());
@@ -173,15 +175,16 @@ class AdoptedControllerTestTestRestTemplateTest {
     void prolongTrialForNDaysNegativeTest_ifAnimalNotFound() {
         long animalId = -1;
         User user = userList.get(faker.random().nextInt(animalList.size()));
-        ResponseEntity<String> responseEntity = testRestTemplate.
+        ResponseEntity<String> responseEntitySetAdopter = testRestTemplate.
                 exchange(builderUrl("/adopters?animalId=" + animalId + "&adopterId=" + user.getTelegramUserId()),
                         HttpMethod.PUT, null, String.class);
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(responseEntitySetAdopter.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         int prolongDays = 5;
-        ResponseEntity<String> prolongDaysResponseEntity = testRestTemplate.exchange(builderUrl("/adopters/" + animalId + "/" + prolongDays),
-                HttpMethod.PUT,
-                null,
-                String.class);
+        ResponseEntity<String> prolongDaysResponseEntity = testRestTemplate.
+                exchange(builderUrl("/adopters/prolongTrialForNDays?animalId="+animalId+"&days="+prolongDays),
+                        HttpMethod.PUT,
+                        null,
+                        String.class);
         assertThat(prolongDaysResponseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         String message = prolongDaysResponseEntity.getBody();
         assertThat(message).isEqualTo("Питомца с таким ID = " + animalId + " нет в БД");
@@ -190,11 +193,11 @@ class AdoptedControllerTestTestRestTemplateTest {
     void cancelTrialPositiveTest() {
         Animal animal = animalList.get(faker.random().nextInt(animalList.size()));
         User user = userList.get(faker.random().nextInt(animalList.size()));
-        ResponseEntity<Animal> responseEntity = testRestTemplate.
-                exchange(builderUrl("/adopters?animalId=" + animal.getId() + "&adopterId=" + user.getTelegramUserId()),
+        ResponseEntity<Animal> responseEntitySetAdopter = testRestTemplate.
+                exchange(builderUrl("/adopters/setAdopterForAnimal?animalId=" + animal.getId() + "&adopterId=" + user.getTelegramUserId()),
                         HttpMethod.PUT, null, Animal.class);
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        ResponseEntity<Animal> animalResponseEntity = testRestTemplate.exchange(builderUrl("/adopters/cancelTrial/" + animal.getId()),
+        assertThat(responseEntitySetAdopter.getStatusCode()).isEqualTo(HttpStatus.OK);
+        ResponseEntity<Animal> animalResponseEntity = testRestTemplate.exchange(builderUrl("/adopters/cancelTrial?animalId="+animal.getId()),
                 HttpMethod.PUT,
                 null,
                 Animal.class);
@@ -212,11 +215,11 @@ class AdoptedControllerTestTestRestTemplateTest {
     void cancelTrialNegativeTest_ifAnimalNotFound() {
         long animalId = -1;
         User user = userList.get(faker.random().nextInt(animalList.size()));
-        ResponseEntity<String> responseEntity = testRestTemplate.
+        ResponseEntity<String> responseEntitySetAdopter = testRestTemplate.
                 exchange(builderUrl("/adopters?animalId=" + animalId + "&adopterId=" + user.getTelegramUserId()),
                         HttpMethod.PUT, null, String.class);
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-        ResponseEntity<String> animalResponseEntity = testRestTemplate.exchange(builderUrl("/adopters/cancelTrial/" + animalId),
+        assertThat(responseEntitySetAdopter.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        ResponseEntity<String> animalResponseEntity = testRestTemplate.exchange(builderUrl("/adopters/cancelTrial?animalId="+animalId),
                 HttpMethod.PUT,
                 null,
                 String.class);

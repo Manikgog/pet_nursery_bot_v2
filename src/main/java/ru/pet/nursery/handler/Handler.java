@@ -71,7 +71,6 @@ public class Handler {
             user.setFirstName(message.chat().firstName());
             user.setLastName(message.chat().lastName());
             user.setUserName(message.chat().username());
-
             userRepo.save(user);
         }
     }
@@ -84,7 +83,6 @@ public class Handler {
             user.setFirstName(callbackQuery.message().chat().firstName());
             user.setLastName(callbackQuery.message().chat().lastName());
             user.setUserName(callbackQuery.message().chat().username());
-
             userRepo.save(user);
         }
     }
