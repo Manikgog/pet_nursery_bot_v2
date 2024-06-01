@@ -40,7 +40,7 @@ public class CallbackQueryHandler {
     public void answer(Update update) throws IOException {
         String callbackData = update.callbackQuery().data();
 
-        switch (callbackData){
+        switch (callbackData) {
             case INFO -> {
                 infoManager.answerCallbackQuery(update.callbackQuery());
             }
@@ -100,6 +100,9 @@ public class CallbackQueryHandler {
             }
             case START -> {
                 startManager.answerCallbackQuery(update.callbackQuery());
+            }
+            case CLOSE_CHAT -> {
+                volunteerManager.closeChat(update.callbackQuery());
             }
             default -> {
                 defaultAnswer(update.callbackQuery());
