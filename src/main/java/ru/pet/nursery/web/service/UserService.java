@@ -2,6 +2,9 @@ package ru.pet.nursery.web.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.pengrad.telegrambot.model.Chat;
+import com.pengrad.telegrambot.model.Contact;
+import com.pengrad.telegrambot.model.Update;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.pet.nursery.entity.User;
@@ -35,6 +38,34 @@ public class UserService implements IUserService {
     }
 
     /**
+     * Метод для добавления пользователя в БД из чата телеграм
+     *
+     * @param update - объект класса Update
+     */
+    public void addUserFromTelegramBot(Update update) {
+        User user = addUser(update);
+        userRepo.save(user);
+    }
+
+    /**
+     * Метод для создания пользователя из чата телеграм
+     *
+     * @param update - объект класса Update
+     * @return созданного пользователя
+     */
+    private User addUser(Update update) {
+        Chat chat = update.message().chat();
+
+                return User.builder()
+                .telegramUserId(chat.id())
+                .userName(chat.username())
+                .firstName(chat.firstName())
+                .lastName(chat.lastName())
+//                .phoneNumber(update.message().contact().phoneNumber())
+                .build();
+    }
+
+    /**
      * Метод для поиска пользователей в БД
      *
      * @param userId идентификационный номер пользователя
@@ -45,11 +76,22 @@ public class UserService implements IUserService {
         return userRepo.findById(userId).orElseThrow(() -> new UserNotFoundException("Пользователя с таким ID = " + userId + " не существует"));
     }
 
+
+    /**
+     * Метод для проверки наличия пользователя в БД
+     *
+     * @param userId идентификационный номер пользователя в БД
+     * @return логического значения о наличии/отсутствии пользователя в БД
+     */
+    public Boolean existsUserById(Long userId) {
+        return userRepo.existsById(userId);
+    }
+
     /**
      * Метод для обновления данных пользователя
      *
      * @param userId идентификационный номер пользователя в БД
-     * @param user сущность пользователя с необходимыми изменениями
+     * @param user   сущность пользователя с необходимыми изменениями
      * @return пользователя из БД с изменениями
      */
     public User updateUser(Long userId, User user) {
@@ -86,6 +128,11 @@ public class UserService implements IUserService {
         return userRepo.findAll(PageRequest.of(pageNo-1,pageSize)).getContent();
     }
 
+    /**
+     * Получить список всех пользователей
+     *
+     * @return список всех пользователей
+     */
     public List<User> getAll() {
         log.info("Method getAll of ShelterService class");
         return userRepo.findAll().stream().toList();

@@ -20,5 +20,6 @@ public class CallbackData {
     public static final String CAT_INFORMATION = "cat_information";
     public static final String DOG_INFORMATION = "dog_information";
     public static final String START = "start";
+    public static final String CLOSE_CHAT = "closeChat";
 
 }

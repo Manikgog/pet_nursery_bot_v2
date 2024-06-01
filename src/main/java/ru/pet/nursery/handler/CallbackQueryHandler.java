@@ -57,6 +57,7 @@ public class CallbackQueryHandler {
             case CAT_INFORMATION -> infoManager.catInformation(update.callbackQuery());
             case DOG_INFORMATION -> infoManager.dogInformation(update.callbackQuery());
             case START -> startManager.answerCallbackQuery(update.callbackQuery());
+            case CLOSE_CHAT -> volunteerManager.closeChat(update.callbackQuery());
             default -> defaultAnswer(update.callbackQuery());
         }
     }

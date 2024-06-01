@@ -1,13 +1,8 @@
 package ru.pet.nursery.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
+import ru.pet.nursery.web.exception.UserNotValidException;
 
 import java.util.Objects;
 
@@ -16,6 +11,7 @@ import java.util.Objects;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Table(name="users_table")
 public class User {
     @Id
