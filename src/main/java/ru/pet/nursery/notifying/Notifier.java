@@ -12,8 +12,6 @@ import ru.pet.nursery.web.service.VolunteerService;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -48,7 +46,7 @@ public class Notifier {
                     "У вас заканчивается адаптационный период "+animal.getPetReturnDate()+" у питомца "+animal.getAnimalName()+" " +
                             ", пожалуйста свяжитесь с волонтером для продления срока пребывания");
             telegramBot.execute(message);
-            List<Volunteer> volunteerList = volunteerService.getAll().stream().filter(Volunteer::isActive).toList();
+            List<Volunteer> volunteerList = volunteerService.findIsActive();
             for (Volunteer volunteer : volunteerList) {
                 message = new SendMessage(volunteer.getTelegramUserId(), "У пользователя "
                         + animal.getUser().getTelegramUserId() + " истек испытательный срок");

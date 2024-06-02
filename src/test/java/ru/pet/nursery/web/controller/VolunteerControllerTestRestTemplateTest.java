@@ -413,7 +413,8 @@ public class VolunteerControllerTestRestTemplateTest {
             int id = volunteer.getId();
             String name = faker.name().firstName();
             ResponseEntity<Volunteer> responseEntity = testRestTemplate.exchange(
-                    "http://localhost:" + port + "/volunteer/{id}/name?name={newName}",
+                    ///volunteer/updateStatus?id={id}&status={status}
+                    "http://localhost:" + port + "/volunteer/updateName?id={id}&name={newName}",
                     HttpMethod.PUT,
                     HttpEntity.EMPTY,
                     Volunteer.class,
@@ -438,7 +439,7 @@ public class VolunteerControllerTestRestTemplateTest {
             int id = getNotValidId(volunteersFromDB);
             String name = faker.name().firstName();
             ResponseEntity<String> responseEntity = testRestTemplate.exchange(
-                    "http://localhost:" + port + "/volunteer/{id}/name?name={newName}",
+                    "http://localhost:" + port + "/volunteer/updateName?id={id}&name={newName}",
                     HttpMethod.PUT,
                     HttpEntity.EMPTY,
                     String.class,
@@ -463,7 +464,7 @@ public class VolunteerControllerTestRestTemplateTest {
         int id = volunteer.getId();
         String name = "";
         ResponseEntity<String> responseEntity = testRestTemplate.exchange(
-                "http://localhost:" + port + "/volunteer/{id}/name?name={newName}",
+                "http://localhost:" + port + "/volunteer/updateName?id={id}&name={newName}",
                 HttpMethod.PUT,
                 HttpEntity.EMPTY,
                 String.class,
@@ -475,7 +476,7 @@ public class VolunteerControllerTestRestTemplateTest {
 
         name = "   ";
         responseEntity = testRestTemplate.exchange(
-                "http://localhost:" + port + "/volunteer/{id}/name?name={newName}",
+                "http://localhost:" + port + "/volunteer/updateName?id={id}&name={newName}",
                 HttpMethod.PUT,
                 HttpEntity.EMPTY,
                 String.class,
@@ -498,7 +499,7 @@ public class VolunteerControllerTestRestTemplateTest {
             int id = volunteer.getId();
             Boolean status = true;
             ResponseEntity<Volunteer> responseEntity = testRestTemplate.exchange(
-                    "http://localhost:" + port + "/volunteer/{id}/{status}",
+                    "http://localhost:" + port + "/volunteer/updateStatus?id={id}&status={status}",
                     HttpMethod.PUT,
                     HttpEntity.EMPTY,
                     Volunteer.class,
@@ -523,7 +524,7 @@ public class VolunteerControllerTestRestTemplateTest {
             int id = getNotValidId(volunteersFromDB);
             Boolean status = false;
             ResponseEntity<String> responseEntity = testRestTemplate.exchange(
-                    "http://localhost:" + port + "/volunteer/{id}/{status}",
+                    "http://localhost:" + port + "/volunteer/updateStatus?id={id}&status={status}",
                     HttpMethod.PUT,
                     HttpEntity.EMPTY,
                     String.class,
@@ -549,7 +550,7 @@ public class VolunteerControllerTestRestTemplateTest {
             int id = volunteer.getId();
             String newPhone = faker.phoneNumber().phoneNumberInternational().substring(0, 15);
             ResponseEntity<Volunteer> responseEntity = testRestTemplate.exchange(
-                    "http://localhost:" + port + "/volunteer/{id}/phone?phone={phone}",
+                    "http://localhost:" + port + "/volunteer/updatePhone?id={id}&phone={phone}",
                     HttpMethod.PUT,
                     HttpEntity.EMPTY,
                     Volunteer.class,
