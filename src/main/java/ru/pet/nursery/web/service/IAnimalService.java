@@ -14,7 +14,7 @@ public interface IAnimalService {
 
     Animal uploadPhoto(long animalId, MultipartFile animalPhoto) throws IOException;
 
-    void getAnimalPhoto(long id, HttpServletResponse response);
+    Animal getAnimalPhoto(long id, HttpServletResponse response);
 
     byte[] getPhotoByteArray(long id) throws IOException;
 

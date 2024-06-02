@@ -126,7 +126,7 @@ public class AnimalService implements IAnimalService {
      * @param id - идентификатор в таблице animal_table базы данных
      * @param response - объект в котором возвращается изображение животного
      */
-    public void getAnimalPhoto(long id, HttpServletResponse response) {
+    public Animal getAnimalPhoto(long id, HttpServletResponse response) {
         logger.info("Method getAnimalPhoto of AnimalService class with parameters long -> {}, HttpServletResponse -> {}", id, response);
         Animal animal = animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
         if(animal.getPhotoPath() == null){
@@ -144,6 +144,7 @@ public class AnimalService implements IAnimalService {
         } catch (IOException e) {
             throw new RuntimeException(e.getCause() + e.getMessage() + Arrays.toString(e.getStackTrace()));
         }
+        return animal;
     }
 
     /**

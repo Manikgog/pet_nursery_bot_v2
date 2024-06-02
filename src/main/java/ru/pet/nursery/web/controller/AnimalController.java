@@ -110,24 +110,6 @@ public class AnimalController {
 
 
 
-    @Operation(summary = "Получение фотографии животного по его id",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Получение изображения животного по его id прошло успешно",
-                            content = @Content(
-                                    mediaType = MediaType.MULTIPART_FORM_DATA_VALUE
-                            )
-                    )
-            }
-    )
-    @GetMapping("/{id}/photo")
-    public void getAnimalPhoto(@PathVariable("id") int id, HttpServletResponse response) {
-        animalService.getAnimalPhoto(id, response);
-    }
-
-
-
     @Operation(summary = "Удаление животного из таблицы animal_table по id",
             responses = {
                     @ApiResponse(
@@ -165,11 +147,28 @@ public class AnimalController {
                             )
                     )
             })
-    @GetMapping
-    public ResponseEntity<List<AnimalDTOForUser>> getListByPage(@RequestParam("page") Integer pageNumber, @RequestParam("size") Integer pageSize){
-        return ResponseEntity.ok(animalService.getPageList(pageNumber, pageSize));
+    @GetMapping(params = {"page","size"})
+    public ResponseEntity<List<AnimalDTOForUser>> getListByPage(@RequestParam Integer page, @RequestParam Integer size){
+        return ResponseEntity.ok(animalService.getPageList(page, size));
     }
 
+
+
+    @Operation(summary = "Получение фотографии животного по его id",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Получение изображения животного по его id прошло успешно",
+                            content = @Content(
+                                    mediaType = MediaType.MULTIPART_FORM_DATA_VALUE
+                            )
+                    )
+            }
+    )
+    @GetMapping(value = "/photo", params = {"id"})
+    public ResponseEntity<Animal> getAnimalPhoto(@RequestParam(required = false) int id, HttpServletResponse response) {
+        return ResponseEntity.ok(animalService.getAnimalPhoto(id, response));
+    }
 
 
     @Operation(summary = "Получение питомца по id",

@@ -68,7 +68,6 @@ public class ShelterController {
                     )
             )
     })
-
     @GetMapping("/{id}")
     public ResponseEntity<Nursery> getShelterById(@PathVariable Long id) {
         return ResponseEntity.ok(shelterService.findShelter(id));
@@ -96,7 +95,6 @@ public class ShelterController {
                     )
             )
     })
-
     @PutMapping("/{id}")
     public ResponseEntity<Nursery> updateShelter(@PathVariable Long id, @RequestBody Nursery nursery) {
         return ResponseEntity.ok(shelterService.updateShelter(id, nursery));
@@ -147,7 +145,7 @@ public class ShelterController {
                     )
             )
     })
-    @GetMapping(name = "/getNursery", params = {"page","size"})
+    @GetMapping(params = {"page","size"})
     public ResponseEntity<List<Nursery>> getNursery(@RequestParam("page") int page, @RequestParam("size") int size) {
         return ResponseEntity.ok(shelterService.getAllShelter(page, size));
     }
@@ -172,8 +170,8 @@ public class ShelterController {
                     )
             )
     })
-    @GetMapping("/getShelterForKindOfAnimals")
-    public ResponseEntity<List<Nursery>> getShelterForKindOfAnimals(@RequestParam("kindOfAnimal") Boolean kindOfAnimal,
+    @GetMapping(params = {"kindOfAnimal","page","size"})
+    public ResponseEntity<List<Nursery>> getShelterForKindOfAnimals(@RequestParam(value = "kindOfAnimal", required = false) Boolean kindOfAnimal,
                                                                     @RequestParam("page") Integer page,
                                                                     @RequestParam("size") Integer size) {
         return ResponseEntity.ok(shelterService.getShelterForDog(kindOfAnimal, page, size));
@@ -194,8 +192,8 @@ public class ShelterController {
                     )
             )
     })
-    @PutMapping("/{id}/map")
-    public ResponseEntity<Nursery> updateShelterMap(@PathVariable Long id, @RequestParam String link) {
+    @PutMapping(value = "/{id}", params = "link")
+    public ResponseEntity<Nursery> updateShelterMap(@PathVariable Long id, @RequestParam(required = false) String link) {
         return ResponseEntity.ok(shelterService.updateMap(id, link));
     }
 
