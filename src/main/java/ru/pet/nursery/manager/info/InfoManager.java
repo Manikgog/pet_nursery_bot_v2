@@ -18,6 +18,7 @@ import ru.pet.nursery.web.service.IAnimalService;
 import ru.pet.nursery.web.service.IShelterService;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,21 +30,18 @@ public class InfoManager extends AbstractManager {
     private final AnswerMethodFactory answerMethodFactory;
     private final KeyboardFactory keyboardFactory;
     private final IShelterService shelterService;
-    private final AnimalRepo animalRepo;
     private final IAnimalService animalService;
-    private final Map<Long, Long> userId_animalId = new HashMap<>(); // словарь соответствия chatId идентификатору животного, чтобы передавать новую фотографию
+    private final Map<Long, Animal> userIdAnimal = new HashMap<>(); // словарь соответствия chatId идентификатору животного, чтобы передавать новую фотографию
 
     public InfoManager(AnswerMethodFactory answerMethodFactory,
                        KeyboardFactory keyboardFactory,
                        TelegramBot telegramBot,
                        IShelterService shelterService,
-                       AnimalRepo animalRepo,
                        IAnimalService animalService) {
         super(telegramBot);
         this.answerMethodFactory = answerMethodFactory;
         this.keyboardFactory = keyboardFactory;
         this.shelterService = shelterService;
-        this.animalRepo = animalRepo;
         this.animalService = animalService;
     }
 
@@ -202,10 +200,9 @@ public class InfoManager extends AbstractManager {
             );
             return;
         }
-        long id = cats.get((int)getNextId(chatId, cats)).getId();
-        Animal animal = animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
-        String description = animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id)).getDescription();
-        if(animal.getPhotoPath() == null){
+        Animal nextAnimal = getNextAnimal(chatId, cats);
+        String description = nextAnimal.getDescription();
+        if(nextAnimal.getPhotoPath() == null){
             SendMessage sendMessage = answerMethodFactory.getSendMessage(chatId,
                     "Фотография отсутствует\n\n" +
                             description,
@@ -213,13 +210,13 @@ public class InfoManager extends AbstractManager {
                             List.of("Следующее фото c описанием",
                                     "Назад"),
                             List.of(1, 1),
-                            List.of(CAT_PHOTO,
+                            List.of(DOG_PHOTO,
                                     PET_INFORMATION)
                     ));
             telegramBot.execute(sendMessage);
             return;
         }
-        byte[] photoArray = animalService.getPhotoByteArray(id);
+        byte[] photoArray = animalService.getPhotoByteArray(nextAnimal.getId());
         SendPhoto sendPhoto = answerMethodFactory.getSendPhoto(
                 callbackQuery.message().chat().id(),
                 photoArray,
@@ -257,10 +254,9 @@ public class InfoManager extends AbstractManager {
             );
             return;
         }
-        long id = dogs.get((int)getNextId(chatId, dogs)).getId();
-        Animal animal = animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
-        String description = animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id)).getDescription();
-        if(animal.getPhotoPath() == null){
+        Animal nextAnimal = getNextAnimal(chatId, dogs);
+        String description = nextAnimal.getDescription();
+        if(nextAnimal.getPhotoPath() == null){
             SendMessage sendMessage = answerMethodFactory.getSendMessage(chatId,
                     "Фотография отсутствует\n\n" +
                             description,
@@ -274,7 +270,7 @@ public class InfoManager extends AbstractManager {
             telegramBot.execute(sendMessage);
             return;
         }
-        byte[] photoArray = animalService.getPhotoByteArray(id);
+        byte[] photoArray = animalService.getPhotoByteArray(nextAnimal.getId());
         SendPhoto sendPhoto = answerMethodFactory.getSendPhoto(
                 callbackQuery.message().chat().id(),
                 photoArray,
@@ -291,23 +287,30 @@ public class InfoManager extends AbstractManager {
      * @param animals - список животных
      * @return новый идентификатор
      */
-    public long getNextId(long chatId, List<Animal> animals){
-        logger.info("The getNextId method of the InfoManager class works. Parameters: long -> {}, List<Animal> -> {}", chatId, animals);
-        if(userId_animalId.size() > 1000){
-            userId_animalId.clear();
+    public Animal getNextAnimal(long chatId, List<Animal> animals){
+        logger.info("The getNextAnimal method of the InfoManager class works. Parameters: long -> {}, List<Animal> -> {}", chatId, animals);
+        if(userIdAnimal.size() > 1000){
+            userIdAnimal.clear();
         }
-        if(userId_animalId.containsKey(chatId)){
-            long newId = userId_animalId.get(chatId) + 1;
-            if(newId >= animals.size()){
-                newId = 0;
-                userId_animalId.put(chatId, 0L);
-                return newId;
+        if(userIdAnimal.containsKey(chatId)){
+            Animal currentAnimal = userIdAnimal.get(chatId);
+            int nextIndex = 0;
+            for (int i = 0; i < animals.size(); i++) {
+                if(currentAnimal.equals(animals.get(i))){
+                    if(i == animals.size() - 1){
+                        nextIndex = 0;
+                    }else {
+                        nextIndex = i;
+                        nextIndex++;
+                    }
+                }
             }
-            userId_animalId.put(chatId, newId);
-            return newId;
+
+            userIdAnimal.put(chatId, animals.get(nextIndex));
+            return animals.get(nextIndex);
         }
-        userId_animalId.put(chatId, 0L);
-        return 0;
+        userIdAnimal.put(chatId, animals.get(0));
+        return animals.get(0);
     }
 
 
@@ -325,9 +328,9 @@ public class InfoManager extends AbstractManager {
                 .stream()
                 .filter(a -> a.getUser() == null)
                 .toList();
-        if(userId_animalId.containsKey(callbackQuery.message().chat().id())) {
-            long catIndex = userId_animalId.get(callbackQuery.message().chat().id());
-            String description = cats.get((int)catIndex).getDescription();
+        if(userIdAnimal.containsKey(callbackQuery.message().chat().id())) {
+            Animal cat = userIdAnimal.get(callbackQuery.message().chat().id());
+            String description = cat.getDescription();
             SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                     description,
                     keyboardFactory.getInlineKeyboard(
@@ -355,9 +358,9 @@ public class InfoManager extends AbstractManager {
                 .stream()
                 .filter(a -> a.getUser() == null)
                 .toList();
-        if(userId_animalId.containsKey(callbackQuery.message().chat().id())) {
-            long dogIndex = userId_animalId.get(callbackQuery.message().chat().id());
-            String description = dogs.get((int)dogIndex).getDescription();
+        if(userIdAnimal.containsKey(callbackQuery.message().chat().id())) {
+            Animal dog = userIdAnimal.get(callbackQuery.message().chat().id());
+            String description = dog.getDescription();
             SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                     description,
                     keyboardFactory.getInlineKeyboard(
@@ -371,8 +374,8 @@ public class InfoManager extends AbstractManager {
         }
     }
 
-    public void putTOUserChatId_AnimalId(long chatId, long animalId){
-        userId_animalId.put(chatId, animalId);
+    public void putToUserIdAnimal(long chatId, Animal animal){
+        userIdAnimal.put(chatId, animal);
     }
 
 }

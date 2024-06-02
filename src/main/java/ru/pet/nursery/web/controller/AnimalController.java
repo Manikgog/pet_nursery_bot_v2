@@ -144,7 +144,7 @@ public class AnimalController {
 
                     )
             })
-    @DeleteMapping("/{id}/delete")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Animal> deleteAnimal(@PathVariable Integer id){
         return ResponseEntity.ok(animalService.delete(id));
     }

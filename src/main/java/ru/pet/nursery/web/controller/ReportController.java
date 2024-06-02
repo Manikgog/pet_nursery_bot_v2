@@ -288,8 +288,8 @@ public class ReportController {
             }
     )
     @GetMapping("/{id}/photo")
-    public void getPhotoById(@PathVariable long id, HttpServletResponse response){
-        reportService.getPhotoById(id, response);
+    public ResponseEntity<Report> getPhotoById(@PathVariable long id, HttpServletResponse response){
+        return ResponseEntity.ok(reportService.getPhotoById(id, response));
     }
 
 

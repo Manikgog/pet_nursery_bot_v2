@@ -15,17 +15,10 @@ import java.util.Objects;
 @Getter
 public class AnimalDTOForUser {
     private Long id;
-
     private String animalName;
-
-    @Enumerated(EnumType.STRING)
     private AnimalType animalType;
-
-    @Enumerated(EnumType.STRING)
     private Gender gender;
-
     private LocalDate birthDate;
-
     private Nursery nursery;
 
     @Override

@@ -8,6 +8,7 @@ import com.pengrad.telegrambot.model.Document;
 import com.pengrad.telegrambot.model.PhotoSize;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.pet.nursery.data.MessageData;
 import ru.pet.nursery.entity.Animal;
@@ -35,17 +36,19 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static ru.pet.nursery.data.CallbackData.*;
-import static ru.pet.nursery.data.MessageData.*;
+import static ru.pet.nursery.data.ReportStatus.*;
 
 @Component
 public class ReportManager extends AbstractManager {
-    private final String REPORT_PHOTO = "report_photo";
+    @Value("${path.to.report_photo.folder}")
+    private String reportPhoto;
     private final AnswerMethodFactory answerMethodFactory;
     private final KeyboardFactory keyboardFactory;
     private final ReportValidator reportValidator;
     private final UserRepo userRepo;
     private final AnimalRepo animalRepo;
     private final ReportService reportService;
+    private final MessageData messageData;
     private ObjectMapper mapper;
 
 
@@ -55,7 +58,8 @@ public class ReportManager extends AbstractManager {
                          ReportValidator reportValidator,
                          UserRepo userRepo,
                          AnimalRepo animalRepo,
-                         ReportService reportService) {
+                         ReportService reportService,
+                         MessageData messageData) {
         super(telegramBot);
         this.answerMethodFactory = answerMethodFactory;
         this.keyboardFactory = keyboardFactory;
@@ -64,6 +68,7 @@ public class ReportManager extends AbstractManager {
         this.animalRepo = animalRepo;
         this.reportService = reportService;
         this.mapper = new ObjectMapper();
+        this.messageData = messageData;
     }
 
     @Override
@@ -152,7 +157,7 @@ public class ReportManager extends AbstractManager {
             reportService.upload(adopterId);
         }
         // записываем статус отчёта для правильной реакции на следующее сообщение от этого пользователя
-        MessageData.putToChatId_reportStatusMap(adopterId, PHOTO_STATUS);
+        messageData.putReportStatusByChatId(adopterId, PHOTO_STATUS);
 
         SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                 """
@@ -192,7 +197,7 @@ public class ReportManager extends AbstractManager {
             reportService.upload(adopterId);
         }
         // записываем статус отчёта для правильной реакции на следующее сообщение от этого пользователя
-        MessageData.putToChatId_reportStatusMap(adopterId, HEALTH_STATUS);
+        messageData.putReportStatusByChatId(adopterId, HEALTH_STATUS);
 
         SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                 """
@@ -232,7 +237,7 @@ public class ReportManager extends AbstractManager {
             reportService.upload(adopterId);
         }
         // записываем статус отчёта для правильной реакции на следующее сообщение от этого пользователя
-        MessageData.putToChatId_reportStatusMap(adopterId, DIET_STATUS);
+        messageData.putReportStatusByChatId(adopterId, DIET_STATUS);
 
         SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                 """
@@ -272,7 +277,7 @@ public class ReportManager extends AbstractManager {
             reportService.upload(adopterId);
         }
         // записываем статус отчёта для правильной реакции на следующее сообщение от этого пользователя
-        MessageData.putToChatId_reportStatusMap(adopterId, BEHAVIOUR_STATUS);
+        messageData.putReportStatusByChatId(adopterId, BEHAVIOUR_STATUS);
 
         SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                 """
@@ -355,7 +360,7 @@ public class ReportManager extends AbstractManager {
             }else{
                 strPath += "/";
             }
-            strPath += REPORT_PHOTO;
+            strPath += reportPhoto;
             Path path = Path.of(strPath);
             Path filePath = Path.of(path.toString(),  report.getId() + "_" + LocalDate.now() + extension);
             Files.createDirectories(filePath.getParent());

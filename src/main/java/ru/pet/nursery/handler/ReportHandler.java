@@ -9,20 +9,24 @@ import ru.pet.nursery.manager.report.ReportManager;
 import java.io.IOException;
 import java.util.Arrays;
 
-import static ru.pet.nursery.data.MessageData.*;
+import static ru.pet.nursery.data.ReportStatus.*;
 
 @Service
 public class ReportHandler {
     private final Logger logger = LoggerFactory.getLogger(CallbackQueryHandler.class);
     private final ReportManager reportManager;
-    public ReportHandler(ReportManager reportManager){
+    private final MessageData messageData;
+    public ReportHandler(ReportManager reportManager,
+                         MessageData messageData){
         this.reportManager = reportManager;
+        this.messageData = messageData;
     }
 
     public void answer(Update update) {
         long chatId = update.message().chat().id();
-        String reportStatus = MessageData.chatId_reportStatus.get(chatId);
-        switch (reportStatus){
+        String status = messageData.chatIdReportStatus.get(chatId);
+
+        switch (status){
             case PHOTO_STATUS -> {
                 try {
                     reportManager.uploadPhotoToReport(update);
@@ -43,6 +47,6 @@ public class ReportHandler {
                 reportManager.uploadBehaviourToReport(update);
             }
         }
-        MessageData.removeFromChatId_reportStatusMap(chatId);
+        messageData.removeChatId(chatId);
     }
 }

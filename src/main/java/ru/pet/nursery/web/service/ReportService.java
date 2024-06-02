@@ -3,6 +3,7 @@ package ru.pet.nursery.web.service;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.pet.nursery.entity.Report;
@@ -33,7 +34,8 @@ import static java.nio.file.StandardOpenOption.READ;
 @Service
 public class ReportService implements IReportService {
     private final Logger logger = LoggerFactory.getLogger(ReportService.class);
-    private final String REPORT_PHOTO = "test_report_photo";
+    @Value("${path.to.report_photo.folder}")
+    private String reportPhoto;
     private final ReportRepo reportRepo;
     private final UserRepo userRepo;
     private final ReportValidator reportValidator;
@@ -63,7 +65,6 @@ public class ReportService implements IReportService {
             return reportRepo.findByUserAndReportDate(user, LocalDateTime.now().truncatedTo(ChronoUnit.DAYS));
         }
         Report newReport = new Report();
-        newReport.setId(0);
         newReport.setUser(user);
         newReport.setReportDate(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS));
         return reportRepo.save(newReport);
@@ -93,9 +94,9 @@ public class ReportService implements IReportService {
         Report reportFromDB = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
         String strPath = System.getProperty("user.dir");
         if(strPath.contains("\\")){
-            strPath += "\\" + REPORT_PHOTO;
+            strPath += "\\" + reportPhoto;
         }else{
-            strPath += "/" + REPORT_PHOTO;
+            strPath += "/" + reportPhoto;
         }
         Path path = Path.of(strPath);
         long reportId = reportFromDB.getId();
@@ -272,7 +273,7 @@ public class ReportService implements IReportService {
     }
 
 
-    public void getPhotoById(long id, HttpServletResponse response) {
+    public Report getPhotoById(long id, HttpServletResponse response) {
         logger.info("Method getPhotoById of ReportService class with parameters long -> {}, HttpServletResponse -> {}", id, response);
         Report report = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
         if(report.getPathToPhoto() == null){
@@ -298,6 +299,7 @@ public class ReportService implements IReportService {
         } catch (IOException e) {
             throw new RuntimeException(e.getCause() + "\n" + e.getMessage() + "\n" + Arrays.toString(e.getStackTrace()));
         }
+        return report;
     }
 
     public List<Report> findByPetReturnDate() {

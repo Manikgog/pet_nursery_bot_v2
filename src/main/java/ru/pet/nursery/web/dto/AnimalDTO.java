@@ -14,11 +14,7 @@ import java.time.Period;
 @Setter
 public class AnimalDTO {
     private String animalName;
-
-    @Enumerated(EnumType.STRING)
     private AnimalType animalType;
-
-    @Enumerated(EnumType.STRING)
     private Gender gender;
     private LocalDate birthDate;
     private Long nurseryId;

@@ -20,23 +20,26 @@ public class Handler {
     private final MessageHandler messageHandler;
     private final ReportHandler reportHandler;
     private final UserRepo userRepo;
+    private final MessageData messageData;
 
     public Handler(CallbackQueryHandler callbackQueryHandler,
                    CommandHandler commandHandler,
                    MessageHandler messageHandler,
                    ReportHandler reportHandler,
-                   UserRepo userRepo){
+                   UserRepo userRepo,
+                   MessageData messageData){
         this.callbackQueryHandler = callbackQueryHandler;
         this.commandHandler = commandHandler;
         this.messageHandler = messageHandler;
         this.reportHandler = reportHandler;
         this.userRepo = userRepo;
+        this.messageData = messageData;
     }
     public void answer(Update update) throws IOException {
         logger.info("Processing update in method answer of Handler class: {}", update);
         if(update.callbackQuery() != null){
             addUserByCallbackQuery(update.callbackQuery());
-            if(MessageData.chatId_reportStatus.containsKey(update.callbackQuery().message().chat().id())){
+            if(messageData.chatIdReportStatus.containsKey(update.callbackQuery().message().chat().id())){
                 reportHandler.answer(update);
                 return;
             }
@@ -46,7 +49,7 @@ public class Handler {
         }
         if(update.message() != null){
             addUserByMessage(update.message());
-            if(MessageData.chatId_reportStatus.containsKey(update.message().chat().id())){
+            if(messageData.chatIdReportStatus.containsKey(update.message().chat().id())){
                 reportHandler.answer(update);
                 return;
             }

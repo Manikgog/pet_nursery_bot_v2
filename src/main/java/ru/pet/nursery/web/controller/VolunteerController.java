@@ -63,8 +63,8 @@ public class VolunteerController {
 
                     )
             })
-    @PutMapping(value = "/{id}/name")
-    public ResponseEntity<Volunteer> putName(@PathVariable Integer id, @RequestParam String name){
+    @PutMapping("/updateName")
+    public ResponseEntity<Volunteer> putName(@RequestParam Integer id, @RequestParam String name){
         return ResponseEntity.ok(volunteerService.updateName(name, id));
     }
 
@@ -84,8 +84,8 @@ public class VolunteerController {
 
                     )
             })
-    @PutMapping(value = "/{id}/{status}")
-    public ResponseEntity<Volunteer> putStatus(@PathVariable Integer id, @PathVariable Boolean status){
+    @PutMapping("/updateStatus")
+    public ResponseEntity<Volunteer> putStatus(@RequestParam Integer id, @RequestParam Boolean status){
         return ResponseEntity.ok(volunteerService.updateStatus(status, id));
     }
 
@@ -108,8 +108,8 @@ public class VolunteerController {
 
                     )
             })
-    @PutMapping(value = "/{id}/phone")
-    public ResponseEntity<Volunteer> putPhone(@PathVariable Integer id, @RequestParam String phone){
+    @PutMapping("/updatePhone")
+    public ResponseEntity<Volunteer> putPhone(@RequestParam Integer id, @RequestParam String phone){
         return ResponseEntity.ok(volunteerService.updatePhone(phone, id));
     }
 
@@ -129,7 +129,7 @@ public class VolunteerController {
 
                     )
             })
-    @PutMapping(value = "/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<Volunteer> put(@PathVariable Integer id, @RequestBody Volunteer volunteer){
         return ResponseEntity.ok(volunteerService.updateVolunteer(id, volunteer));
     }

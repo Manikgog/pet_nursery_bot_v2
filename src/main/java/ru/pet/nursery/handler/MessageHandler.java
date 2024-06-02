@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import static ru.pet.nursery.data.MessageData.ERROR_MESSAGE;
 
+
 @Service
 public class MessageHandler {
     private final TelegramBot telegramBot;
@@ -17,10 +18,11 @@ public class MessageHandler {
 
     public void answer(Update update) {
         String text = update.message().text();
-        switch (text) {
-            case ERROR_MESSAGE -> defaultAnswer(update);
-            default -> defaultAnswer(update);
+        if(text.equals(ERROR_MESSAGE)){
+            defaultAnswer(update);
+            return;
         }
+        defaultAnswer(update);
     }
 
     private void defaultAnswer(Update update) {

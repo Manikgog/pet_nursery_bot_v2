@@ -36,7 +36,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import static org.mockito.Mockito.when;
 import static ru.pet.nursery.data.CallbackData.*;
@@ -62,12 +61,13 @@ public class InfoManagerMockTest {
     private final Faker faker = new Faker();
 
     private final KeyboardFactory keyboardFactory_ = new KeyboardFactory();
+
     @Test
     public void answerCommand_Test() throws IOException {
         Update update = getUpdate("update.json");
 
         InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory_.getInlineKeyboard(List.of(
-                "Адреса и телефоны приютов",
+                        "Адреса и телефоны приютов",
                         "Информация о питомцах",
                         "Что нужно для усыновления",
                         "Назад"),
@@ -103,15 +103,15 @@ public class InfoManagerMockTest {
         when(answerMethodFactory.getSendMessage(update.message().chat().id(),
                 "Здесь вы можете посмотреть информацию о приютах, питомцах и требованиях к усыновителю",
                 keyboardFactory.getInlineKeyboard(
-                List.of("Адреса и телефоны приютов",
-                        "Информация о питомцах",
-                        "Что нужно для усыновления",
-                        "Назад"),
-                List.of(1, 1, 1, 1),
-                List.of(ADDRESS_AND_PHONE,
-                        PET_INFORMATION,
-                        WHAT_NEED_FOR_ADOPTION,
-                        START)))).thenReturn(sendMessage);
+                        List.of("Адреса и телефоны приютов",
+                                "Информация о питомцах",
+                                "Что нужно для усыновления",
+                                "Назад"),
+                        List.of(1, 1, 1, 1),
+                        List.of(ADDRESS_AND_PHONE,
+                                PET_INFORMATION,
+                                WHAT_NEED_FOR_ADOPTION,
+                                START)))).thenReturn(sendMessage);
         infoManager.answerCommand(update);
         ArgumentCaptor<SendMessage> argumentCaptor = ArgumentCaptor.forClass(SendMessage.class);
         Mockito.verify(telegramBot).execute(argumentCaptor.capture());
@@ -123,7 +123,6 @@ public class InfoManagerMockTest {
         Assertions.assertThat(actual.getParameters().get("reply_markup"))
                 .isEqualTo(inlineKeyboardMarkup);
     }
-
 
 
     @Test
@@ -233,7 +232,7 @@ public class InfoManagerMockTest {
                         List.of(1),
                         List.of(INFO)
                 )
-                )).thenReturn(
+        )).thenReturn(
                 new AnswerMethodFactory().getSendMessage(callbackQuery_info.message().chat().id(),
                         nurseryInfo.toString(),
                         keyboardFactory_.getInlineKeyboard(
@@ -267,12 +266,12 @@ public class InfoManagerMockTest {
 
         when(answerMethodFactory.getSendMessage(callbackQuery_info.message().chat().id(),
                 """
-                                    Ни одного приюта не найдено""",
+                        Ни одного приюта не найдено""",
                 null
         )).thenReturn(
                 new AnswerMethodFactory().getSendMessage(callbackQuery_info.message().chat().id(),
                         """
-                                    Ни одного приюта не найдено""",
+                                Ни одного приюта не найдено""",
                         null)
         );
 
@@ -285,7 +284,7 @@ public class InfoManagerMockTest {
         Assertions.assertThat(actual.getParameters().get("chat_id")).isEqualTo(1874598997L);
         Assertions.assertThat(actual.getParameters().get("text")).isEqualTo(
                 """
-                                    Ни одного приюта не найдено""");
+                        Ни одного приюта не найдено""");
     }
 
 
@@ -302,7 +301,7 @@ public class InfoManagerMockTest {
                         DOG_PHOTO,
                         INFO));
 
-        SendMessage sendMessage =  new AnswerMethodFactory().getSendMessage(callbackQuery.message().chat().id(),
+        SendMessage sendMessage = new AnswerMethodFactory().getSendMessage(callbackQuery.message().chat().id(),
                 "Здесь вы можете посмотреть информацию о питомцах",
                 keyboardFactory_.getInlineKeyboard(
                         List.of("Кошки",
@@ -334,7 +333,7 @@ public class InfoManagerMockTest {
                         List.of(CAT_PHOTO,
                                 DOG_PHOTO,
                                 INFO)
-        ))).thenReturn(sendMessage);
+                ))).thenReturn(sendMessage);
 
         infoManager.petInformation(callbackQuery);
 
@@ -381,11 +380,11 @@ public class InfoManagerMockTest {
                 ))).thenReturn(
                 new AnswerMethodFactory().getSendMessage(callbackQuery.message().chat().id(),
                         """
-                        Приюты хотят быть уверены, что они усыновляют своих животных в семью, которая обеспечит им хороший дом.
-                        Возьмите с собой паспорт и документы по прописке.
-                        Если вы живете в съемной квартире или доме, предоставьте доказательства того, что у вас есть разрешение арендодателя на владение домашним животным, например, договор аренды или письмо.
-                        Также могут возникнуть вопросы о ваших рабочих привычках, графике, философии ухода за домашними животными и финансовых возможностях по уходу за домашним животным.
-                        """,
+                                Приюты хотят быть уверены, что они усыновляют своих животных в семью, которая обеспечит им хороший дом.
+                                Возьмите с собой паспорт и документы по прописке.
+                                Если вы живете в съемной квартире или доме, предоставьте доказательства того, что у вас есть разрешение арендодателя на владение домашним животным, например, договор аренды или письмо.
+                                Также могут возникнуть вопросы о ваших рабочих привычках, графике, философии ухода за домашними животными и финансовых возможностях по уходу за домашним животным.
+                                """,
                         keyboardFactory_.getInlineKeyboard(
                                 List.of("Назад"),
                                 List.of(1),
@@ -417,19 +416,18 @@ public class InfoManagerMockTest {
     }
 
 
-
     @Test
     public void catPhoto_TestByListOfCatsIsEmpty() throws IOException {
         CallbackQuery callbackQuery = readJsonFromResource("callbackquery_cat_photo.json");
 
         when(answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                 """
-                            В приютах нет кошек""",
+                        В приютах нет кошек""",
                 null
         )).thenReturn(
                 new AnswerMethodFactory().getSendMessage(callbackQuery.message().chat().id(),
                         """
-                            В приютах нет кошек""",
+                                В приютах нет кошек""",
                         null)
         );
 
@@ -442,11 +440,10 @@ public class InfoManagerMockTest {
         Assertions.assertThat(actual.getParameters().get("chat_id")).isEqualTo(1874598997L);
         Assertions.assertThat(actual.getParameters().get("text")).isEqualTo(
                 """
-                            В приютах нет кошек""");
+                        В приютах нет кошек""");
 
 
     }
-
 
 
     @Test
@@ -454,14 +451,13 @@ public class InfoManagerMockTest {
         CallbackQuery callbackQuery = readJsonFromResource("callbackquery_cat_photo.json");
         List<Animal> cats = createAnimals(10, AnimalType.CAT);
         when(animalService.getAllAnimalsByType(AnimalType.CAT)).thenReturn(cats);
-        when(animalRepo.findById(1L)).thenReturn(Optional.of(cats.get(0)));
         long chatId = callbackQuery.message().chat().id();
-        InlineKeyboardMarkup inlineKeyboardMarkup =  keyboardFactory.getInlineKeyboard(
+        InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory.getInlineKeyboard(
                 List.of("Следующее фото c описанием",
                         "Назад"),
                 List.of(1, 1),
                 List.of(CAT_PHOTO,
-                        CATS)
+                        PET_INFORMATION)
         );
 
         SendMessage sendMessage = new AnswerMethodFactory().getSendMessage(
@@ -472,16 +468,16 @@ public class InfoManagerMockTest {
                                 "Назад"),
                         List.of(1, 1),
                         List.of(CAT_PHOTO,
-                                CATS)
+                                PET_INFORMATION)
                 )
         );
 
-        when( keyboardFactory_.getInlineKeyboard(
+        when(keyboardFactory_.getInlineKeyboard(
                 List.of("Следующее фото c описанием",
                         "Назад"),
                 List.of(1, 1),
                 List.of(CAT_PHOTO,
-                        CATS)
+                        PET_INFORMATION)
         )).thenReturn(inlineKeyboardMarkup);
 
 
@@ -492,7 +488,7 @@ public class InfoManagerMockTest {
                                 "Назад"),
                         List.of(1, 1),
                         List.of(CAT_PHOTO,
-                                CATS)
+                                PET_INFORMATION)
                 ))).thenReturn(sendMessage);
 
         infoManager.catPhoto(callbackQuery);
@@ -510,20 +506,18 @@ public class InfoManagerMockTest {
     }
 
 
-
     @Test
     public void catPhoto_Test() throws IOException {
         CallbackQuery callbackQuery = readJsonFromResource("callbackquery_cat_photo.json");
         List<Animal> cats = createAnimals(10, AnimalType.CAT);
         String strPath = System.getProperty("user.dir");
-        if(strPath.contains("\\")){
+        if (strPath.contains("\\")) {
             strPath += "\\src\\test\\resources\\ru.pet.nursery\\manager\\info\\1.jpg";
-        }else{
+        } else {
             strPath += "/src/test/resources/ru.pet.nursery/manager/info/1.jpg";
         }
         cats.get(0).setPhotoPath(strPath);
         when(animalService.getAllAnimalsByType(AnimalType.CAT)).thenReturn(cats);
-        when(animalRepo.findById(1L)).thenReturn(Optional.of(cats.get(0)));
         byte[] photoArray = getPhotoByteArray(cats.get(0));
         when(animalService.getPhotoByteArray(1L)).thenReturn(photoArray);
 
@@ -599,14 +593,13 @@ public class InfoManagerMockTest {
         CallbackQuery callbackQuery = readJsonFromResource("callback_query_dog_photo.json");
         List<Animal> dogs = createAnimals(10, AnimalType.DOG);
         String strPath = System.getProperty("user.dir");
-        if(strPath.contains("\\")){
+        if (strPath.contains("\\")) {
             strPath += "\\src\\test\\resources\\ru.pet.nursery\\manager\\info\\1.jpg";
-        }else{
+        } else {
             strPath += "/src/test/resources/ru.pet.nursery/manager/info/1.jpg";
         }
         dogs.get(0).setPhotoPath(strPath);
         when(animalService.getAllAnimalsByType(AnimalType.DOG)).thenReturn(dogs);
-        when(animalRepo.findById(1L)).thenReturn(Optional.of(dogs.get(0)));
         byte[] photoArray = getPhotoByteArray(dogs.get(0));
         when(animalService.getPhotoByteArray(1L)).thenReturn(photoArray);
 
@@ -617,9 +610,9 @@ public class InfoManagerMockTest {
         );
 
         when(answerMethodFactory.getSendPhoto(
-                callbackQuery.message().chat().id(),
-                photoArray,
-                null
+                        callbackQuery.message().chat().id(),
+                        photoArray,
+                        null
                 )
         ).thenReturn(sendPhoto);
 
@@ -632,11 +625,11 @@ public class InfoManagerMockTest {
         );
 
         when(keyboardFactory.getInlineKeyboard(
-                List.of("Следующее фото c описанием",
-                        "Назад"),
-                List.of(1, 1),
-                List.of(DOG_PHOTO,
-                        PET_INFORMATION)
+                        List.of("Следующее фото c описанием",
+                                "Назад"),
+                        List.of(1, 1),
+                        List.of(DOG_PHOTO,
+                                PET_INFORMATION)
                 )
         ).thenReturn(inlineKeyboardMarkup);
 
@@ -645,14 +638,14 @@ public class InfoManagerMockTest {
                 inlineKeyboardMarkup);
 
         when(answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
-                        dogs.get(0).getDescription(),
-                        keyboardFactory.getInlineKeyboard(
-                                List.of("Следующее фото c описанием",
-                                        "Назад"),
-                                List.of(1, 1),
-                                List.of(DOG_PHOTO,
-                                        PET_INFORMATION)
-                        ))).thenReturn(sendMessage);
+                dogs.get(0).getDescription(),
+                keyboardFactory.getInlineKeyboard(
+                        List.of("Следующее фото c описанием",
+                                "Назад"),
+                        List.of(1, 1),
+                        List.of(DOG_PHOTO,
+                                PET_INFORMATION)
+                ))).thenReturn(sendMessage);
 
 
         infoManager.dogPhoto(callbackQuery);
@@ -676,15 +669,15 @@ public class InfoManagerMockTest {
     }
 
     public byte[] getPhotoByteArray(Animal animal) {
-        if(animal.getPhotoPath() == null){
+        if (animal.getPhotoPath() == null) {
             throw new ImageNotFoundException("Путь к файлу с изображением отсутствует!");
         }
         Path path = Paths.get(animal.getPhotoPath());
-        if(!Files.exists(path)){
+        if (!Files.exists(path)) {
             throw new ImageNotFoundException("Файл с изображением не найден!");
         }
         byte[] photoByteArray;
-        try(InputStream is = Files.newInputStream(path)){
+        try (InputStream is = Files.newInputStream(path)) {
             photoByteArray = is.readAllBytes();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -698,12 +691,12 @@ public class InfoManagerMockTest {
 
         when(answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
                 """
-                            В приютах нет собак""",
+                        В приютах нет собак""",
                 null
         )).thenReturn(
                 new AnswerMethodFactory().getSendMessage(callbackQuery.message().chat().id(),
                         """
-                            В приютах нет собак""",
+                                В приютах нет собак""",
                         null)
         );
 
@@ -716,11 +709,10 @@ public class InfoManagerMockTest {
         Assertions.assertThat(actual.getParameters().get("chat_id")).isEqualTo(1874598997L);
         Assertions.assertThat(actual.getParameters().get("text")).isEqualTo(
                 """
-                            В приютах нет собак""");
+                        В приютах нет собак""");
 
 
     }
-
 
 
     @Test
@@ -728,7 +720,6 @@ public class InfoManagerMockTest {
         CallbackQuery callbackQuery = readJsonFromResource("callback_query_dog_photo.json");
         List<Animal> dogs = createAnimals(10, AnimalType.DOG);
         when(animalService.getAllAnimalsByType(AnimalType.DOG)).thenReturn(dogs);
-        when(animalRepo.findById(1L)).thenReturn(Optional.of(dogs.get(0)));
         long chatId = callbackQuery.message().chat().id();
         InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory_.getInlineKeyboard(
                 List.of("Следующее фото c описанием",
@@ -758,7 +749,7 @@ public class InfoManagerMockTest {
 
         when(answerMethodFactory.getSendMessage(chatId,
                 "Фотография отсутствует\n\n" + dogs.get(0).getDescription(),
-                        inlineKeyboardMarkup)).thenReturn(sendMessage);
+                inlineKeyboardMarkup)).thenReturn(sendMessage);
 
         infoManager.dogPhoto(callbackQuery);
 
@@ -777,30 +768,20 @@ public class InfoManagerMockTest {
     @Test
     public void getNextId_Test() throws IOException {
         CallbackQuery callbackQuery = readJsonFromResource("callback_query_dog_photo.json");
-
         long chatId = callbackQuery.message().chat().id();
         List<Animal> dogs = createAnimals(10, AnimalType.DOG);
-        long randomIndex = faker.random().nextInt(1, dogs.size() - 2);
-        infoManager.putTOUserChatId_AnimalId(chatId, randomIndex);
-        long actual = infoManager.getNextId(chatId, dogs);
-
-        long expected = randomIndex + 1;
-        Assertions.assertThat(expected).isEqualTo(actual);
-        // проверка работы метода при индексе, который больше размера списка животных
-        int tooBigIndex = dogs.size();
-        infoManager.putTOUserChatId_AnimalId(chatId, tooBigIndex);
-        actual = infoManager.getNextId(chatId, dogs);
-        expected = 0;
-        Assertions.assertThat(expected).isEqualTo(actual);
-
-        // проверка работы метода при количестве записей в мапе userId_animalId > 1000
-        for (int i = 0; i < 1001; i++) {
-            infoManager.putTOUserChatId_AnimalId(i + 10, faker.random().nextInt(1, dogs.size() - 2));
+        for (int i = 0; i < dogs.size() * 2; i++) {
+            Animal actual = infoManager.getNextAnimal(chatId, dogs);
+            Animal expected = new Animal();
+            if (i >= dogs.size()) {
+                expected = dogs.get(i % dogs.size());
+            }else {
+                expected = dogs.get(i);
+            }
+            Assertions.assertThat(expected).isEqualTo(actual);
         }
-        actual = infoManager.getNextId(chatId, dogs);
-        Assertions.assertThat(expected).isEqualTo(actual);
-    }
 
+    }
 
 
     @Test
@@ -808,11 +789,10 @@ public class InfoManagerMockTest {
         CallbackQuery callbackQuery = readJsonFromResource("callback_query_cat_info.json");
         List<Animal> cats = createAnimals(10, AnimalType.CAT);
         when(animalService.getAllAnimalsByType(AnimalType.CAT)).thenReturn(cats);
-        long chatId = callbackQuery.message().chat().id();
         long randomIndex = faker.random().nextInt(1, cats.size() - 2);
-        Animal animal = cats.get((int)randomIndex);
-        infoManager.putTOUserChatId_AnimalId(chatId, randomIndex);
-
+        Animal animal = cats.get((int) randomIndex);
+        long chatId = callbackQuery.message().chat().id();
+        infoManager.putToUserIdAnimal(chatId, animal);
         InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory_.getInlineKeyboard(
                 List.of("Следующее фото c описанием",
                         "Назад"),
@@ -830,7 +810,7 @@ public class InfoManagerMockTest {
 
         SendMessage sendMessage = new AnswerMethodFactory().getSendMessage(
                 callbackQuery.message().chat().id(),
-                cats.get((int) randomIndex).getDescription(),
+                animal.getDescription(),
                 inlineKeyboardMarkup
         );
 
@@ -864,8 +844,8 @@ public class InfoManagerMockTest {
         when(animalService.getAllAnimalsByType(AnimalType.DOG)).thenReturn(dogs);
         long chatId = callbackQuery.message().chat().id();
         long randomIndex = faker.random().nextInt(1, dogs.size() - 2);
-        Animal animal = dogs.get((int)randomIndex);
-        infoManager.putTOUserChatId_AnimalId(chatId, randomIndex);
+        Animal animal = dogs.get((int) randomIndex);
+        infoManager.putToUserIdAnimal(chatId, animal);
 
         InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory_.getInlineKeyboard(
                 List.of("Следующее фото c описанием",
@@ -911,13 +891,7 @@ public class InfoManagerMockTest {
     }
 
 
-    @Test
-    public void putTOUserChatId_AnimalId_Test(){
-        infoManager.putTOUserChatId_AnimalId(1L, 1L);
-    }
-
-
-    private List<Nursery> createNurseries(int amount){
+    private List<Nursery> createNurseries(int amount) {
         List<Nursery> nurseries = new ArrayList<>();
         for (int i = 0; i < amount; i++) {
             Nursery nursery = new Nursery();
@@ -930,7 +904,7 @@ public class InfoManagerMockTest {
         return nurseries;
     }
 
-    private List<Animal> createAnimals(long amount, AnimalType type){
+    private List<Animal> createAnimals(long amount, AnimalType type) {
         List<Animal> animals = new ArrayList<>();
         for (int i = 0; i < amount; i++) {
             Animal animal = new Animal();
@@ -939,9 +913,9 @@ public class InfoManagerMockTest {
             animal.setAnimalType(type == AnimalType.CAT ? AnimalType.CAT : AnimalType.DOG);
             animal.setGender(faker.random().nextBoolean() ? Gender.MALE : Gender.FEMALE);
             animal.setDescription(faker.examplify(animal.getAnimalName()));
-            if(type == AnimalType.CAT) {
+            if (type == AnimalType.CAT) {
                 animal.setNursery(NURSERY_1);
-            }else {
+            } else {
                 animal.setNursery(NURSERY_2);
             }
             animal.setBirthDate(faker.date().birthdayLocalDate(1, 10));
@@ -952,12 +926,11 @@ public class InfoManagerMockTest {
     }
 
 
-
     private CallbackQuery readJsonFromResource(String filename) throws IOException {
         String strPath = System.getProperty("user.dir");
-        if(strPath.contains("\\")){
-            strPath += "\\src\\test\\resources\\ru.pet.nursery\\manager\\info\\" + filename ;
-        }else{
+        if (strPath.contains("\\")) {
+            strPath += "\\src\\test\\resources\\ru.pet.nursery\\manager\\info\\" + filename;
+        } else {
             strPath += "/src/test/resources/ru.pet.nursery/manager/info/" + filename;
         }
         String json = Files.readString(
@@ -971,9 +944,9 @@ public class InfoManagerMockTest {
 
     private Update getUpdate(String filename) throws IOException {
         String strPath = System.getProperty("user.dir");
-        if(strPath.contains("\\")){
+        if (strPath.contains("\\")) {
             strPath += "\\src\\test\\resources\\ru.pet.nursery\\manager\\info\\" + filename;
-        }else{
+        } else {
             strPath += "/src/test/resources/ru.pet.nursery/manager/info/" + filename;
         }
         String json = Files.readString(

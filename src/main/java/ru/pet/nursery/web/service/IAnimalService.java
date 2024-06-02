@@ -6,7 +6,6 @@ import ru.pet.nursery.entity.Animal;
 import ru.pet.nursery.enumerations.AnimalType;
 import ru.pet.nursery.web.dto.AnimalDTO;
 import ru.pet.nursery.web.dto.AnimalDTOForUser;
-
 import java.io.IOException;
 import java.util.List;
 

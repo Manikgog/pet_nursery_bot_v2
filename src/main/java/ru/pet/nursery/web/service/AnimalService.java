@@ -27,8 +27,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -40,7 +38,7 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 public class AnimalService implements IAnimalService {
     private final Logger logger = LoggerFactory.getLogger(AbstractManager.class);
     @Value("${path.to.animals.folder}")
-    private String animals_images;
+    private String animalsImages;
     private final AnimalRepo animalRepo;
     private final UserRepo userRepo;
     private final ShelterRepo shelterRepo;
@@ -95,7 +93,7 @@ public class AnimalService implements IAnimalService {
         }else{
             strPath += "/";
         }
-        strPath += animals_images;
+        strPath += animalsImages;
         Path path = Path.of(strPath);
         Path filePath = Path.of(path.toString(), animalId + "." + getExtension(Objects.requireNonNull(animalPhoto.getOriginalFilename())));
         Files.createDirectories(filePath.getParent());
