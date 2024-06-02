@@ -42,6 +42,8 @@ public class AdoptedService {
         return animalRepo.save(animal);
     }
 
+
+
     /**
      * Метод для пролонгации времени пребывания в приемной семье
      * @param animalId из таблицы animal_table
@@ -55,8 +57,7 @@ public class AdoptedService {
         if (adoptionDate == null) {
             adoptionDate = LocalDate.now();
         }
-        adoptionDate = adoptionDate.plusDays(days);
-        animal.setPetReturnDate(LocalDate.from(adoptionDate));
+        animal.setPetReturnDate(adoptionDate.plusDays(days));
         return animalRepo.save(animal);
     }
 

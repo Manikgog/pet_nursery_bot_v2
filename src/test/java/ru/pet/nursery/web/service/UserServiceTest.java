@@ -82,13 +82,8 @@ class UserServiceTest {
     }
     @Test
     void addUserNegativeIfLastNameNullTest() {
-        User expected = new User();
-        expected.setTelegramUserId(faker.random().nextLong(1231231));
-        expected.setUserName(faker.harryPotter().character());
-        expected.setFirstName(null);
-        expected.setLastName(faker.harryPotter().character());
-        expected.setAddress(faker.harryPotter().location());
-        expected.setPhoneNumber(String.valueOf(faker.random().nextInt(12312331)));
+        User expected = userList.get(faker.random().nextInt(userList.size()));
+        expected.setLastName(null);
         assertThatThrownBy(() -> userService.addUser(expected)).isInstanceOf(UserNotValidException.class);
     }
 

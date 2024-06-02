@@ -224,20 +224,20 @@ class UserControllerTestRestTemplateTest {
     @Test
     void paginationUserFromDb() throws InterruptedException {
         Random rnd = new Random();
-        List<User> Nurseries = userRepo.findAll()
+        List<User> users = userRepo.findAll()
                 .stream()
                 .toList();
-        int nurseryRepoSize = Nurseries.size();
-        int page = rnd.nextInt(nurseryRepoSize/2) + 1;
-        int size = rnd.nextInt(nurseryRepoSize/4) + 1;
+        int userRepoSize = users.size();
+        int page = rnd.nextInt(userRepoSize/2) + 1;
+        int size = rnd.nextInt(userRepoSize/4) + 1;
         PageRequest pageRequest = PageRequest.of(page - 1, size);
         List<User> usersByPage = userRepo.findAll(pageRequest)
                 .stream()
                 .toList();
         Thread.sleep(500);
-        ResponseEntity<List<Nursery>> responseEntity = testRestTemplate
+        ResponseEntity<List<User>> responseEntity = testRestTemplate
                 .exchange(
-                        "http://localhost:" + port + "/users?page=" + page + "&size=" + size,
+                        builderUrl("/users?page=" + page + "&size=" + size),
                         HttpMethod.GET,
                         HttpEntity.EMPTY,
                         new ParameterizedTypeReference<>() {
@@ -245,6 +245,6 @@ class UserControllerTestRestTemplateTest {
                 );
         Thread.sleep(500);
         Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        Assertions.assertThat(responseEntity.getBody().size()).isEqualTo(usersByPage.size());
+        Assertions.assertThat(Objects.requireNonNull(responseEntity.getBody()).size()).isEqualTo(usersByPage.size());
     }
 }
