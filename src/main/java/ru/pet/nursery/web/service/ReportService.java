@@ -176,20 +176,7 @@ public class ReportService implements IReportService {
 
 
     /**
-     * Метод для обновления поля allItemsIsAccepted в строке с идентификатором id
-     * @param id - идентификатор отчёта в таблице отчётов
-     * @param isAllItemsAccepted - приняты или не приняты (true или false) все пункты отчёта, т.е. присутствуют ли они в базе данных
-     * @return объект класса Report - измененный объект отчёта из базы данных
-     */
-    public Report updateIsAllItemsIsAccepted(long id, boolean isAllItemsAccepted) {
-        Report reportOld = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
-        reportOld.setAllItemsIsAccepted(isAllItemsAccepted);
-        return reportRepo.save(reportOld);
-    }
-
-
-    /**
-     * Метод для обновления поля fotoIsAaccepted в строке с идентификатором id
+     * Метод для обновления поля photoIsAaccepted в строке с идентификатором id
      * @param id - идентификатор отчёта в таблице отчётов
      * @param isPhotoAccepted - принята или не принята (true или false) волонтером фотография питомца
      * @return объект класса Report - измененный объект отчёта из базы данных

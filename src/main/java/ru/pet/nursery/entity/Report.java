@@ -50,6 +50,4 @@ public class Report {
     @Column(name = "behaviour_is_accepted", nullable = false)
     private boolean behaviourIsAccepted;
 
-    @Column(name = "all_items_is_accepted", nullable = false)
-    private boolean allItemsIsAccepted;
 }

@@ -158,25 +158,6 @@ public class ReportController {
 
 
 
-    @Operation(summary = "Изменение флага о принятии в базу данных всех пунктов отчёта",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Загрузка флага прошла успешно",
-                            content = @Content(
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = Report.class)
-                            )
-                    )
-            }
-    )
-    @PutMapping("/{reportId}/acceptAll")
-    public ResponseEntity<Report> putIsAllItemsAccepted(@PathVariable long reportId, @RequestParam boolean acceptAll){
-        return ResponseEntity.ok(reportService.updateIsAllItemsIsAccepted(reportId, acceptAll));
-    }
-
-
-
     @Operation(summary = "Изменение флага о принятии в базу данных фотографии питомца для отчёта",
             responses = {
                     @ApiResponse(

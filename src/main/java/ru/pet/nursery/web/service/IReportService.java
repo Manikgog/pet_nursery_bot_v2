@@ -14,8 +14,6 @@ public interface IReportService {
 
     Report updateBehaviour(long id, String behaviour);
 
-    Report updateIsAllItemsIsAccepted(long id, boolean isAllItemsAccepted);
-
     Report updatePhotoIsAccepted(long id, boolean isPhotoAccepted);
 
     Report updateIsDietAccepted(long id, boolean isDietAccepted);
