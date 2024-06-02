@@ -234,7 +234,7 @@ class ShelterControllerTestRestTemplateTest {
         Thread.sleep(500);
         ResponseEntity<List<Nursery>> responseEntity = testRestTemplate
                 .exchange(
-                        "http://localhost:" + port + "/shelter/getShelterForKindOfAnimals?kindOfAnimal="+kindOfAnimal+"&page=" + page + "&size=" + size,
+                        "http://localhost:" + port + "/shelter?kindOfAnimal="+kindOfAnimal+"&page=" + page + "&size=" + size,
                         HttpMethod.GET,
                         HttpEntity.EMPTY,
                         new ParameterizedTypeReference<>() {
@@ -255,7 +255,7 @@ class ShelterControllerTestRestTemplateTest {
 
         ResponseEntity<Nursery> responseEntity = testRestTemplate
                 .exchange(
-                        "http://localhost:" + port + "/shelter/" + id + "/map?link=" + mapLink,
+                        "http://localhost:" + port + "/shelter/" + id + "?link=" + mapLink,
                         HttpMethod.PUT,
                         HttpEntity.EMPTY,
                         Nursery.class
@@ -279,7 +279,7 @@ class ShelterControllerTestRestTemplateTest {
 
         ResponseEntity<String> responseEntity = testRestTemplate
                 .exchange(
-                        "http://localhost:" + port + "/shelter/" + id + "/map?link=" + mapLink,
+                        "http://localhost:" + port + "/shelter/" + id + "?link=" + mapLink,
                         HttpMethod.PUT,
                         HttpEntity.EMPTY,
                         String.class
@@ -292,7 +292,7 @@ class ShelterControllerTestRestTemplateTest {
 
         responseEntity = testRestTemplate
                 .exchange(
-                        "http://localhost:" + port + "/shelter/" + id + "/map?link=" + mapLink,
+                        "http://localhost:" + port + "/shelter/" + id + "?link=" + mapLink,
                         HttpMethod.PUT,
                         HttpEntity.EMPTY,
                         String.class
@@ -315,7 +315,7 @@ class ShelterControllerTestRestTemplateTest {
 
         ResponseEntity<String> responseEntity = testRestTemplate
                 .exchange(
-                        "http://localhost:" + port + "/shelter/" + id + "/map?link=" + mapLink,
+                        "http://localhost:" + port + "/shelter/" + id + "?link=" + mapLink,
                         HttpMethod.PUT,
                         HttpEntity.EMPTY,
                         String.class

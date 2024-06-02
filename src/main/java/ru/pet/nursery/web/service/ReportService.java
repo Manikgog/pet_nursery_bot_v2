@@ -35,7 +35,7 @@ import static java.nio.file.StandardOpenOption.READ;
 public class ReportService implements IReportService {
     private final Logger logger = LoggerFactory.getLogger(ReportService.class);
     @Value("${path.to.report_photo.folder}")
-    private String reportPhoto;
+    private String reportPhotoDir;
     private final ReportRepo reportRepo;
     private final UserRepo userRepo;
     private final ReportValidator reportValidator;
@@ -90,13 +90,13 @@ public class ReportService implements IReportService {
      * @return ResponseEntity.ok()
      * @throws IOException - исключение ввода-вывода
      */
-    public Report updateFoto(long id, MultipartFile reportPhoto) throws IOException {
+    public Report updatePhoto(long id, MultipartFile reportPhoto) throws IOException {
         Report reportFromDB = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
         String strPath = System.getProperty("user.dir");
         if(strPath.contains("\\")){
-            strPath += "\\" + reportPhoto;
+            strPath += "\\" + reportPhotoDir;
         }else{
-            strPath += "/" + reportPhoto;
+            strPath += "/" + reportPhotoDir;
         }
         Path path = Path.of(strPath);
         long reportId = reportFromDB.getId();

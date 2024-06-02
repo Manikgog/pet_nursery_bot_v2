@@ -75,7 +75,7 @@ public class VolunteerService implements IVolunteerService {
         validator.phoneValidate(phone);
         validator.validateId(id);
         Volunteer volunteerOld = volunteerRepo.findById(id).orElseThrow(() -> new EntityNotFoundException((long)id));
-        if(volunteerOld.getName().equals(phone)){
+        if(volunteerOld.getPhoneNumber().equals(phone)){
             return volunteerOld;
         }
         volunteerOld.setPhoneNumber(phone);

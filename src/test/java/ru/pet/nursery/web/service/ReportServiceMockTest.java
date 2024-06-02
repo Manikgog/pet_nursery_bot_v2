@@ -104,7 +104,7 @@ public class ReportServiceMockTest {
         MultipartFile multipartFile = new MockMultipartFile(fileName, fileName + ".jpg", "image.jpg", array);
         when(reportRepo.findById(report.getId())).thenReturn(Optional.of(report));
         when(reportRepo.save(report)).thenReturn(report);
-        Assertions.assertEquals(report, reportService.updateFoto(report.getId(), multipartFile));
+        Assertions.assertEquals(report, reportService.updatePhoto(report.getId(), multipartFile));
     }
 
 
@@ -115,7 +115,7 @@ public class ReportServiceMockTest {
         String fileName = "animalPhoto";
         byte[] array = new byte[]{1, 2, 3, 4, 5, 6, 7, 8};
         MultipartFile multipartFile = new MockMultipartFile(fileName, array);
-        Assertions.assertThrows(EntityNotFoundException.class, () -> reportService.updateFoto(reportId, multipartFile));
+        Assertions.assertThrows(EntityNotFoundException.class, () -> reportService.updatePhoto(reportId, multipartFile));
 
     }
 

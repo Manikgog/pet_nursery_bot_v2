@@ -365,7 +365,7 @@ public class AnimalControllerTestRestTemplateTest {
         long wrongAnimalId = getWrongAnimalId();
 
         ResponseEntity<String> responseEntity = testRestTemplate.exchange(
-                "http://localhost:" + port + "/animal/{wrongAnimalId}/photo",
+                "http://localhost:" + port + "/animal/photo?id=" + wrongAnimalId,
                 HttpMethod.GET,
                 HttpEntity.EMPTY,
                 String.class,
@@ -401,7 +401,7 @@ public class AnimalControllerTestRestTemplateTest {
         uploadAnimalPhoto(Math.toIntExact(correctAnimalId));
 
         ResponseEntity<String> responseEntity = testRestTemplate.exchange(
-                "http://localhost:" + port + "/animal/{correctAnimalId}/photo",
+                "http://localhost:" + port + "/animal/photo?id=" + correctAnimalId,
                 HttpMethod.GET,
                 HttpEntity.EMPTY,
                 String.class,
@@ -453,7 +453,7 @@ public class AnimalControllerTestRestTemplateTest {
 
             ResponseEntity<Animal> responseEntity = testRestTemplate
                     .exchange(
-                            "http://localhost:" + port + "/animal/{animalId}/delete",
+                            "http://localhost:" + port + "/animal/{animalId}",
                             HttpMethod.DELETE,
                             HttpEntity.EMPTY,
                             Animal.class,
@@ -476,7 +476,7 @@ public class AnimalControllerTestRestTemplateTest {
             long wrongAnimalId = getWrongAnimalId();
             ResponseEntity<String> responseEntity = testRestTemplate
                     .exchange(
-                            "http://localhost:" + port + "/animal/{animalId}/delete",
+                            "http://localhost:" + port + "/animal/{animalId}",
                             HttpMethod.DELETE,
                             HttpEntity.EMPTY,
                             String.class,

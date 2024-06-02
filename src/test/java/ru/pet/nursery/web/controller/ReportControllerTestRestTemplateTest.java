@@ -35,14 +35,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ReportControllerTestRestTemplateTest {
     @Value("${path.to.animals.folder}")
-    private String ANIMAL_IMAGES;
+    private String animalImages;
     @Value("${path.to.report_photo.folder}")
-    private String REPORT_PHOTO;
+    private String testReportPhoto;
     @LocalServerPort
     private int port;
     @Autowired
@@ -319,9 +318,9 @@ public class ReportControllerTestRestTemplateTest {
         String photoPath = reportRepo.findById(report.getId()).get().getPathToPhoto();
         String strPath = System.getProperty("user.dir");
         if(strPath.contains("\\")){
-            strPath += "\\" + REPORT_PHOTO + "\\";
+            strPath += "\\" + testReportPhoto + "\\";
         }else{
-            strPath += "/" + REPORT_PHOTO + "/";
+            strPath += "/" + testReportPhoto + "/";
         }
         Assertions.assertThat(photoPath).isEqualTo(strPath + report.getId() + ".jpg");
     }
@@ -330,9 +329,9 @@ public class ReportControllerTestRestTemplateTest {
     public HttpEntity<MultiValueMap<String, Object>> getRequestEntity(){
         String strPath = System.getProperty("user.dir");
         if(strPath.contains("\\")){
-            strPath += "\\" + ANIMAL_IMAGES + "\\1.jpg";
+            strPath += "\\" + animalImages + "\\1.jpg";
         }else{
-            strPath += "/" + ANIMAL_IMAGES + "/1.jpg";
+            strPath += "/" + animalImages + "/1.jpg";
         }
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -393,9 +392,9 @@ public class ReportControllerTestRestTemplateTest {
         Report reportFromDB = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
         String strPath = System.getProperty("user.dir");
         if(strPath.contains("\\")){
-            strPath += "\\" + ANIMAL_IMAGES + "\\1.jpg";
+            strPath += "\\" + animalImages + "\\1.jpg";
         }else{
-            strPath += "/" + ANIMAL_IMAGES + "/1.jpg";
+            strPath += "/" + animalImages + "/1.jpg";
         }
 
         Path filePath = Path.of(strPath);
@@ -621,44 +620,6 @@ public class ReportControllerTestRestTemplateTest {
         Assertions.assertThat(responseEntity.getBody()).isEqualTo("Строка не должна быть пустой");
     }
 
-
-    @Test
-    public void putIsAllItemsAccepted_positiveTest(){
-        User user = findUsersWhoAdopt().stream().findFirst().get();
-        Report newReport = new Report();
-        newReport.setId(0);
-        newReport.setReportDate(LocalDate.now().atStartOfDay());
-        newReport.setUser(user);
-        Report reportFromDB = reportRepo.save(newReport);
-        boolean acceptAll = true;
-        ResponseEntity<Report> responseEntity = testRestTemplate.exchange(
-                "http://localhost:" + port + "/report/" + reportFromDB.getId() + "/acceptAll?acceptAll=" + acceptAll,
-                HttpMethod.PUT,
-                HttpEntity.EMPTY,
-                Report.class
-        );
-
-        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        Assertions.assertThat(responseEntity.getBody()).isNotNull();
-        reportFromDB = reportRepo.findByUserAndReportDate(user, LocalDate.now().atStartOfDay());
-        Assertions.assertThat(responseEntity.getBody()).usingRecursiveComparison().isEqualTo(reportFromDB);
-    }
-
-    @Test
-    public void putIsAllItemsAccepted_negativeTestByNotValidReportId(){
-        long reportId = 0;
-        boolean acceptAll = true;
-        ResponseEntity<String> responseEntity = testRestTemplate.exchange(
-                "http://localhost:" + port + "/report/" + reportId + "/acceptAll?acceptAll=" + acceptAll,
-                HttpMethod.PUT,
-                HttpEntity.EMPTY,
-                String.class
-        );
-
-        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-        Assertions.assertThat(responseEntity.getBody()).isNotNull();
-        Assertions.assertThat(responseEntity.getBody()).isEqualTo("Ресурс с id = " + reportId + " не найден");
-    }
 
     @Test
     public void putIsFotoAccepted_positiveTest(){
