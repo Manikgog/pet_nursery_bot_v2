@@ -1,15 +1,16 @@
 package ru.pet.nursery.manager.report;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.CallbackQuery;
-import com.pengrad.telegrambot.model.Document;
+import com.pengrad.telegrambot.model.File;
 import com.pengrad.telegrambot.model.PhotoSize;
 import com.pengrad.telegrambot.model.Update;
+import com.pengrad.telegrambot.request.GetFile;
 import com.pengrad.telegrambot.request.SendMessage;
+import com.pengrad.telegrambot.response.GetFileResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import ru.pet.nursery.data.MessageData;
 import ru.pet.nursery.entity.Animal;
 import ru.pet.nursery.entity.Report;
@@ -49,7 +50,6 @@ public class ReportManager extends AbstractManager {
     private final AnimalRepo animalRepo;
     private final ReportService reportService;
     private final MessageData messageData;
-    private ObjectMapper mapper;
 
 
     public ReportManager(AnswerMethodFactory answerMethodFactory,
@@ -67,7 +67,6 @@ public class ReportManager extends AbstractManager {
         this.userRepo = userRepo;
         this.animalRepo = animalRepo;
         this.reportService = reportService;
-        this.mapper = new ObjectMapper();
         this.messageData = messageData;
     }
 
@@ -330,29 +329,15 @@ public class ReportManager extends AbstractManager {
 
         if(update.message().photo() != null){
             PhotoSize[] photos = update.message().photo();
-            Document document = update.message().document();
-            String fileId = null;
-            String extension = ".png";
-            if(photos != null){
-                fileId = photos[photos.length - 1].fileId();
-            } else if (document != null) {
-                fileId = document.fileId();
-                String mime = document.mimeType();
-                switch (mime){
-                    case "image/png" -> extension = ".png";
-                    case "image/jpeg" -> extension = ".jpg";
-                    default -> {
-                        sendMessage(adopterId, "Формат файла не поддерживается");
-                        return;
-                    }
-                }
-            }
-            String response = String.format(
-                    "https://api.telegram.org/bot%s/getFile?file_id=%s",
-                    telegramBot.getToken(),
-                    fileId);
+            String fileId;
 
-            URL url = new URL(response);
+            fileId = photos[photos.length - 1].fileId();
+
+            GetFile request = new GetFile(fileId);
+            GetFileResponse getFileResponse = telegramBot.execute(request);
+
+            File file = getFileResponse.file();
+            String extension = StringUtils.getFilenameExtension(file.filePath());
 
             String strPath = System.getProperty("user.dir");
             if(strPath.contains("\\")){
@@ -362,17 +347,13 @@ public class ReportManager extends AbstractManager {
             }
             strPath += reportPhoto;
             Path path = Path.of(strPath);
-            Path filePath = Path.of(path.toString(),  report.getId() + "_" + LocalDate.now() + extension);
+            Path filePath = Path.of(path.toString(),  report.getId() + "_" + LocalDate.now() + "." + extension);
             Files.createDirectories(filePath.getParent());
             Files.deleteIfExists(filePath);
 
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode jsonNode = mapper.readTree(url);
-
-            String urlTelegramFile = jsonNode.get("result").get("file_path").asText();
-            urlTelegramFile = String.format("https://api.telegram.org/file/bot%s/%s",
+            String urlTelegramFile = String.format("https://api.telegram.org/file/bot%s/%s",
                     telegramBot.getToken(),
-                    urlTelegramFile);
+                    file.filePath());
 
             Files.copy(
                     new URL(urlTelegramFile).openStream(),

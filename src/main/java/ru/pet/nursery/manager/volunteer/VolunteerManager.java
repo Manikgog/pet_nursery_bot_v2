@@ -124,7 +124,7 @@ public class VolunteerManager extends AbstractManager {
         } else {
             String answerMessageWithoutVolunteer = """
                     Все волонтеры заняты. Вам ответит первый освободившийся работник.
-                            """;
+                    """;
             SendMessage sendMessageWithoutVolunteer = answerMethodFactory.getSendMessage(
                     userChatId,
                     answerMessageWithoutVolunteer,

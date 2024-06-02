@@ -17,12 +17,13 @@ public class MessageHandler {
     }
 
     public void answer(Update update) {
-        String text = update.message().text();
-        if(text.equals(ERROR_MESSAGE)){
-            defaultAnswer(update);
-            return;
+        if(update.message().text() != null) {
+            String text = update.message().text();
+            switch (text) {
+                case ERROR_MESSAGE -> defaultAnswer(update);
+                default -> defaultAnswer(update);
+            }
         }
-        defaultAnswer(update);
     }
 
     private void defaultAnswer(Update update) {

@@ -1,6 +1,5 @@
 package ru.pet.nursery.manager.report;
 
-import com.fasterxml.jackson.core.TreeCodec;
 import com.pengrad.telegrambot.BotUtils;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.CallbackQuery;
@@ -15,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.pet.nursery.data.MessageData;
 import ru.pet.nursery.entity.Animal;
 import ru.pet.nursery.entity.Report;
 import ru.pet.nursery.entity.User;
@@ -27,6 +27,7 @@ import ru.pet.nursery.repository.UserRepo;
 import ru.pet.nursery.web.exception.IllegalParameterException;
 import ru.pet.nursery.web.service.ReportService;
 import ru.pet.nursery.web.validator.ReportValidator;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -56,7 +57,7 @@ class ReportManagerMockTest {
     @Mock
     ReportService reportService;
     @Mock
-    TreeCodec mapper;
+    MessageData messageData;
     @InjectMocks
     ReportManager reportManager;
     private final Faker faker = new Faker();
