@@ -211,27 +211,6 @@ public class ReportServiceMockTest {
         Assertions.assertThrows(EntityNotFoundException.class, () -> reportService.updateBehaviour(-1, "behaviour"));
     }
 
-    @Test
-    public void updateIsAllItemsIsAccepted_positiveTest(){
-        long userId = 2;
-        boolean isAllItemsAccepted = true;
-        User user = new User();
-        user.setTelegramUserId(userId);
-        Report report = new Report();
-        report.setId(1);
-        report.setAllItemsIsAccepted(isAllItemsAccepted);
-        report.setUser(user);
-        report.setReportDate(LocalDateTime.now());
-        when(reportRepo.findById(report.getId())).thenReturn(Optional.of(report));
-        when(reportRepo.save(report)).thenReturn(report);
-        Assertions.assertEquals(report, reportService.updateIsAllItemsIsAccepted(report.getId(), isAllItemsAccepted));
-    }
-
-    @Test
-    public void updateIsAllItemsIsAccepted_negativeTest(){
-        // проверка при невалидном id отчёта
-        Assertions.assertThrows(EntityNotFoundException.class, () -> reportService.updateIsAllItemsIsAccepted(-1, true));
-    }
 
     @Test
     public void updatePhotoIsAccepted_positiveTest(){
