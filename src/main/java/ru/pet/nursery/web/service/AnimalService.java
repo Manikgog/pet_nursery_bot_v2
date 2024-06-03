@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import ru.pet.nursery.entity.Animal;
 import ru.pet.nursery.entity.Nursery;
@@ -22,17 +23,15 @@ import ru.pet.nursery.web.exception.EntityNotFoundException;
 import ru.pet.nursery.web.exception.ImageNotFoundException;
 import ru.pet.nursery.web.exception.UserNotValidException;
 import ru.pet.nursery.web.validator.Validator;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
-import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 @Service
 public class AnimalService implements IAnimalService {
@@ -79,36 +78,25 @@ public class AnimalService implements IAnimalService {
      * @param animalPhoto - файл с изображением животного
      * @return ResponseEntity<Animal> - объект ResponseEntity содержащий объект Animal взятый из базы данных с
      *                                  измененным полем photo_path
-     * @throws IOException - исключение ввода-вывода при работе с файлами
      */
-    public Animal uploadPhoto(long animalId, MultipartFile animalPhoto) throws IOException {
+    public Animal uploadPhoto(long animalId, MultipartFile animalPhoto) {
         logger.info("Method uploadPhoto of AnimalService class with parameters long -> {}, MultipartFile -> {}", animalId, animalPhoto);
-        Optional<Animal> animalFromDB = animalRepo.findById(animalId);
-        if(animalFromDB.isEmpty()){
-            throw new EntityNotFoundException(animalId);
-        }
-        String strPath = System.getProperty("user.dir");
-        if(strPath.contains("\\")){
-            strPath += "\\";
-        }else{
-            strPath += "/";
-        }
-        strPath += animalsImages;
-        Path path = Path.of(strPath);
-        Path filePath = Path.of(path.toString(), animalId + "." + getExtension(Objects.requireNonNull(animalPhoto.getOriginalFilename())));
-        Files.createDirectories(filePath.getParent());
-        Files.deleteIfExists(filePath);
+        Animal animalFromDB = animalRepo.findById(animalId).orElseThrow(() -> new EntityNotFoundException(animalId));
 
-        try(InputStream is = animalPhoto.getInputStream();
-            OutputStream os = Files.newOutputStream(filePath, CREATE_NEW);
-            BufferedInputStream bis = new BufferedInputStream(is, 1024);
-            BufferedOutputStream bos = new BufferedOutputStream(os, 1024)
-        ){
-            bis.transferTo(bos);
+        try {
+            String fileName = String.format(
+                    "%d.%s",
+                    animalFromDB.getId(),
+                    StringUtils.getFilenameExtension(animalPhoto.getOriginalFilename())
+            );
+            byte[] data = animalPhoto.getBytes();
+            Path path = Paths.get(animalsImages, fileName);
+            Files.write(path, data);
+            animalFromDB.setPhotoPath(path.toString());
+            return animalRepo.save(animalFromDB);
+        }catch (IOException e) {
+            return null;
         }
-
-        animalFromDB.get().setPhotoPath(filePath.toString());
-        return animalRepo.save(animalFromDB.get());
     }
 
     /**

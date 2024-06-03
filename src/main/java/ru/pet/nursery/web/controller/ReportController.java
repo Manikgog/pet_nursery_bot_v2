@@ -79,6 +79,29 @@ public class ReportController {
 
 
 
+    @Operation(summary = "Удаление всех отчётов о содержании питомца по идентификатору пользователя",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Удаление отчёта прошло успешно",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = Report.class),
+                                    examples = @ExampleObject(
+                                            name = "Отчёт",
+                                            description = "Список отчётов удалённых из базы данных"
+                                    )
+                            )
+                    )
+            })
+    @DeleteMapping(params = {"userId"})
+    public ResponseEntity<List<Report>> deleteAllByUserId(@RequestParam long userId){
+        return ResponseEntity.ok(reportService.deleteReportsByUserId(userId));
+    }
+
+
+
+
 
     @Operation(summary = "Добавление фотографии в отчёт о питомце по идентификатору отчёта",
             responses = {

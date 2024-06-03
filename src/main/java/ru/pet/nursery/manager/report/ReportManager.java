@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -337,19 +338,15 @@ public class ReportManager extends AbstractManager {
             GetFileResponse getFileResponse = telegramBot.execute(request);
 
             File file = getFileResponse.file();
-            String extension = StringUtils.getFilenameExtension(file.filePath());
 
-            String strPath = System.getProperty("user.dir");
-            if(strPath.contains("\\")){
-                strPath += "\\";
-            }else{
-                strPath += "/";
-            }
-            strPath += reportPhoto;
-            Path path = Path.of(strPath);
-            Path filePath = Path.of(path.toString(),  report.getId() + "_" + LocalDate.now() + "." + extension);
-            Files.createDirectories(filePath.getParent());
-            Files.deleteIfExists(filePath);
+            String fileName = String.format(
+                    "%d_%s.%s",
+                    report.getId(),
+                    LocalDate.now(),
+                    StringUtils.getFilenameExtension(file.filePath())
+            );
+
+            Path filePath = Paths.get(reportPhoto, fileName);
 
             String urlTelegramFile = String.format("https://api.telegram.org/file/bot%s/%s",
                     telegramBot.getToken(),

@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import ru.pet.nursery.entity.Report;
 import ru.pet.nursery.entity.User;
@@ -16,7 +17,9 @@ import ru.pet.nursery.web.exception.ImageNotFoundException;
 import ru.pet.nursery.web.exception.ReportIsExistException;
 import ru.pet.nursery.web.validator.ReportValidator;
 import ru.pet.nursery.web.validator.VolunteerValidator;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,7 +31,6 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
-import static java.nio.file.StandardOpenOption.CREATE_NEW;
 import static java.nio.file.StandardOpenOption.READ;
 
 @Service
@@ -88,10 +90,28 @@ public class ReportService implements IReportService {
      * @param id - идентификатор отчёта
      * @param reportPhoto - файл с фотографией
      * @return ResponseEntity.ok()
-     * @throws IOException - исключение ввода-вывода
      */
-    public Report updatePhoto(long id, MultipartFile reportPhoto) throws IOException {
+    public Report updatePhoto(long id, MultipartFile reportPhoto) {
         Report reportFromDB = reportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+
+        try {
+            String fileName = String.format(
+                    "%d_%s.%s",
+                    reportFromDB.getId(),
+                    LocalDate.now(),
+                    StringUtils.getFilenameExtension(reportPhoto.getOriginalFilename())
+            );
+            byte[] data = reportPhoto.getBytes();
+            Path path = Paths.get(reportPhotoDir, fileName);
+            Files.write(path, data);
+            return updateFotoPathColumn(path.toString(), reportFromDB.getId());
+        }catch (IOException e) {
+            return null;
+        }
+
+
+        /*
+
         String strPath = System.getProperty("user.dir");
         if(strPath.contains("\\")){
             strPath += "\\" + reportPhotoDir;
@@ -114,6 +134,8 @@ public class ReportService implements IReportService {
         }
 
         return updateFotoPathColumn(filePath.toString(), reportFromDB.getId());
+
+         */
     }
 
     /**
@@ -291,5 +313,18 @@ public class ReportService implements IReportService {
 
     public List<Report> findByPetReturnDate() {
         return reportRepo.findByNextReportDate(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS));
+    }
+
+
+    /**
+     * Метод для удаления всех отчётов конкретного человека по его идентификатору
+     * @param userId - идентификатор пользователя
+     * @return список удалённых отчётов
+     */
+    public List<Report> deleteReportsByUserId(long userId) {
+        User user = userRepo.findById(userId).orElseThrow(() -> new EntityNotFoundException(userId));
+        List<Report> reports = reportRepo.findByUser(user);
+        reports.forEach(reportRepo::delete);
+        return reports;
     }
 }

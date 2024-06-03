@@ -31,6 +31,7 @@ import ru.pet.nursery.web.validator.ReportValidator;
 import ru.pet.nursery.web.validator.VolunteerValidator;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -316,26 +317,22 @@ public class ReportControllerTestRestTemplateTest {
         );
         Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         String photoPath = reportRepo.findById(report.getId()).get().getPathToPhoto();
-        String strPath = System.getProperty("user.dir");
-        if(strPath.contains("\\")){
-            strPath += "\\" + testReportPhoto + "\\";
-        }else{
-            strPath += "/" + testReportPhoto + "/";
-        }
-        Assertions.assertThat(photoPath).isEqualTo(strPath + report.getId() + ".jpg");
+        String fileName = String.format(
+                "%d_%s.%s",
+                report.getId(),
+                LocalDate.now(),
+                "jpg"
+        );
+        Path pathExpected = Paths.get(testReportPhoto, fileName);
+        Assertions.assertThat(photoPath).isEqualTo(pathExpected.toString());
     }
 
 
     public HttpEntity<MultiValueMap<String, Object>> getRequestEntity(){
-        String strPath = System.getProperty("user.dir");
-        if(strPath.contains("\\")){
-            strPath += "\\" + animalImages + "\\1.jpg";
-        }else{
-            strPath += "/" + animalImages + "/1.jpg";
-        }
+        Path path = Paths.get(testReportPhoto, "1.jpg");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-        FileSystemResource fileSystemResource = new FileSystemResource(strPath);
+        FileSystemResource fileSystemResource = new FileSystemResource(path.toString());
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("animalPhoto", fileSystemResource);
         return new HttpEntity<>(body, headers);

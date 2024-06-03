@@ -5,7 +5,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.pet.nursery.entity.Nursery;
+import ru.pet.nursery.repository.AnimalRepo;
 import ru.pet.nursery.repository.ShelterRepo;
+import ru.pet.nursery.web.exception.EntityNotFoundException;
 import ru.pet.nursery.web.exception.IllegalParameterException;
 import ru.pet.nursery.web.exception.ShelterNotFoundException;
 import ru.pet.nursery.web.exception.ShelterNullException;
@@ -16,9 +18,12 @@ public class ShelterService implements IShelterService {
     private final Logger log = LoggerFactory.getLogger(ShelterService.class);
 
     private final ShelterRepo shelterRepo;
+    private final AnimalRepo animalRepo;
 
-    public ShelterService(ShelterRepo shelterRepo) {
+    public ShelterService(ShelterRepo shelterRepo,
+                          AnimalRepo animalRepo) {
         this.shelterRepo = shelterRepo;
+        this.animalRepo = animalRepo;
     }
 
     /**
@@ -79,6 +84,11 @@ public class ShelterService implements IShelterService {
      */
     public Nursery removeShelter(Long nurseryId) {
         log.info("Method removeShelter of ShelterService class with parameters Long nurseryId -> {}", nurseryId);
+        Nursery nursery = shelterRepo.findById(nurseryId).orElseThrow(() -> new EntityNotFoundException(nurseryId));
+        if(!animalRepo.findByNursery(nursery).isEmpty()){
+            throw new IllegalParameterException("Приют id=" + nurseryId + " нельзя удалить из базы данных т.к. он присутствует в таблице животных");
+        }
+
         return shelterRepo.findById(nurseryId)
                 .map(shelterToDel -> {
                     shelterRepo.delete(shelterToDel);

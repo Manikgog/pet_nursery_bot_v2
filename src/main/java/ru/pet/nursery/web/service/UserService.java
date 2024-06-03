@@ -1,25 +1,33 @@
 package ru.pet.nursery.web.service;
 
+import com.pengrad.telegrambot.model.Chat;
+import com.pengrad.telegrambot.model.Update;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.pengrad.telegrambot.model.Chat;
-import com.pengrad.telegrambot.model.Contact;
-import com.pengrad.telegrambot.model.Update;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.pet.nursery.entity.User;
+import ru.pet.nursery.repository.AnimalRepo;
+import ru.pet.nursery.repository.ReportRepo;
 import ru.pet.nursery.repository.UserRepo;
+import ru.pet.nursery.web.exception.EntityNotFoundException;
+import ru.pet.nursery.web.exception.IllegalParameterException;
 import ru.pet.nursery.web.exception.UserNotFoundException;
 import ru.pet.nursery.web.exception.UserNotValidException;
-
 import java.util.List;
 
 @Service
 public class UserService implements IUserService {
     private final UserRepo userRepo;
+    private final ReportRepo reportRepo;
+    private final AnimalRepo animalRepo;
 
-    public UserService(UserRepo userRepo) {
+    public UserService(UserRepo userRepo,
+                       ReportRepo reportRepo,
+                       AnimalRepo animalRepo) {
         this.userRepo = userRepo;
+        this.reportRepo = reportRepo;
+        this.animalRepo = animalRepo;
     }
     private final Logger log = LoggerFactory.getLogger(UserService.class);
 
@@ -112,7 +120,10 @@ public class UserService implements IUserService {
      */
     public User removeUser(Long userId) {
         log.info("Method removeUser of UserService class with parameters Long userID -> {}", userId);
-        User user = getUserById(userId);
+        User user = userRepo.findById(userId).orElseThrow(() -> new EntityNotFoundException(userId));
+        if (!reportRepo.findByUser(user).isEmpty() || !animalRepo.findByUser(user).isEmpty()){
+            throw new IllegalParameterException("Удаление невозможно т.к. пользователь id=" + user.getTelegramUserId() + " присутствует в других таблицах");
+        }
         userRepo.delete(user);
         return user;
     }
