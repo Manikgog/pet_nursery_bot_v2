@@ -9,7 +9,7 @@ Spring-Boot приложение, интегрированное с телегр
 java -jar nursery-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod --spring.datasource.url=URL_OF_DATABASE --spring.datasource.username=DATABASE_USERNAME --spring.datasource.password=DATABASE_PASSWORD --telegram.bot.token=TOKEN
 
 где
-URL_OF_DATABASE - url базы данных, например: >jdbc:postgresql://localhost:5432/nurserydb 
+URL_OF_DATABASE - url базы данных, например: jdbc:postgresql://localhost:5432/nurserydb 
 DATABASE_USERNAME, DATABASE_PASSWORD - имя пользователя / пароль к серверу базы данных
 TOKEN - токен, который берётся с помощью бота Telegram @BotFather
 
