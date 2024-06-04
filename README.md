@@ -10,7 +10,8 @@ java -jar nursery-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod --spring.data
 
 где
 * URL_OF_DATABASE - url базы данных, например: jdbc:postgresql://localhost:5432/nurserydb 
-* DATABASE_USERNAME, DATABASE_PASSWORD - имя пользователя / пароль к серверу базы данных
+* DATABASE_USERNAME - имя пользователя базы данных
+* DATABASE_PASSWORD - пароль пользователя к серверу базы данных
 * TOKEN - токен, который берётся с помощью бота Telegram @BotFather
 
 Если пользователь внесен в базу данных как волонтер приюта, то в боте у него появляется имя пользователя telegram, который хочет задать вопросы, и он может участвовать в диалогах, отвечая на вопросы пользователей бота.
