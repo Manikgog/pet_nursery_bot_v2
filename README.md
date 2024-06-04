@@ -6,7 +6,7 @@ Spring-Boot приложение, интегрированное с телегр
 
 Для запуска приложения необходимо создать две папки для сохранения фотографий животных - animal_images и для сохранения фотографий из отчётов - report_photo в той же папке где расположен исполняемый файл программы.
 
-java -jar nursery-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod --spring.datasource.url=URL_OF_DATABASE --spring.datasource.username=DATABASE_USERNAME> --spring.datasource.password=DATABASE_PASSWORD --telegram.bot.token=TOKEN
+java -jar nursery-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod --spring.datasource.url=URL_OF_DATABASE --spring.datasource.username=DATABASE_USERNAME --spring.datasource.password=DATABASE_PASSWORD --telegram.bot.token=TOKEN
 
 где
 URL_OF_DATABASE - url базы данных, например: >jdbc:postgresql://localhost:5432/nurserydb 
