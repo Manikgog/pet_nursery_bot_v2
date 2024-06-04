@@ -185,7 +185,7 @@ class ShelterControllerTestRestTemplateTest {
         String created = deleteShelter.getBody();
         assertThat(deleteShelter.getBody()).isNotNull();
         assertThat(deleteShelter.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-        assertThat(created).isEqualTo("Приют с nurseryId = " + nursery.getId() + " не найден");
+        assertThat(created).isEqualTo("Ресурс с id = " + nursery.getId() + " не найден");
     }
 
     @Test

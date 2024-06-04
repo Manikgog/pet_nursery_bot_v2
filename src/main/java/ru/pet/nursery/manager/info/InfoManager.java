@@ -12,18 +12,15 @@ import ru.pet.nursery.enumerations.AnimalType;
 import ru.pet.nursery.factory.AnswerMethodFactory;
 import ru.pet.nursery.factory.KeyboardFactory;
 import ru.pet.nursery.manager.AbstractManager;
-import ru.pet.nursery.repository.AnimalRepo;
-import ru.pet.nursery.web.exception.EntityNotFoundException;
 import ru.pet.nursery.web.service.IAnimalService;
 import ru.pet.nursery.web.service.IShelterService;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static ru.pet.nursery.data.CallbackData.*;
+import static ru.pet.nursery.enumerations.CallbackDataEnum.*;
 
 @Component
 public class InfoManager extends AbstractManager {
@@ -61,10 +58,10 @@ public class InfoManager extends AbstractManager {
                                 "Что нужно для усыновления",
                                 "Назад"),
                         List.of(1, 1, 1, 1),
-                        List.of(ADDRESS_AND_PHONE,
-                                PET_INFORMATION,
-                                WHAT_NEED_FOR_ADOPTION,
-                                START)
+                        List.of(ADDRESS_AND_PHONE.toString(),
+                                PET_INFORMATION.toString(),
+                                WHAT_NEED_FOR_ADOPTION.toString(),
+                                START.toString())
                 ));
 
         telegramBot.execute(sendMessage);
@@ -86,10 +83,10 @@ public class InfoManager extends AbstractManager {
                                 "Что нужно для усыновления",
                                 "Назад"),
                         List.of(1, 1, 1, 1),
-                        List.of(ADDRESS_AND_PHONE,
-                                PET_INFORMATION,
-                                WHAT_NEED_FOR_ADOPTION,
-                                START)
+                        List.of(ADDRESS_AND_PHONE.toString(),
+                                PET_INFORMATION.toString(),
+                                WHAT_NEED_FOR_ADOPTION.toString(),
+                                START.toString())
                 ));
         telegramBot.execute(sendMessage);
     }
@@ -128,7 +125,7 @@ public class InfoManager extends AbstractManager {
                 keyboardFactory.getInlineKeyboard(
                         List.of("Назад"),
                         List.of(1),
-                        List.of(INFO)
+                        List.of(INFO.toString())
                 ));
         telegramBot.execute(sendMessage);
     }
@@ -147,9 +144,9 @@ public class InfoManager extends AbstractManager {
                                 "Собаки",
                                 "Назад"),
                         List.of(1, 1, 1),
-                        List.of(CAT_PHOTO,
-                                DOG_PHOTO,
-                                INFO)
+                        List.of(CAT_PHOTO.toString(),
+                                DOG_PHOTO.toString(),
+                                INFO.toString())
                 ));
         telegramBot.execute(sendMessage);
     }
@@ -166,7 +163,7 @@ public class InfoManager extends AbstractManager {
                 keyboardFactory.getInlineKeyboard(
                         List.of("Назад"),
                         List.of(1),
-                        List.of(INFO)
+                        List.of(INFO.toString())
                 ));
         telegramBot.execute(sendMessage);
     }
@@ -210,8 +207,8 @@ public class InfoManager extends AbstractManager {
                             List.of("Следующее фото c описанием",
                                     "Назад"),
                             List.of(1, 1),
-                            List.of(DOG_PHOTO,
-                                    PET_INFORMATION)
+                            List.of(DOG_PHOTO.toString(),
+                                    PET_INFORMATION.toString())
                     ));
             telegramBot.execute(sendMessage);
             return;
@@ -264,8 +261,8 @@ public class InfoManager extends AbstractManager {
                             List.of("Следующее фото c описанием",
                                     "Назад"),
                             List.of(1, 1),
-                            List.of(DOG_PHOTO,
-                                    PET_INFORMATION)
+                            List.of(DOG_PHOTO.toString(),
+                                    PET_INFORMATION.toString())
                     ));
             telegramBot.execute(sendMessage);
             return;
@@ -331,14 +328,15 @@ public class InfoManager extends AbstractManager {
         if(userIdAnimal.containsKey(callbackQuery.message().chat().id())) {
             Animal cat = userIdAnimal.get(callbackQuery.message().chat().id());
             String description = cat.getDescription();
+            String nursery = cat.getNursery().getNameShelter();
             SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
-                    description,
+                    String.format("%s\n%s: %s", description, "Приют", nursery),
                     keyboardFactory.getInlineKeyboard(
                             List.of("Следующее фото c описанием",
                                     "Назад"),
                             List.of(1, 1),
-                            List.of(CAT_PHOTO,
-                                    PET_INFORMATION)
+                            List.of(CAT_PHOTO.toString(),
+                                    PET_INFORMATION.toString())
                     ));
             telegramBot.execute(sendMessage);
         }
@@ -361,14 +359,15 @@ public class InfoManager extends AbstractManager {
         if(userIdAnimal.containsKey(callbackQuery.message().chat().id())) {
             Animal dog = userIdAnimal.get(callbackQuery.message().chat().id());
             String description = dog.getDescription();
+            String nursery = dog.getNursery().getNameShelter();
             SendMessage sendMessage = answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
-                    description,
+                    String.format("%s\n%s: %s", description, "Приют", nursery),
                     keyboardFactory.getInlineKeyboard(
                             List.of("Следующее фото c описанием",
                                     "Назад"),
                             List.of(1, 1),
-                            List.of(DOG_PHOTO,
-                                    PET_INFORMATION)
+                            List.of(DOG_PHOTO.toString(),
+                                    PET_INFORMATION.toString())
                     ));
             telegramBot.execute(sendMessage);
         }

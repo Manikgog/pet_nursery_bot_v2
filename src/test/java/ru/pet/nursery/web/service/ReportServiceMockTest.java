@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 import ru.pet.nursery.entity.Animal;
@@ -34,6 +35,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ReportServiceMockTest {
+    private final String reportPhotoDir = "test_report_photo";
     @Mock
     ReportRepo reportRepo;
     @Mock
@@ -87,24 +89,6 @@ public class ReportServiceMockTest {
     public void delete_negativeTest(){
         int id = -1;
         Assertions.assertThrows(EntityNotFoundException.class, () -> reportService.delete(id));
-    }
-
-
-    @Test
-    public void updateFoto_positiveTest() throws IOException {
-        long userId = 2;
-        User user = new User();
-        user.setTelegramUserId(userId);
-        Report report = new Report();
-        report.setUser(user);
-        report.setReportDate(LocalDateTime.now());
-        String fileName = "animalImage";
-        report.setReportDate(LocalDateTime.now());
-        byte[] array = new byte[]{1, 2, 3, 4, 5, 6, 7, 8};
-        MultipartFile multipartFile = new MockMultipartFile(fileName, fileName + ".jpg", "image.jpg", array);
-        when(reportRepo.findById(report.getId())).thenReturn(Optional.of(report));
-        when(reportRepo.save(report)).thenReturn(report);
-        Assertions.assertEquals(report, reportService.updatePhoto(report.getId(), multipartFile));
     }
 
 

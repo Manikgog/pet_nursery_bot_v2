@@ -26,7 +26,6 @@ import ru.pet.nursery.repository.AnimalRepo;
 import ru.pet.nursery.web.exception.ImageNotFoundException;
 import ru.pet.nursery.web.service.IAnimalService;
 import ru.pet.nursery.web.service.IShelterService;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -547,14 +546,18 @@ public class InfoManagerMockTest {
                 )
         ).thenReturn(inlineKeyboardMarkup);
 
+        String description = cats.get(0).getDescription();
+        String nursery = cats.get(0).getNursery().getNameShelter();
+        String text = String.format("%s\n%s: %s", description, "Приют", nursery);
+
         SendMessage sendMessage = new AnswerMethodFactory().getSendMessage(
                 callbackQuery.message().chat().id(),
-                cats.get(0).getDescription(),
+                text,
                 inlineKeyboardMarkup);
 
 
         when(answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
-                cats.get(0).getDescription(),
+                text,
                 keyboardFactory.getInlineKeyboard(
                         List.of("Следующее фото c описанием",
                                 "Назад"),
@@ -574,14 +577,13 @@ public class InfoManagerMockTest {
         Assertions.assertThat(actual.getParameters().get("photo")).isEqualTo(
                 photoArray);
 
-        //infoManager.catInformation(callbackQuery);
         ArgumentCaptor<SendMessage> argumentCaptorMessage = ArgumentCaptor.forClass(SendMessage.class);
         Mockito.verify(telegramBot).execute(argumentCaptorMessage.capture());
         SendMessage actualMessage = argumentCaptorMessage.getValue();
 
         Assertions.assertThat(actualMessage.getParameters().get("chat_id")).isEqualTo(1874598997L);
         Assertions.assertThat(actualMessage.getParameters().get("text")).isEqualTo(
-                cats.get(0).getDescription());
+                text);
         Assertions.assertThat(actualMessage.getParameters().get("reply_markup"))
                 .isEqualTo(inlineKeyboardMarkup);
 
@@ -633,12 +635,17 @@ public class InfoManagerMockTest {
                 )
         ).thenReturn(inlineKeyboardMarkup);
 
-        SendMessage sendMessage = new AnswerMethodFactory().getSendMessage(callbackQuery.message().chat().id(),
-                dogs.get(0).getDescription(),
+        String description = dogs.get(0).getDescription();
+        String nursery = dogs.get(0).getNursery().getNameShelter();
+        String text = String.format("%s\n%s: %s", description, "Приют", nursery);
+
+        SendMessage sendMessage = new AnswerMethodFactory().getSendMessage(
+                callbackQuery.message().chat().id(),
+                text,
                 inlineKeyboardMarkup);
 
         when(answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
-                dogs.get(0).getDescription(),
+                text,
                 keyboardFactory.getInlineKeyboard(
                         List.of("Следующее фото c описанием",
                                 "Назад"),
@@ -663,7 +670,7 @@ public class InfoManagerMockTest {
         SendMessage actualMessage = argumentCaptorMessage.getValue();
 
         Assertions.assertThat(actualMessage.getParameters().get("chat_id")).isEqualTo(1874598997L);
-        Assertions.assertThat(actualMessage.getParameters().get("text")).isEqualTo(dogs.get(0).getDescription());
+        Assertions.assertThat(actualMessage.getParameters().get("text")).isEqualTo(text);
         Assertions.assertThat(actualMessage.getParameters().get("reply_markup"))
                 .isEqualTo(inlineKeyboardMarkup);
     }
@@ -808,14 +815,18 @@ public class InfoManagerMockTest {
                         PET_INFORMATION)
         )).thenReturn(inlineKeyboardMarkup);
 
+        String description = animal.getDescription();
+        String nursery = animal.getNursery().getNameShelter();
+        String text = String.format("%s\n%s: %s", description, "Приют", nursery);
+
         SendMessage sendMessage = new AnswerMethodFactory().getSendMessage(
                 callbackQuery.message().chat().id(),
-                animal.getDescription(),
+                text,
                 inlineKeyboardMarkup
         );
 
         when(answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
-                animal.getDescription(),
+                text,
                 keyboardFactory.getInlineKeyboard(
                         List.of("Следующее фото c описанием",
                                 "Назад"),
@@ -831,7 +842,7 @@ public class InfoManagerMockTest {
 
         Assertions.assertThat(actual.getParameters().get("chat_id")).isEqualTo(1874598997L);
         Assertions.assertThat(actual.getParameters().get("text")).isEqualTo(
-                animal.getDescription());
+                text);
         Assertions.assertThat(actual.getParameters().get("reply_markup"))
                 .isEqualTo(inlineKeyboardMarkup);
 
@@ -862,14 +873,18 @@ public class InfoManagerMockTest {
                         PET_INFORMATION)
         )).thenReturn(inlineKeyboardMarkup);
 
+        String description = animal.getDescription();
+        String nursery = animal.getNursery().getNameShelter();
+        String text = String.format("%s\n%s: %s", description, "Приют", nursery);
+
         SendMessage sendMessage = new AnswerMethodFactory().getSendMessage(
                 callbackQuery.message().chat().id(),
-                dogs.get((int) randomIndex).getDescription(),
+                text,
                 inlineKeyboardMarkup
         );
 
         when(answerMethodFactory.getSendMessage(callbackQuery.message().chat().id(),
-                animal.getDescription(),
+                text,
                 keyboardFactory.getInlineKeyboard(
                         List.of("Следующее фото c описанием",
                                 "Назад"),
@@ -885,7 +900,7 @@ public class InfoManagerMockTest {
 
         Assertions.assertThat(actual.getParameters().get("chat_id")).isEqualTo(1874598997L);
         Assertions.assertThat(actual.getParameters().get("text")).isEqualTo(
-                animal.getDescription());
+                text);
         Assertions.assertThat(actual.getParameters().get("reply_markup"))
                 .isEqualTo(inlineKeyboardMarkup);
     }

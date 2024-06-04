@@ -11,11 +11,10 @@ import ru.pet.nursery.factory.KeyboardFactory;
 import ru.pet.nursery.manager.AbstractManager;
 import ru.pet.nursery.repository.VolunteerRepo;
 import ru.pet.nursery.web.service.VolunteerService;
-
 import java.util.List;
 
 import static ru.pet.nursery.data.CallbackData.*;
-import static ru.pet.nursery.data.CallbackData.START;
+
 
 @Component
 public class VolunteerManager extends AbstractManager {
@@ -74,7 +73,7 @@ public class VolunteerManager extends AbstractManager {
         } else {
             String answerMessageWithoutVolunteer = """
                     Все волонтеры заняты. Вам ответит первый освободившийся работник.
-                            """;
+                    """;
             SendMessage sendMessageWithoutVolunteer = answerMethodFactory.getSendMessage(
                     userChatId,
                     answerMessageWithoutVolunteer,

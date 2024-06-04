@@ -11,7 +11,7 @@ import ru.pet.nursery.factory.KeyboardFactory;
 import ru.pet.nursery.manager.AbstractManager;
 import java.util.List;
 
-import static ru.pet.nursery.data.CallbackData.*;
+import static ru.pet.nursery.enumerations.CallbackDataEnum.*;
 
 @Component
 public class StartManager extends AbstractManager {
@@ -41,7 +41,7 @@ public class StartManager extends AbstractManager {
         InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory.getInlineKeyboard(
                 List.of("информация", "отчёт", "связь с волонтером"),
                 List.of(1, 2),
-                List.of(INFO, REPORT, VOLUNTEER)
+                List.of(INFO.toString(), REPORT.toString(), VOLUNTEER.toString())
         );
         var chatId = update.message().chat().id();
         SendMessage sendMessage = answerMethodFactory.getSendMessage(chatId, answerMessage, inlineKeyboardMarkup);
@@ -66,7 +66,7 @@ public class StartManager extends AbstractManager {
         InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory.getInlineKeyboard(
                 List.of("информация", "отчёт", "связь с волонтером"),
                 List.of(1, 2),
-                List.of(INFO, REPORT, VOLUNTEER)
+                List.of(INFO.toString(), REPORT.toString(), VOLUNTEER.toString())
         );
         var chatId = callbackQuery.message().chat().id();
         SendMessage sendMessage = answerMethodFactory.getSendMessage(chatId, answerMessage, inlineKeyboardMarkup);

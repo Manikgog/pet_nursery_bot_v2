@@ -12,6 +12,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import ru.pet.nursery.entity.User;
+import ru.pet.nursery.repository.AnimalRepo;
+import ru.pet.nursery.repository.ReportRepo;
 import ru.pet.nursery.repository.UserRepo;
 import ru.pet.nursery.web.exception.UserNotFoundException;
 import ru.pet.nursery.web.exception.UserNotValidException;
@@ -28,6 +30,10 @@ import static org.mockito.Mockito.*;
 class UserServiceTest {
     @Mock
     private UserRepo userRepo;
+    @Mock
+    private ReportRepo reportRepo;
+    @Mock
+    private AnimalRepo animalRepo;
     @InjectMocks
     private UserService userService;
 
@@ -143,10 +149,14 @@ class UserServiceTest {
         when(userRepo.save(expected)).thenReturn(expected);
         userService.addUser(expected);
         when(userRepo.findById(expected.getTelegramUserId())).thenReturn(Optional.of(expected));
+        when(reportRepo.findByUser(expected)).thenReturn(new ArrayList<>());
+        when(animalRepo.findByUser(expected)).thenReturn(new ArrayList<>());
         assertThat(userService.removeUser(expected.getTelegramUserId())).isEqualTo(expected);
         userList.remove(expected);
         assertThat(userService.getAll()).doesNotContain(expected);
     }
+
+
     @Test
     void removeUserNegativeTest() {
         when(userRepo.findById(11L)).thenThrow(UserNotFoundException.class);

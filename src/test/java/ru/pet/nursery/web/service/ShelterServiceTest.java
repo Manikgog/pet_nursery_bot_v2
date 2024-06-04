@@ -10,12 +10,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import ru.pet.nursery.entity.Nursery;
+import ru.pet.nursery.repository.AnimalRepo;
 import ru.pet.nursery.repository.ShelterRepo;
 import ru.pet.nursery.web.exception.IllegalParameterException;
 import ru.pet.nursery.web.exception.ShelterNotFoundException;
 import ru.pet.nursery.web.exception.ShelterNullException;
-
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -31,6 +30,8 @@ import static org.mockito.Mockito.when;
 class ShelterServiceTest {
     @Mock
     private ShelterRepo shelterRepo;
+    @Mock
+    private AnimalRepo animalRepo;
     @InjectMocks
     private ShelterService shelterService;
 
@@ -113,6 +114,7 @@ class ShelterServiceTest {
         when(shelterRepo.save(expected)).thenReturn(expected);
         shelterService.addShelter(expected);
         when(shelterRepo.findById(expected.getId())).thenReturn(Optional.of(expected));
+        when(animalRepo.findByNursery(expected)).thenReturn(new ArrayList<>());
         assertThat(shelterService.removeShelter(expected.getId())).isEqualTo(expected);
         nurseryList.remove(expected);
         assertThat(shelterService.getAll()).doesNotContain(expected);

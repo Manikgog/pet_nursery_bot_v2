@@ -218,7 +218,7 @@ class UserControllerTestRestTemplateTest {
         String created = deleteUser.getBody();
         assertThat(deleteUser.getBody()).isNotNull();
         assertThat(deleteUser.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-        assertThat(created).isEqualTo("Пользователя с таким ID = " + user.getTelegramUserId() + " не существует");
+        assertThat(created).isEqualTo("Ресурс с id = " + user.getTelegramUserId() + " не найден");
     }
 
     @Test

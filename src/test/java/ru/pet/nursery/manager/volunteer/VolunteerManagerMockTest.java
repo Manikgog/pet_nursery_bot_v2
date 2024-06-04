@@ -29,8 +29,7 @@ import java.util.Objects;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
-import static ru.pet.nursery.data.CallbackData.CLOSE_CHAT;
-import static ru.pet.nursery.data.CallbackData.START;
+import static ru.pet.nursery.data.CallbackData.*;
 
 @ExtendWith(MockitoExtension.class)
 class VolunteerManagerMockTest {
@@ -52,34 +51,141 @@ class VolunteerManagerMockTest {
     private final AnswerMethodFactory answerMethodFactory_ = new AnswerMethodFactory();
 
     @Test
-    void answerCommand_Test() throws IOException {
+    void answerCommand_TestByVolunteerIsActive() throws IOException {
         Update update = getUpdate("update_volunteer.json");
 
+        Volunteer volunteer = new Volunteer();
+
+        volunteer.setName("Name");
+        volunteer.setId(1);
+        volunteer.setActive(true);
+        volunteer.setPhoneNumber("+7 654-987-3214");
+        volunteer.setTelegramUserId(123);
         String answerMessage = """
-                  // связь с волонтером через телеграм
+                  // Задайте вопрос волонтеру.
                 """;
+        String startMessageToVolunteer = """
+                   Вопрос у пользователя
+                """ + "@" + update.message().chat().username();
+
+
+        when(volunteerRepo.getVolunteerIsActive()).thenReturn(volunteer);
+
+        InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory_.getInlineKeyboard(
+                List.of("Назад"),
+                List.of(1),
+                List.of(START.toString())
+        );
+
+        when(keyboardFactory.getInlineKeyboard(List.of("Назад"),
+                List.of(1),
+                List.of(START.toString()))).thenReturn(inlineKeyboardMarkup);
 
         when(answerMethodFactory.getSendMessage(
                 update.message().chat().id(),
                 answerMessage,
-                null
+                inlineKeyboardMarkup
         )).thenReturn(
                 answerMethodFactory_.getSendMessage(
                         update.message().chat().id(),
                         answerMessage,
-                        null
+                        inlineKeyboardMarkup
                 )
         );
 
+        InlineKeyboardMarkup inlineKeyboardMarkup1 = keyboardFactory_.getInlineKeyboard(
+                List.of("Закрыть чат"),
+                List.of(1),
+                List.of(CLOSE_CHAT.toString())
+        );
+
+        when(keyboardFactory.getInlineKeyboard(List.of("Закрыть чат"),
+                List.of(1),
+                List.of(CLOSE_CHAT.toString()))).thenReturn(inlineKeyboardMarkup1);
+
+        SendMessage sendMessageToVolunteer = answerMethodFactory_.getSendMessage(
+                volunteer.getTelegramUserId(),
+                startMessageToVolunteer,
+                inlineKeyboardMarkup1
+                );
+
+        when(answerMethodFactory.getSendMessage(
+                volunteer.getTelegramUserId(),
+                startMessageToVolunteer,
+                inlineKeyboardMarkup1
+        )).thenReturn(sendMessageToVolunteer);
+
         volunteerManager.answerCommand(update);
 
-        ArgumentCaptor<SendMessage> argumentCaptor = ArgumentCaptor.forClass(SendMessage.class);
-        Mockito.verify(telegramBot).execute(argumentCaptor.capture());
-        SendMessage actual = argumentCaptor.getValue();
+        ArgumentCaptor<SendMessage> argumentCaptorStartMessageToVolunteer = ArgumentCaptor.forClass(SendMessage.class);
+        Mockito.verify(telegramBot, times(2)).execute(argumentCaptorStartMessageToVolunteer.capture());
+        SendMessage actual = argumentCaptorStartMessageToVolunteer.getValue();
+
+        Assertions.assertThat(actual.getParameters().get("chat_id")).isEqualTo(123L);
+        Assertions.assertThat(actual.getParameters().get("text")).isEqualTo(startMessageToVolunteer);
+        Assertions.assertThat(actual.getParameters().get("reply_markup"))
+                .isEqualTo(inlineKeyboardMarkup1);
+
+    }
+
+
+    @Test
+    void answerCommand_TestByVolunteerIsNotActive() throws IOException {
+        Update update = getUpdate("update_volunteer.json");
+
+        String answerMessage = """
+                  // Задайте вопрос волонтеру.
+                """;
+        String answerMessageWithoutVolunteer = """
+                    Все волонтеры заняты. Вам ответит первый освободившийся работник.
+                    """;
+
+
+        when(volunteerRepo.getVolunteerIsActive()).thenReturn(null);
+
+        InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory_.getInlineKeyboard(
+                List.of("Назад"),
+                List.of(1),
+                List.of(START)
+        );
+
+        when(keyboardFactory.getInlineKeyboard(List.of("Назад"),
+                List.of(1),
+                List.of(START))).thenReturn(inlineKeyboardMarkup);
+
+        when(answerMethodFactory.getSendMessage(
+                update.message().chat().id(),
+                answerMessage,
+                inlineKeyboardMarkup
+        )).thenReturn(
+                answerMethodFactory_.getSendMessage(
+                        update.message().chat().id(),
+                        answerMessage,
+                        inlineKeyboardMarkup
+                )
+        );
+
+
+        SendMessage sendMessageToUser = answerMethodFactory_.getSendMessage(
+                update.message().chat().id(),
+                answerMessageWithoutVolunteer,
+                null
+        );
+
+        when(answerMethodFactory.getSendMessage(
+                update.message().chat().id(),
+                answerMessageWithoutVolunteer,
+                null
+        )).thenReturn(sendMessageToUser);
+
+        volunteerManager.answerCommand(update);
+
+        ArgumentCaptor<SendMessage> argumentCaptorAnswerMessage = ArgumentCaptor.forClass(SendMessage.class);
+        Mockito.verify(telegramBot, times(2)).execute(argumentCaptorAnswerMessage.capture());
+        SendMessage actual = argumentCaptorAnswerMessage.getValue();
 
         Assertions.assertThat(actual.getParameters().get("chat_id")).isEqualTo(1874598997L);
-        Assertions.assertThat(actual.getParameters().get("text")).isEqualTo(
-                answerMessage);
+        Assertions.assertThat(actual.getParameters().get("text")).isEqualTo(answerMessageWithoutVolunteer);
 
     }
 
@@ -97,20 +203,22 @@ class VolunteerManagerMockTest {
                 """ + "@" + callbackQuery.message().chat().username();
 
         long userChatId = callbackQuery.message().chat().id();
-        SendMessage sendMessageToUser = answerMethodFactory_.getSendMessage(
-                userChatId,
-                answerMessage,
-                keyboardFactory_.getInlineKeyboard(
-                        List.of("Назад"),
-                        List.of(1),
-                        List.of(START)
-                ));
 
         InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory_.getInlineKeyboard(
                 List.of("Назад"),
                 List.of(1),
                 List.of(START)
         );
+
+        when(keyboardFactory.getInlineKeyboard(List.of("Назад"),
+                List.of(1),
+                List.of(START))).thenReturn(inlineKeyboardMarkup);
+
+        SendMessage sendMessageToUser = answerMethodFactory_.getSendMessage(
+                userChatId,
+                answerMessage,
+                inlineKeyboardMarkup);
+
 
         when(answerMethodFactory.getSendMessage(
                 userChatId,
@@ -132,11 +240,15 @@ class VolunteerManagerMockTest {
                 List.of(1),
                 List.of(CLOSE_CHAT)
         );
+
+        when(keyboardFactory.getInlineKeyboard(List.of("Закрыть чат"),
+                List.of(1),
+                List.of(CLOSE_CHAT))).thenReturn(volunteerKeyboard);
+
         SendMessage sendMessageToVolunteer = answerMethodFactory_.getSendMessage(
                 volunteer.getTelegramUserId(),
                 startMessageToVolunteer,
                 volunteerKeyboard);
-
 
         when(answerMethodFactory.getSendMessage(
                         volunteer.getTelegramUserId(),
@@ -150,21 +262,12 @@ class VolunteerManagerMockTest {
         volunteerManager.answerCallbackQuery(callbackQuery);
 
         ArgumentCaptor<SendMessage> argumentCaptor = ArgumentCaptor.forClass(SendMessage.class);
-        Mockito.verify(telegramBot, times(1)).execute(argumentCaptor.capture());
+        Mockito.verify(telegramBot, times(2)).execute(argumentCaptor.capture());
         SendMessage actual = argumentCaptor.getValue();
-
-        Assertions.assertThat(actual.getParameters().get("chat_id")).isEqualTo(1874598997L);
-        Assertions.assertThat(actual.getParameters().get("text")).isEqualTo(
-                startMessageToVolunteer);
-        Assertions.assertThat(actual.getParameters().get("reply_markup"))
-                .isEqualTo(inlineKeyboardMarkup);
-
-        argumentCaptor = ArgumentCaptor.forClass(SendMessage.class);
-        actual = argumentCaptor.getValue();
 
         Assertions.assertThat(actual.getParameters().get("chat_id")).isEqualTo(123L);
         Assertions.assertThat(actual.getParameters().get("text")).isEqualTo(
-                answerMessage);
+                startMessageToVolunteer);
         Assertions.assertThat(actual.getParameters().get("reply_markup"))
                 .isEqualTo(volunteerKeyboard);
 
