@@ -1,13 +1,11 @@
 package ru.pet.nursery.handler;
 
-import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.pet.nursery.data.MessageData;
-import ru.pet.nursery.entity.User;
 import ru.pet.nursery.repository.UserRepo;
 
 import java.io.IOException;
@@ -27,7 +25,7 @@ public class Handler {
                    MessageHandler messageHandler,
                    ReportHandler reportHandler,
                    UserRepo userRepo,
-                   MessageData messageData){
+                   MessageData messageData) {
         this.callbackQueryHandler = callbackQueryHandler;
         this.commandHandler = commandHandler;
         this.messageHandler = messageHandler;
@@ -35,11 +33,11 @@ public class Handler {
         this.userRepo = userRepo;
         this.messageData = messageData;
     }
+
     public void answer(Update update) throws IOException {
         logger.info("Processing update in method answer of Handler class: {}", update);
-        if(update.callbackQuery() != null){
-            addUserByCallbackQuery(update.callbackQuery());
-            if(messageData.chatIdReportStatus.containsKey(update.callbackQuery().message().chat().id())){
+        if (update.callbackQuery() != null) {
+            if (messageData.chatIdReportStatus.containsKey(update.callbackQuery().message().chat().id())) {
                 reportHandler.answer(update);
                 return;
             }
@@ -47,16 +45,15 @@ public class Handler {
             callbackQueryHandler.answer(update);
             return;
         }
-        if(update.message() != null){
-            addUserByMessage(update.message());
-            if(messageData.chatIdReportStatus.containsKey(update.message().chat().id())){
+        if (update.message() != null) {
+            if (messageData.chatIdReportStatus.containsKey(update.message().chat().id())) {
                 reportHandler.answer(update);
                 return;
             }
 
             Message message = update.message();
-            if(message.text() != null){
-                if(message.text().startsWith("/")){
+            if (message.text() != null) {
+                if (message.text().startsWith("/")) {
                     commandHandler.answer(update);
                     return;
                 }
@@ -66,27 +63,5 @@ public class Handler {
 
         logger.info("Неподдерживаемый update: " + update);
     }
-
-    private void addUserByMessage(Message message) {
-        if (userRepo.findById(message.chat().id()).isEmpty()) {
-            User user = new User();
-            user.setTelegramUserId(message.chat().id());
-            user.setFirstName(message.chat().firstName());
-            user.setLastName(message.chat().lastName());
-            user.setUserName(message.chat().username());
-            userRepo.save(user);
-        }
-    }
-
-    private void addUserByCallbackQuery(CallbackQuery callbackQuery){
-        Long chatId = callbackQuery.message().chat().id();
-        if (userRepo.findById(chatId).isEmpty()) {
-            User user = new User();
-            user.setTelegramUserId(chatId);
-            user.setFirstName(callbackQuery.message().chat().firstName());
-            user.setLastName(callbackQuery.message().chat().lastName());
-            user.setUserName(callbackQuery.message().chat().username());
-            userRepo.save(user);
-        }
-    }
 }
+
