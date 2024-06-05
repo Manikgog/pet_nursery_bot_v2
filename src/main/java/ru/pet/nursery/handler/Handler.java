@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.pet.nursery.data.MessageData;
-import ru.pet.nursery.repository.UserRepo;
 
 import java.io.IOException;
 
@@ -17,20 +16,17 @@ public class Handler {
     private final CommandHandler commandHandler;
     private final MessageHandler messageHandler;
     private final ReportHandler reportHandler;
-    private final UserRepo userRepo;
     private final MessageData messageData;
 
     public Handler(CallbackQueryHandler callbackQueryHandler,
                    CommandHandler commandHandler,
                    MessageHandler messageHandler,
                    ReportHandler reportHandler,
-                   UserRepo userRepo,
                    MessageData messageData) {
         this.callbackQueryHandler = callbackQueryHandler;
         this.commandHandler = commandHandler;
         this.messageHandler = messageHandler;
         this.reportHandler = reportHandler;
-        this.userRepo = userRepo;
         this.messageData = messageData;
     }
 

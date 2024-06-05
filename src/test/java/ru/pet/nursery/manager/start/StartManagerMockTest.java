@@ -6,7 +6,6 @@ import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.SendMessage;
-import net.datafaker.Faker;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,7 +26,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static org.mockito.Mockito.when;
-import static ru.pet.nursery.data.CallbackData.*;
 import static ru.pet.nursery.enumerations.CallbackDataEnum.INFO;
 import static ru.pet.nursery.enumerations.CallbackDataEnum.REPORT;
 import static ru.pet.nursery.enumerations.CallbackDataEnum.VOLUNTEER;
@@ -44,7 +42,6 @@ class StartManagerMockTest {
     KeyboardFactory keyboardFactory;
     @InjectMocks
     StartManager startManager;
-    private final Faker faker = new Faker();
 
     private final KeyboardFactory keyboardFactory_ = new KeyboardFactory();
     private final AnswerMethodFactory answerMethodFactory_ = new AnswerMethodFactory();
@@ -64,7 +61,7 @@ class StartManagerMockTest {
                 с приютами для животных города Астана.
                 *********************************************
                 """;
-        InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory.getInlineKeyboard(
+        InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory_.getInlineKeyboard(
                 List.of("информация", "отчёт", "связь с волонтером"),
                 List.of(1, 2),
                 List.of(INFO.toString(), REPORT.toString(), VOLUNTEER.toString())
@@ -116,7 +113,7 @@ class StartManagerMockTest {
                 Тогда выбирай приют в соответствующем разделе!
                 *********************************************
                 """;
-        InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory.getInlineKeyboard(
+        InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory_.getInlineKeyboard(
                 List.of("информация", "отчёт", "связь с волонтером"),
                 List.of(1, 2),
                 List.of(INFO.toString(), REPORT.toString(), VOLUNTEER.toString())
@@ -169,7 +166,7 @@ class StartManagerMockTest {
                 с приютами для животных города Астана.
                 *********************************************
                 """;
-        InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory.getInlineKeyboard(
+        InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory_.getInlineKeyboard(
                 List.of("информация", "отчёт", "связь с волонтером"),
                 List.of(1, 2),
                 List.of(INFO.toString(), REPORT.toString(), VOLUNTEER.toString())
@@ -221,7 +218,7 @@ class StartManagerMockTest {
                 Тогда выбирай приют в соответствующем разделе!
                 *********************************************
                 """;
-        InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory.getInlineKeyboard(
+        InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory_.getInlineKeyboard(
                 List.of("информация", "отчёт", "связь с волонтером"),
                 List.of(1, 2),
                 List.of(INFO.toString(), REPORT.toString(), VOLUNTEER.toString())
@@ -259,55 +256,6 @@ class StartManagerMockTest {
         Assertions.assertThat(actual.getParameters().get("reply_markup"))
                 .isEqualTo(inlineKeyboardMarkup);
     }
-
-//    @Test
-//    void answerCallbackQuery_Test() throws IOException {
-//        CallbackQuery callbackQuery = readJsonFromResource("callback_query_start.json");
-//        String answerMessage = """
-//                Приветствую, Дорогой друг! Добро пожаловать!)
-//                Я - твой помощник по взаимодействию
-//                с приютами для животных города Астана.
-//                *********************************************
-//                """;
-//        InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory.getInlineKeyboard(
-//                List.of("информация", "отчёт", "связь с волонтером"),
-//                List.of(1, 2),
-//                List.of(INFO, REPORT, VOLUNTEER)
-//        );
-//
-//        when(keyboardFactory.getInlineKeyboard(
-//                List.of("информация", "отчёт", "связь с волонтером"),
-//                List.of(1, 2),
-//                List.of(INFO, REPORT, VOLUNTEER)
-//        )).thenReturn(
-//                inlineKeyboardMarkup
-//        );
-//
-//        when(answerMethodFactory.getSendMessage(
-//                callbackQuery.message().chat().id(),
-//                answerMessage,
-//                inlineKeyboardMarkup
-//        )).thenReturn(
-//                answerMethodFactory_.getSendMessage(
-//                        callbackQuery.message().chat().id(),
-//                        answerMessage,
-//                        inlineKeyboardMarkup
-//                )
-//        );
-//
-//        startManager.answerCallbackQuery(callbackQuery);
-//
-//        ArgumentCaptor<SendMessage> argumentCaptor = ArgumentCaptor.forClass(SendMessage.class);
-//        Mockito.verify(telegramBot).execute(argumentCaptor.capture());
-//        SendMessage actual = argumentCaptor.getValue();
-//
-//        Assertions.assertThat(actual.getParameters().get("chat_id")).isEqualTo(1874598997L);
-//        Assertions.assertThat(actual.getParameters().get("text")).isEqualTo(
-//                answerMessage);
-//        Assertions.assertThat(actual.getParameters().get("reply_markup"))
-//                .isEqualTo(inlineKeyboardMarkup);
-//
-//    }
 
     private Update getUpdate(String filename) throws IOException {
         String strPath = System.getProperty("user.dir");
