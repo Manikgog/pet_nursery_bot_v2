@@ -30,20 +30,26 @@ public class Notifier {
     }
 
 
-    @Scheduled(fixedDelay = 12, timeUnit = TimeUnit.HOURS)
+    @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.DAYS)
     public void run() {
-        reportService.findByPetReturnDate().forEach(report -> {
+        reportService.findByPetReturnDate().stream().filter(report ->
+                !report.isPhotoIsAccepted() &&
+                        !report.isBehaviourIsAccepted() &&
+                        !report.isDietIsAccepted() &&
+                        !report.isHealthIsAccepted()
+        ).forEach(report -> {
             SendMessage message = new SendMessage(report.getUser()
                     .getTelegramUserId(), "У вас есть пропуск по отчётам. Пожалуйста, отправьте отчёт по животному за просроченный период.");
             telegramBot.execute(message);
             report.setReportDate(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).plusDays(1));
         });
     }
+
     @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.DAYS)
     public void completionOfTheAdaptationPeriod() {
         animalService.adoptionPeriod().forEach(animal -> {
             SendMessage message = new SendMessage(animal.getUser().getTelegramUserId(),
-                    "У вас заканчивается адаптационный период "+animal.getPetReturnDate()+" у питомца "+animal.getAnimalName()+" " +
+                    "У вас заканчивается адаптационный период " + animal.getPetReturnDate() + " у питомца " + animal.getAnimalName() + " " +
                             ", пожалуйста свяжитесь с волонтером для продления срока пребывания");
             telegramBot.execute(message);
             List<Volunteer> volunteerList = volunteerService.findIsActive();

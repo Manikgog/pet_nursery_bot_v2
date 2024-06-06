@@ -2,6 +2,7 @@ package ru.pet.nursery.web.service;
 
 import net.datafaker.Faker;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,7 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
@@ -33,6 +36,20 @@ public class VolunteerServiceMockTest {
     @InjectMocks
     VolunteerService volunteerService;
     private final Faker faker = new Faker();
+
+    private final List<Volunteer> volunteerList = new ArrayList<>();
+
+    @BeforeEach
+    public void beforeEach () {
+        for (int i = 0; i < 5; i++) {
+            Volunteer volunteer = new Volunteer();
+            volunteer.setName(faker.name().firstName());
+            volunteer.setPhoneNumber(faker.phoneNumber().cellPhone());
+            volunteer.setActive(faker.random().nextBoolean());
+            volunteer.setTelegramUserId(faker.random().nextInt());
+            volunteerList.add(volunteer);
+        }
+    }
 
     /**
      * Метод для проверки правильности работы
@@ -331,4 +348,10 @@ public class VolunteerServiceMockTest {
     }
 
 
+    @Test
+    public void findIsActivePositiveTest(){
+        List<Volunteer> volunteerIsActive = volunteerList.stream().filter(volunteer -> volunteer.isActive()).collect(Collectors.toList());
+        when(volunteerRepo.findByIsActiveTrue()).thenReturn(volunteerIsActive);
+        assertThat(volunteerService.findIsActive()).isEqualTo(volunteerIsActive).size();
+    }
 }

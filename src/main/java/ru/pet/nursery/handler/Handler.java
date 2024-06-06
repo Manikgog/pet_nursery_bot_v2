@@ -64,7 +64,7 @@ public class Handler {
             messageHandler.answer(update);
         }
 
-        logger.info("Неподдерживаемый update: " + update);
+        logger.info("Неподдерживаемый update: {}", update);
     }
 
     private void addUserByMessage(Message message) {
