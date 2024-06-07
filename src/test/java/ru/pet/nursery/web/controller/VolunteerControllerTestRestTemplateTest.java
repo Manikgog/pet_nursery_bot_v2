@@ -406,13 +406,14 @@ public class VolunteerControllerTestRestTemplateTest {
      * при валидных входных параметрах
      */
     @Test
-    public void putName_positiveTest() {
+    public void updateName_positiveTest() {
         List<Volunteer> volunteersFromDB = volunteerRepo.findAll();
         for (int i = 0; i < NUMBER_OF_VOLUNTEERS; i++) {
             Volunteer volunteer = volunteersFromDB.get(faker.random().nextInt(1, volunteersFromDB.size() - 1));
             int id = volunteer.getId();
             String name = faker.name().firstName();
             ResponseEntity<Volunteer> responseEntity = testRestTemplate.exchange(
+                    ///volunteer/updateStatus?id={id}&status={status}
                     "http://localhost:" + port + "/volunteer/updateName?id={id}&name={newName}",
                     HttpMethod.PUT,
                     HttpEntity.EMPTY,
@@ -574,11 +575,11 @@ public class VolunteerControllerTestRestTemplateTest {
             int id = getNotValidId(volunteersFromDB);
             String newPhone = faker.phoneNumber().phoneNumberInternational().substring(0, 15);
             ResponseEntity<String> responseEntity = testRestTemplate.exchange(
-                    "http://localhost:" + port + "/volunteer/updatePhone?id={id}&phone={newPhone}",
+                    "http://localhost:" + port + "/volunteer/updatePhone?id={id}&phone={phone}",
                     HttpMethod.PUT,
                     HttpEntity.EMPTY,
                     String.class,
-                    Map.of("id", id, "newPhone", newPhone));
+                    Map.of("id", id, "phone", newPhone));
 
             Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
             Assertions.assertThat(responseEntity.getBody()).isNotNull();

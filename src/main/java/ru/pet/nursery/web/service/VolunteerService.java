@@ -132,4 +132,8 @@ public class VolunteerService implements IVolunteerService {
     public List<Volunteer> getAll() {
         return volunteerRepo.findAll();
     }
+
+    public List<Volunteer> findIsActive() {
+        return volunteerRepo.findByIsActiveTrue();
+    }
 }
