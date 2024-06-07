@@ -15,5 +15,5 @@ public interface AnimalRepo extends JpaRepository<Animal, Long> {
     List<Animal> findByUserIsNull(PageRequest pageRequest);
     List<Animal> findByPetReturnDate(LocalDate localDate);
     List<Animal> findByNursery(Nursery nursery);
-
+    List<Animal> findByUserIsNotNull();
 }
