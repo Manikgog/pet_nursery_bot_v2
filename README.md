@@ -21,4 +21,4 @@ java -jar nursery-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod --spring.data
 Также для сотрудников приюта предусмотрен API, который может управлять списком волонтеров, назначать усыновителей для домашних животных, просматривать отчеты усыновителей об их питомцах и т.д.
 Для взаимодействия с API предусмотрен swagger-UI, доступный на:
 
-http://localhost:8080/shelter/swagger-ui/index.html#/
+http://localhost:8080/swagger-ui/index.html#/
