@@ -270,7 +270,14 @@ public class AnimalService implements IAnimalService {
         return animalRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
     }
 
+
+    /**
+     * Метод возвращает список взятых на попечение животных,
+     * у которых дата окончания испытательного срока совпадает
+     * с сегодняшней датой
+     * @return список животных
+     */
     public List<Animal> adoptionPeriod() {
-        return animalRepo.findByPetReturnDate(LocalDate.now());
+        return animalRepo.findByUserIsNotNull().stream().filter(a -> a.getPetReturnDate().isEqual(LocalDate.now())).toList();
     }
 }

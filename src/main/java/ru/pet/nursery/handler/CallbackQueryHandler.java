@@ -7,12 +7,14 @@ import com.pengrad.telegrambot.request.SendMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import ru.pet.nursery.enumerations.CallbackDataEnum;
 import ru.pet.nursery.manager.info.InfoManager;
 import ru.pet.nursery.manager.report.ReportManager;
 import ru.pet.nursery.manager.start.StartManager;
 import ru.pet.nursery.manager.volunteer.VolunteerManager;
 import java.io.IOException;
+
+import static ru.pet.nursery.data.CallbackData.*;
+
 
 @Service
 public class CallbackQueryHandler {
@@ -37,10 +39,8 @@ public class CallbackQueryHandler {
 
     public void answer(Update update) throws IOException {
         logger.info("Processing update in method answer of CallbackQueryHandler class: {}", update);
-        String callbackData = update.callbackQuery().data();
-        CallbackDataEnum callbackDataEnum = CallbackDataEnum.valueOf(callbackData.toUpperCase());
 
-        switch (callbackDataEnum) {
+        switch (update.callbackQuery().data()) {
             case INFO -> infoManager.answerCallbackQuery(update.callbackQuery());
             case REPORT -> reportManager.answerCallbackQuery(update.callbackQuery());
             case VOLUNTEER -> volunteerManager.answerCallbackQuery(update.callbackQuery());

@@ -12,12 +12,9 @@ import ru.pet.nursery.entity.User;
 import ru.pet.nursery.entity.Volunteer;
 import ru.pet.nursery.repository.AnimalRepo;
 import ru.pet.nursery.repository.ReportRepo;
-import ru.pet.nursery.web.service.AdoptedService;
 import ru.pet.nursery.web.service.AnimalService;
 import ru.pet.nursery.web.service.ReportService;
 import ru.pet.nursery.web.service.VolunteerService;
-
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -62,15 +59,14 @@ public class Notifier {
                     .stream()
                     .map(Animal::getUser)
                     .toList();
-            adopters.stream()
-                    .forEach(u -> {
+            adopters.forEach(u -> {
                         List<Report> reports = reportRepo.findByUser(u);
                         if (reports.isEmpty()) {
                             SendMessage message = new SendMessage(u.getTelegramUserId(), "У вас пока нет ни одного отчёта.");
                             telegramBot.execute(message);
                         } else {
                             reports = reports.stream()
-                                    .filter(r -> r.getReportDate().equals(LocalDateTime.now().minusDays(1).truncatedTo(ChronoUnit.DAYS)))
+                                    .filter(r -> r.getReportDate().equals(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS)))
                                     .toList();
                             if (reports.isEmpty()) {
                                 SendMessage message = new SendMessage(u.getTelegramUserId(), "Вы не отправили отчёт за " + LocalDate.now().minusDays(1) + ".");
@@ -89,7 +85,6 @@ public class Notifier {
                         }
                     });
         }
-
     }
 
     /**
@@ -102,15 +97,19 @@ public class Notifier {
                 .stream()
                 .map(Animal::getUser)
                 .toList();
-        adopters.stream()
-                .forEach(u -> {
+        adopters.forEach(u -> {
                     List<Report> reports = reportRepo.findByUser(u).stream().filter(report -> report.getReportDate()
                             .toLocalDate().isEqual(LocalDate.now().minusDays(1))).toList();
+                    LocalDate tookDate = animalRepo.findByUser(u).get(0).getTookDate();
+                    // если дата отчёта совпадает с датой когда питомца взяли из приюта, то отчёт не нужен
+                    if(LocalDate.now().minusDays(1).isEqual(tookDate)){
+                        return;
+                    }
                     if (reports.isEmpty()) {
                         List<Animal> animal = animalRepo.findByUser(u);
                         animal.get(0).setPetReturnDate(animal.get(0).getPetReturnDate().plusDays(1));
-                    }
-                    if (!reports.isEmpty()) {
+                        animalRepo.save(animal.get(0));
+                    }else {
                         if (!reports.get(0).isBehaviourIsAccepted() ||
                                 !reports.get(0).isDietIsAccepted() ||
                                 !reports.get(0).isHealthIsAccepted() ||

@@ -15,7 +15,7 @@ import ru.pet.nursery.repository.UserRepo;
 
 import java.util.List;
 
-import static ru.pet.nursery.enumerations.CallbackDataEnum.*;
+import static ru.pet.nursery.data.CallbackData.*;
 
 @Component
 public class StartManager extends AbstractManager {
@@ -79,7 +79,7 @@ public class StartManager extends AbstractManager {
         InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory.getInlineKeyboard(
                 List.of("информация", "отчёт", "связь с волонтером"),
                 List.of(1, 2),
-                List.of(INFO.toString(), REPORT.toString(), VOLUNTEER.toString())
+                List.of(INFO, REPORT, VOLUNTEER)
         );
         long chatId = update.message().chat().id();
         SendMessage sendMessage = answerMethodFactory.getSendMessage(chatId, answerMessage, inlineKeyboardMarkup);
@@ -102,7 +102,7 @@ public class StartManager extends AbstractManager {
         InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory.getInlineKeyboard(
                 List.of("информация", "отчёт", "связь с волонтером"),
                 List.of(1, 2),
-                List.of(INFO.toString(), REPORT.toString(), VOLUNTEER.toString())
+                List.of(INFO, REPORT, VOLUNTEER)
         );
         long chatId = update.message().chat().id();
         SendMessage sendMessage = answerMethodFactory.getSendMessage(chatId, answerMessage, inlineKeyboardMarkup);
@@ -127,7 +127,7 @@ public class StartManager extends AbstractManager {
         InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory.getInlineKeyboard(
                 List.of("информация", "отчёт", "связь с волонтером"),
                 List.of(1, 2),
-                List.of(INFO.toString(), REPORT.toString(), VOLUNTEER.toString())
+                List.of(INFO, REPORT, VOLUNTEER)
         );
         long chatId = callbackQuery.message().chat().id();
         SendMessage sendMessage = answerMethodFactory.getSendMessage(chatId, answerMessage, inlineKeyboardMarkup);
@@ -150,7 +150,7 @@ public class StartManager extends AbstractManager {
         InlineKeyboardMarkup inlineKeyboardMarkup = keyboardFactory.getInlineKeyboard(
                 List.of("информация", "отчёт", "связь с волонтером"),
                 List.of(1, 2),
-                List.of(INFO.toString(), REPORT.toString(), VOLUNTEER.toString())
+                List.of(INFO, REPORT, VOLUNTEER)
         );
         long chatId = callbackQuery.message().chat().id();
         SendMessage sendMessage = answerMethodFactory.getSendMessage(chatId, answerMessage, inlineKeyboardMarkup);

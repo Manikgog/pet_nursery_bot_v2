@@ -38,7 +38,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static ru.pet.nursery.data.ReportStatus.*;
-import static ru.pet.nursery.enumerations.CallbackDataEnum.*;
+import static ru.pet.nursery.data.CallbackData.*;
 
 @Component
 public class ReportManager extends AbstractManager {
@@ -86,7 +86,7 @@ public class ReportManager extends AbstractManager {
                                 "здоровье питомца",
                                 "назад"),
                         List.of(1, 1, 1, 1, 1, 1),
-                        List.of(INSTRUCTION.toString(), FOTO.toString(), BEHAVIOUR.toString(), DIET.toString(), HEALTH.toString(), START.toString())
+                        List.of(INSTRUCTION, FOTO, BEHAVIOUR, DIET, HEALTH, START)
                 ));
         telegramBot.execute(sendMessage);
     }
@@ -107,7 +107,7 @@ public class ReportManager extends AbstractManager {
                                 "здоровье питомца",
                                 "назад"),
                         List.of(1, 1, 1, 1, 1, 1),
-                        List.of(INSTRUCTION.toString(), FOTO.toString(), BEHAVIOUR.toString(), DIET.toString(), HEALTH.toString(), START.toString())
+                        List.of(INSTRUCTION, FOTO, BEHAVIOUR, DIET, HEALTH, START)
                 ));
         telegramBot.execute(sendMessage);
     }
@@ -128,7 +128,7 @@ public class ReportManager extends AbstractManager {
                 keyboardFactory.getInlineKeyboard(
                         List.of("назад"),
                         List.of(1),
-                        List.of(BACK_TO_REPORT_MENU.toString())
+                        List.of(BACK_TO_REPORT_MENU)
                 ));
         telegramBot.execute(sendMessage);
     }
@@ -166,7 +166,7 @@ public class ReportManager extends AbstractManager {
                 keyboardFactory.getInlineKeyboard(
                         List.of("назад"),
                         List.of(1),
-                        List.of(BACK_TO_REPORT_MENU.toString())
+                        List.of(BACK_TO_REPORT_MENU)
                 )
         );
 
@@ -206,7 +206,7 @@ public class ReportManager extends AbstractManager {
                 keyboardFactory.getInlineKeyboard(
                         List.of("назад"),
                         List.of(1),
-                        List.of(BACK_TO_REPORT_MENU.toString())
+                        List.of(BACK_TO_REPORT_MENU)
                 )
         );
         telegramBot.execute(sendMessage);
@@ -246,7 +246,7 @@ public class ReportManager extends AbstractManager {
                 keyboardFactory.getInlineKeyboard(
                         List.of("назад"),
                         List.of(1),
-                        List.of(BACK_TO_REPORT_MENU.toString())
+                        List.of(BACK_TO_REPORT_MENU)
                 )
         );
         telegramBot.execute(sendMessage);
@@ -286,7 +286,7 @@ public class ReportManager extends AbstractManager {
                 keyboardFactory.getInlineKeyboard(
                         List.of("назад"),
                         List.of(1),
-                        List.of(BACK_TO_REPORT_MENU.toString())
+                        List.of(BACK_TO_REPORT_MENU)
                 )
         );
         telegramBot.execute(sendMessage);

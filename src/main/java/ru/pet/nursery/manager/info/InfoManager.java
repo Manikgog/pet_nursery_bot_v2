@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static ru.pet.nursery.enumerations.CallbackDataEnum.*;
+import static ru.pet.nursery.data.CallbackData.*;
 
 @Component
 public class InfoManager extends AbstractManager {
@@ -58,10 +58,9 @@ public class InfoManager extends AbstractManager {
                                 "Что нужно для усыновления",
                                 "Назад"),
                         List.of(1, 1, 1, 1),
-                        List.of(ADDRESS_AND_PHONE.toString(),
-                                PET_INFORMATION.toString(),
-                                WHAT_NEED_FOR_ADOPTION.toString(),
-                                START.toString())
+                        List.of(ADDRESS_AND_PHONE,
+                                PET_INFORMATION,
+                                WHAT_NEED_FOR_ADOPTION)
                 ));
 
         telegramBot.execute(sendMessage);
@@ -83,10 +82,10 @@ public class InfoManager extends AbstractManager {
                                 "Что нужно для усыновления",
                                 "Назад"),
                         List.of(1, 1, 1, 1),
-                        List.of(ADDRESS_AND_PHONE.toString(),
-                                PET_INFORMATION.toString(),
-                                WHAT_NEED_FOR_ADOPTION.toString(),
-                                START.toString())
+                        List.of(ADDRESS_AND_PHONE,
+                                PET_INFORMATION,
+                                WHAT_NEED_FOR_ADOPTION,
+                                START)
                 ));
         telegramBot.execute(sendMessage);
     }
@@ -125,7 +124,7 @@ public class InfoManager extends AbstractManager {
                 keyboardFactory.getInlineKeyboard(
                         List.of("Назад"),
                         List.of(1),
-                        List.of(INFO.toString())
+                        List.of(INFO)
                 ));
         telegramBot.execute(sendMessage);
     }
@@ -144,9 +143,9 @@ public class InfoManager extends AbstractManager {
                                 "Собаки",
                                 "Назад"),
                         List.of(1, 1, 1),
-                        List.of(CAT_PHOTO.toString(),
-                                DOG_PHOTO.toString(),
-                                INFO.toString())
+                        List.of(CAT_PHOTO,
+                                DOG_PHOTO,
+                                INFO)
                 ));
         telegramBot.execute(sendMessage);
     }
@@ -163,7 +162,7 @@ public class InfoManager extends AbstractManager {
                 keyboardFactory.getInlineKeyboard(
                         List.of("Назад"),
                         List.of(1),
-                        List.of(INFO.toString())
+                        List.of(INFO)
                 ));
         telegramBot.execute(sendMessage);
     }
@@ -207,8 +206,8 @@ public class InfoManager extends AbstractManager {
                             List.of("Следующее фото c описанием",
                                     "Назад"),
                             List.of(1, 1),
-                            List.of(DOG_PHOTO.toString(),
-                                    PET_INFORMATION.toString())
+                            List.of(DOG_PHOTO,
+                                    PET_INFORMATION)
                     ));
             telegramBot.execute(sendMessage);
             return;
@@ -261,8 +260,8 @@ public class InfoManager extends AbstractManager {
                             List.of("Следующее фото c описанием",
                                     "Назад"),
                             List.of(1, 1),
-                            List.of(DOG_PHOTO.toString(),
-                                    PET_INFORMATION.toString())
+                            List.of(DOG_PHOTO,
+                                    PET_INFORMATION)
                     ));
             telegramBot.execute(sendMessage);
             return;
@@ -335,8 +334,8 @@ public class InfoManager extends AbstractManager {
                             List.of("Следующее фото c описанием",
                                     "Назад"),
                             List.of(1, 1),
-                            List.of(CAT_PHOTO.toString(),
-                                    PET_INFORMATION.toString())
+                            List.of(CAT_PHOTO,
+                                    PET_INFORMATION)
                     ));
             telegramBot.execute(sendMessage);
         }
@@ -366,8 +365,8 @@ public class InfoManager extends AbstractManager {
                             List.of("Следующее фото c описанием",
                                     "Назад"),
                             List.of(1, 1),
-                            List.of(DOG_PHOTO.toString(),
-                                    PET_INFORMATION.toString())
+                            List.of(DOG_PHOTO,
+                                    PET_INFORMATION)
                     ));
             telegramBot.execute(sendMessage);
         }
