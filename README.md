@@ -22,3 +22,27 @@ java -jar nursery-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod --spring.data
 Для взаимодействия с API предусмотрен swagger-UI, доступный на:
 
 http://localhost:8080/swagger-ui/index.html#/
+
+## Стэк технологий
+* Язык и окружение
+  - Java 17
+  - Maven
+  - Spring Boot
+  - Spring Web
+  - Spring Data JPA
+  - REST
+  - Git
+  - Swagger
+  - Lombok
+  - Liquibase
+* База данных
+  - PostgreSQL
+* Тестирование
+  - JUnit
+  - Mockito
+* Прочее
+  - Docker
+ 
+## Авторы
+Гоголин Максим (https://github.com/Manikgog), Роман Ветчанин (https://github.com/Roman-Vetchanin), Александр Дубограев (https://github.com/ASanderD).
+
